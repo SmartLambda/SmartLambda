@@ -76,10 +76,6 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 
-
-
-
-
-
 #Custom Stuff
 .directory
+*.hprof
