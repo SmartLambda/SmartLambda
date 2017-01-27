@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda_main.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda_main.iml" group="smartlambda" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda_test.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda_test.iml" group="smartlambda" />
       <module fileurl="file://$PROJECT_DIR$/.idea/source.iml" filepath="$PROJECT_DIR$/.idea/source.iml" />
     </modules>
   </component>
