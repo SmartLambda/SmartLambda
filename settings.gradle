@@ -1,2 +1,4 @@
 rootProject.name = 'smartlambda'
+include 'execution'
+include 'lambda-test'
 
