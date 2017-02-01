@@ -1,8 +1,16 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+    id 'de.fuerstenau.buildconfig' version '1.1.7'
+}
+
 group 'edu.teco'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
+apply plugin: 'application'
 
+//noinspection GroovyUnusedAssignment
+mainClassName = "edu.teco.smartlambda.Application"
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 
@@ -25,4 +33,15 @@ dependencies {
 
     // test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+buildConfig {
+    appName = project.name
+    version = project.version
+    packageName = project.group + "." + project.name
+    if(Os.isFamily(Os.FAMILY_WINDOWS)) {
+        buildConfigField "String", "CONFIGURATION_PATH", "C:\\smartlambda.xml"
+    } else {
+        buildConfigField "String", "CONFIGURATION_PATH", "/etc/smartlambda/smartlambda.xml"
+    }
 }
