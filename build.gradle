@@ -25,6 +25,7 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.5.4'
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile 'org.apache.commons:commons-configuration2:2.1'
+    compile 'commons-beanutils:commons-beanutils:1.9.3'
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.1'
     compile 'org.hibernate:hibernate-core:5.2.6.Final'
 
@@ -41,7 +42,7 @@ buildConfig {
     version = project.version
     packageName = project.group + "." + project.name
     if(Os.isFamily(Os.FAMILY_WINDOWS)) {
-        buildConfigField "String", "CONFIGURATION_PATH", "C:\\smartlambda.xml"
+        buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda.xml"
     } else {
         buildConfigField "String", "CONFIGURATION_PATH", "/etc/smartlambda/smartlambda.xml"
     }
