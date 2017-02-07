@@ -6,10 +6,7 @@ apply plugin: 'java'
 sourceCompatibility = 1.8
 
 repositories {
-    // temporary OpenJDK bug workaround
-    maven {
-        url "http://uk.maven.org/maven2"
-    }
+    mavenCentral()
 }
 
 dependencies {
