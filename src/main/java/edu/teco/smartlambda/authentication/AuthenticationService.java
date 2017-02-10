@@ -1,4 +1,7 @@
 package edu.teco.smartlambda.authentication;
+import edu.teco.smartlambda.authentication.entities.*;
+
+import java.util.Optional;
 
 /**
  * Created by Jonathan on 01.02.17.
@@ -21,5 +24,21 @@ public class AuthenticationService {
 		
 	}
 	
+	public void authenticate(String key) {
+		
+	}
+	
+	public void authenticate(Key key) {
+		
+	}
 
+	public Optional<Key> getAuthenticatedKey() {
+		return Optional.empty();
+	}
+	
+	public Optional<User> getAuthenticatedUser() {
+		return Optional.empty();
+	}
+	
+	
 }
