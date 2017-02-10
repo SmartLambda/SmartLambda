@@ -18,6 +18,7 @@ public class LambdaExecutionServiceTest {
 	
 	@Test
 	public void testLambdaExection() throws IOException {
+		System.out.println(new File("temp").toURI().toString());
 		// the LambdaExectionService expects the lambda.jar existing
 		assert new File("lambda.jar").exists() : "the test lambda archive is missing";
 		
@@ -38,6 +39,6 @@ public class LambdaExecutionServiceTest {
 		Assert.assertNull(returnValue.getException());
 		Assert.assertNotNull(returnValue.getReturnValue());
 		
-		Assert.assertEquals("{\"demoReturnValue\": \"success\"]", returnValue.getReturnValue());
+		Assert.assertEquals("{\"demoReturnValue\":\"success\"}", returnValue.getReturnValue());
 	}
 }
