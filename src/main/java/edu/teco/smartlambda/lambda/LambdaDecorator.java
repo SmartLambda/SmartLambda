@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.schedule.Event;
 
