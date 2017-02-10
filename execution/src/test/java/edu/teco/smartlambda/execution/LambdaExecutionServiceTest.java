@@ -12,17 +12,19 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- *
+ * Unit tests for {@link LambdaExecutionService}
  */
 public class LambdaExecutionServiceTest {
 	
+	// TODO add more test cases
+	
 	@Test
-	public void testLambdaExection() throws IOException {
+	public void testLambdaExecution() throws IOException {
 		System.out.println(new File("temp").toURI().toString());
 		// the LambdaExectionService expects the lambda.jar existing
 		assert new File("lambda.jar").exists() : "the test lambda archive is missing";
 		
-		// start the exection service asynchronously
+		// start the execution service asynchronously
 		new Thread(LambdaExecutionService::main).start();
 		
 		final Gson             gson         = new GsonBuilder().create();
