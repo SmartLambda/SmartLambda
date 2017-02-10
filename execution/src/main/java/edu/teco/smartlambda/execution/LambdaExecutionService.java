@@ -19,7 +19,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * TODO javadoc
+ * The application that runs inside a virtual container and shall receive the lambda parameter, execute the lambda and return the return
+ * value
  */
 public class LambdaExecutionService {
 	
