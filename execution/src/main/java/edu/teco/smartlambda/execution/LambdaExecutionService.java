@@ -3,7 +3,6 @@ package edu.teco.smartlambda.execution;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.processor.LambdaMetaData;
-import lombok.Cleanup;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -46,10 +45,10 @@ public class LambdaExecutionService {
 	 */
 	public static void main(final String... args) {
 		
-		@Cleanup final ServerSocket     socket;
-		@Cleanup final Socket           clientSocket;
-		@Cleanup final DataInputStream  input;
-		@Cleanup final DataOutputStream output;
+		final ServerSocket     socket;
+		final Socket           clientSocket;
+		final DataInputStream  input;
+		final DataOutputStream output;
 		
 		final Gson gson = new GsonBuilder().create();
 		
@@ -107,7 +106,7 @@ public class LambdaExecutionService {
 			final String serializedReturnValue;
 			try {
 				Object returnValue = lambdaFunction.invoke(lambdaMainClass.getConstructor().newInstance(), lambdaParameter);
-				executionReturnValue = new ExecutionReturnValue(returnValue, null);
+				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), null);
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null, new InvalidLambdaDefinitionException("No accessible default " +
@@ -128,6 +127,11 @@ public class LambdaExecutionService {
 				output.flush();
 				output.writeUTF(new GsonBuilder().create().toJson(executionReturnValue));
 				output.flush();
+				
+				output.close();
+				input.close();
+				clientSocket.close();
+				socket.close();
 			} catch (IOException e) {
 				// fatal. cannot be reported
 				e.printStackTrace();

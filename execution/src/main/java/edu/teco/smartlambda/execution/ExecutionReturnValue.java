@@ -9,6 +9,6 @@ import java.io.Serializable;
  */
 @Data
 public class ExecutionReturnValue implements Serializable {
-	private final Object    returnValue;
+	private final String    returnValue;
 	private final Throwable exception;
 }
