@@ -1,8 +1,12 @@
 package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.schedule.Event;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,8 +19,8 @@ public class Lambda extends AbstractLambda {
 	private String  name;
 	@Getter@Setter
 	private boolean async;
-	@Getter
-	private String  runtime;
+//	@Getter
+//	private String  runtime;
 	private String  containerId;
 	
 	public Optional<String> execute(String params, boolean async) {

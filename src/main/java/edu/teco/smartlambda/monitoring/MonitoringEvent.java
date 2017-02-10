@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.monitoring;
 
+import edu.teco.smartlambda.authentication.entities.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +21,7 @@ public class MonitoringEvent {
 	private String              lambdaName;
 	@Getter
 	@Setter
-	private long                 duration;
+	private long                duration;
 	@Getter
 	@Setter
 	private int                 CPUTime;
