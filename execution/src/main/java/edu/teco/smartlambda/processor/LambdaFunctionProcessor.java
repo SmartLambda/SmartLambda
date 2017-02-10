@@ -1,8 +1,12 @@
 package edu.teco.smartlambda.processor;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import edu.teco.smartlambda.execution.LambdaExecutionService;
 import edu.teco.smartlambda.execution.LambdaFunction;
 import edu.teco.smartlambda.execution.LambdaParameter;
+import edu.teco.smartlambda.execution.LambdaReturnValue;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -13,7 +17,13 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +36,7 @@ import java.util.stream.Stream;
 public class LambdaFunctionProcessor extends AbstractProcessor {
 	
 	private TypeMirror lambdaParameterType;
+	private TypeMirror lambdaReturnType;
 	
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
@@ -41,8 +52,9 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		
-		// get the type mirror of LambdaParameters
+		// get the type mirror of LambdaParameter, LambdaReturnValue
 		lambdaParameterType = processingEnv.getElementUtils().getTypeElement(LambdaParameter.class.getCanonicalName()).asType();
+		lambdaReturnType = processingEnv.getElementUtils().getTypeElement(LambdaReturnValue.class.getCanonicalName()).asType();
 	}
 	
 	@Override
@@ -50,30 +62,67 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 		for (final Element element : roundEnvironment.getElementsAnnotatedWith(LambdaFunction.class)) {
 			assert element instanceof ExecutableElement; // forced through RetentionPolicy
 			
-			final ExecutableElement               functionElement = (ExecutableElement) element;
-			final List<? extends VariableElement> parameters      = functionElement.getParameters();
+			final ExecutableElement functionElement = (ExecutableElement) element;
 			
-			String  lambdaFunctionEnclosingClassName;
-			String  lambdaFunctionName;
+			String  lambdaFunctionEnclosingClassName = functionElement.getEnclosingElement().asType().toString();
+			String  lambdaFunctionName               = functionElement.getSimpleName().toString();
 			boolean hasParameter;
 			boolean hasReturnValue;
 			String  lambdaParameterClassName;
 			String  lambdaReturnValueClassName;
 			
-			// TODO get meta data
+			// retrieve parameter
+			final List<? extends VariableElement> parameters = functionElement.getParameters();
 			
 			if (parameters.size() > 1) {
 				throw new IllegalLambdaFunctionException("Illegal amount of lambda parameters. Maximum allowed: 1");
 			} else if (parameters.size() == 1) {
 				if (!processingEnv.getTypeUtils().isAssignable(parameters.get(0).asType(), lambdaParameterType)) {
-					throw new IllegalLambdaFunctionException("Lambda parameter does not implement " + LambdaParameter.class.getCanonicalName());
+					throw new IllegalLambdaFunctionException("Lambda parameter does not implement " + LambdaParameter.class
+							.getCanonicalName());
 				}
 				
 				hasParameter = true;
-				System.out.println(parameters.get(0).asType().toString());
+				lambdaParameterClassName = parameters.get(0).asType().toString();
+			} else {
+				hasParameter = false;
+				lambdaParameterClassName = "";
 			}
 			
-			// TODO write meta file
+			// retrieve return value
+			final TypeMirror returnType = functionElement.getReturnType();
+			if (returnType.getKind() == TypeKind.VOID) {
+				hasReturnValue = false;
+				lambdaReturnValueClassName = "";
+			} else {
+				if (!processingEnv.getTypeUtils().isAssignable(returnType, lambdaReturnType)) {
+					throw new IllegalLambdaFunctionException("Lambda return value is neither void nor implements " + LambdaReturnValue
+							.class.getCanonicalName());
+				}
+				
+				hasReturnValue = true;
+				lambdaReturnValueClassName = returnType.toString();
+			}
+			
+			// create meta data model
+			final LambdaMetaData metaData = new LambdaMetaData(lambdaFunctionEnclosingClassName, lambdaFunctionName, hasParameter,
+			                                                   hasReturnValue, lambdaParameterClassName, lambdaReturnValueClassName);
+			
+			// serialize meta data
+			final Gson   gson         = new GsonBuilder().create();
+			final String jsonMetaData = gson.toJson(metaData);
+			
+			// write meta data to JAR file
+			try {
+				final FileObject metaFile = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
+				                                                                    LambdaExecutionService.LAMBDA_META_DATA_FILE);
+				
+				try (final Writer writer = metaFile.openWriter()) {
+					writer.write(jsonMetaData);
+				}
+			} catch (IOException e) {
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+			}
 		}
 		
 		return true;

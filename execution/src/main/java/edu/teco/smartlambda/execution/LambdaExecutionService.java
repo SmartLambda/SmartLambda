@@ -15,7 +15,7 @@ import java.net.Socket;
  */
 public class LambdaExecutionService {
 	
-	public static final String LAMBDA_META_DATA_FILE = ".lambda";
+	public static final String LAMBDA_META_DATA_FILE = "META-INF/lambda.json";
 	
 	private static final int PORT = 31337;
 	
