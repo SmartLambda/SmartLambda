@@ -2,26 +2,52 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.lambda.Lambda;
 
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import java.util.Set;
 
 /**
  * Created by Matteo on 01.02.2017.
  */
 public class Key {
 	
-	private String name;
 	private String id;
-	private User user;
+	private String name;
+	private User   user;
 	
-	public Key(String id, User user) {
-		
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	public String getId() {
+		return id;
 	}
 	
-	public List<Permission> getPermissions() {
-		
-		/*
-			TODO: access the database
-		 */
+	public void setId(final String id) {
+		this.id = id;
+	}
+	
+	@Column(name = "name", nullable = false)
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(final String name) {
+		this.name = name;
+	}
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "User", nullable = false)
+	private User getUser() {
+		return user;
+	}
+	
+	private void setUser(User user) {
+		this.user = user;
+	}
+	
+	private Set<Permission> getPermissions() {
 		return null;
 	}
 	
