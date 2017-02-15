@@ -2,13 +2,12 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -69,14 +68,13 @@ public class User {
 	}
 	
 
-	public Pair<Key, String> createKey() throws InsufficientPermissionsException {
+	public Pair createKey() throws InsufficientPermissionsException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
 				//TODO create Key and return it
 			}
 		}
 		throw new InsufficientPermissionsException();
-			return null;
 	}
 	
 	
