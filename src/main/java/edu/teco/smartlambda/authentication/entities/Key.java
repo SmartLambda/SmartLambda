@@ -95,7 +95,7 @@ public class Key {
 		}
 		throw new InsufficientPermissionsException();
 	}
-	
+	//TODO convert this into a beautiful code-non-duplicating Enum thing
 	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException{
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, PermissionType.GRANT)) {
