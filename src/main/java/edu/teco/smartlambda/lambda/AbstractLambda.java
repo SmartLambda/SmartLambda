@@ -19,7 +19,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
 	 */
-	public Optional<String> execute(final String params) {
+	public final Optional<String> execute(final String params) {
 		return this.execute(params, this.isAsync());
 	}
 	
