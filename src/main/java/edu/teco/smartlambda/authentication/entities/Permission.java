@@ -26,11 +26,11 @@ public class Permission {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
-	public int getId() {
+	private int getId() {
 		return id;
 	}
 	
-	public void setId(final int id) {
+	private void setId(final int id) {
 		this.id = id;
 	}
 	
@@ -40,7 +40,7 @@ public class Permission {
 		return key;
 	}
 	
-	public void setKey(final Key key) {
+	private void setKey(final Key key) {
 		this.key = key;
 	}
 	
@@ -50,7 +50,7 @@ public class Permission {
 		return user;
 	}
 	
-	public void setUser(final User user) {
+	private void setUser(final User user) {
 		this.user = user;
 	}
 	
@@ -60,7 +60,7 @@ public class Permission {
 		return lambda;
 	}
 	
-	public void setLambda(final Lambda lambda) {
+	private void setLambda(final Lambda lambda) {
 		this.lambda = lambda;
 	}
 	
@@ -69,16 +69,20 @@ public class Permission {
 		return permissionType;
 	}
 	
-	public void setPermissionType(final PermissionType permissionType) {
+	private void setPermissionType(PermissionType permissionType) {
 		this.permissionType = permissionType;
 	}
 	
-	public Permission(PermissionType type, Lambda lambda) {
-		
+	public Permission(Lambda lambda, PermissionType type, Key key) {
+		this.setLambda(lambda);
+		this.setPermissionType(type);
+		this.setKey(key);
 	}
 	
-	public  Permission (PermissionType type, User user) {
-		
+	public  Permission (User user, PermissionType type, Key key) {
+		this.setUser(user);
+		this.setPermissionType(type);
+		this.setKey(key);
 	}
 	
 }

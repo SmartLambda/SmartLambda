@@ -33,11 +33,11 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
-	public int getId() {
+	private int getId() {
 		return id;
 	}
 	
-	public void setId(final int id) {
+	private void setId(final int id) {
 		this.id = id;
 	}
 	
@@ -46,7 +46,7 @@ public class User {
 		return name;
 	}
 	
-	public void setName(final String name) {
+	private void setName(final String name) {
 		this.name = name;
 	}
 	
@@ -55,7 +55,7 @@ public class User {
 		return primaryKey;
 	}
 	
-	public void setPrimaryKey(final Key primaryKey) {
+	private void setPrimaryKey(final Key primaryKey) {
 		this.primaryKey = primaryKey;
 	}
 	
@@ -64,7 +64,7 @@ public class User {
 		return isAdmin;
 	}
 	
-	public void setAdmin(final boolean admin) {
+	private void setAdmin(final boolean admin) {
 		isAdmin = admin;
 	}
 	
@@ -82,6 +82,12 @@ public class User {
 	
 	
 	public Set<User> getVisibleUsers() {
+		if (this.isAdmin) {
+			//TODO return all Users
+		} else {
+			//TODO search in database for all own keys and all of their permissions for foreign Users. return them as a Set.
+		}
+		
 			return null;
 	}
 	

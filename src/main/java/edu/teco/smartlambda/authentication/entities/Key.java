@@ -1,11 +1,14 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.lambda.Lambda;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import java.util.Set;
 
@@ -14,17 +17,18 @@ import java.util.Set;
  */
 public class Key {
 	
-	private String id;
-	private String name;
-	private User   user;
+	private String          id;
+	private String          name;
+	private User            user;
+	private Set<Permission> permissions;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false)
-	public String getId() {
+	private String getId() {
 		return id;
 	}
 	
-	public void setId(final String id) {
+	private void setId(final String id) {
 		this.id = id;
 	}
 	
@@ -33,13 +37,13 @@ public class Key {
 		return name;
 	}
 	
-	public void setName(final String name) {
+	private void setName(final String name) {
 		this.name = name;
 	}
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "User", nullable = false)
-	private User getUser() {
+	public User getUser() {
 		return user;
 	}
 	
@@ -47,8 +51,13 @@ public class Key {
 		this.user = user;
 	}
 	
+	@OneToMany(fetch = FetchType.LAZY,mappedBy = "Key")
 	private Set<Permission> getPermissions() {
 		return null;
+	}
+	
+	private void setPermissions(Set<Permission> permissions) {
+		this.permissions = permissions;
 	}
 	
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
@@ -71,32 +80,72 @@ public class Key {
 		return false;
 	}
 	
-	public boolean isPrimaryKey() {	return false;	}
-	
-	public void delete() {
-		
-		/*
-			TODO: delete from the database
-		 */
+	public boolean isPrimaryKey() {
+		if (this.getUser().getPrimaryKey().equals(this)) {
+			return true;
+		}
+		return false;
 	}
 	
-	public void grantPermission(Lambda lambda, PermissionType type) {
-		
-		Permission perm = new Permission(type, lambda);
-		/*
-			TODO:  Add it to the database
-		 */
+	public void delete() throws InsufficientPermissionsException{
+		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
+			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(user.getPrimaryKey())) {
+				//TODO delete Key from Database
+			}
+		}
+		throw new InsufficientPermissionsException();
 	}
 	
-	public void grantPermission(User user, PermissionType type) {
-		
+	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException{
+		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
+			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, PermissionType.GRANT)) {
+				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, type)) {
+					Permission permission = new Permission(lambda, type, this);
+					permissions.add(permission);
+					//TODO set permission in Database
+				}
+			}
+		}
+		throw new InsufficientPermissionsException();
 	}
 	
-	public void revokePermission(Lambda lambda, PermissionType type) {
+	public void grantPermission(User user, PermissionType type) throws InsufficientPermissionsException {
+		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
+			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, PermissionType.GRANT)) {
+				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, type)) {
+					Permission permission = new Permission(user, type, this);
+					permissions.add(permission);
+					//TODO set permission in Database
+				}
+			}
+		}
+		throw new InsufficientPermissionsException();
 	}
 	
-	public void revokePermission(User user, PermissionType type) {
-		
+	public void revokePermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException{
+		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
+			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, PermissionType.GRANT)) {
+				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, type)) {
+					Permission permission = new Permission(lambda, type, this);
+					permissions.remove(permission);
+					//TODO remove permission in Database
+				}
+			}
+		}
+		throw new InsufficientPermissionsException();
+	}
+	
+	public void revokePermission(User user, PermissionType type) throws InsufficientPermissionsException{
+		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
+			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, PermissionType.GRANT)) {
+				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, type)) {
+					Permission permission = new Permission(user, type, this);
+					permissions.remove(permission);
+					//TODO remove permission in Database
+				}
+			}
+		}
+		throw new InsufficientPermissionsException();
 	}
 	
 }
