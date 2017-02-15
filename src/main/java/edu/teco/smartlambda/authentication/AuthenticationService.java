@@ -41,12 +41,12 @@ public class AuthenticationService {
 	}
 	
 	public Optional<Key> getAuthenticatedKey() {
-		return new Optional.ofNullable(authenticatedKey);
+		return Optional.ofNullable(authenticatedKey);
 	}
 	
 	public Optional<User> getAuthenticatedUser() {
 		if (authenticatedKey != null) {
-			return new Optional.of(authenticatedKey.getUser());
+			return Optional.of(authenticatedKey.getUser());
 		}
 		return Optional.empty();
 	}
