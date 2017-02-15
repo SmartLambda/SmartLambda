@@ -2,6 +2,7 @@ package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
@@ -99,7 +100,7 @@ public abstract class AbstractLambda {
 	/**
 	 * @return the runtime of the lambda
 	 */
-	public abstract edu.teco.smartlambda.runtime.Runtime getRuntime();
+	public abstract Runtime getRuntime();
 	
 	/**
 	 * Set the name of the lambda
