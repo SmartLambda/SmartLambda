@@ -20,7 +20,6 @@ public class LambdaExecutionServiceTest {
 	
 	@Test
 	public void testLambdaExecution() throws IOException {
-		System.out.println(new File("temp").toURI().toString());
 		// the LambdaExectionService expects the lambda.jar existing
 		assert new File("lambda.jar").exists() : "the test lambda archive is missing";
 		
