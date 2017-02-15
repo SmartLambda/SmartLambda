@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
+import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -26,7 +27,7 @@ public class KeyTest {
 	@BeforeClass
 	public void buildUp() {
 		try {
-		key = (Key) user.createKey().getRight();
+		key = user.createKey("KeyTest.buildUp").getLeft();
 
 		key.grantPermission(lambda, PermissionType.DELETE);
 		key.grantPermission(lambda, PermissionType.EXECUTE);
@@ -35,6 +36,8 @@ public class KeyTest {
 		key.grantPermission(user, PermissionType.GRANT);
 		} catch (InsufficientPermissionsException i) {
 			Assert.fail();
+		} catch (NameConflictException n) {
+			Assert.fail("NameConflictException");
 		}
 		/*
 			Interesting test case: grant permission to create on behalf of another user
