@@ -11,7 +11,7 @@ public class AuthenticationService {
 	private static Configuration conf = new Configuration();
 	public static SessionFactory sessionFactory = conf.buildSessionFactory();
 	private static ThreadLocal<AuthenticationService> ourInstance = null;
-	//private Key authenticatedKey;
+	private Key authenticatedKey = null;
 	
 	public static AuthenticationService getInstance() {
 		if (ourInstance == null) {
@@ -27,18 +27,21 @@ public class AuthenticationService {
 	}
 	
 	public void authenticate(String key) {
-		
+		//TODO hash parameter key and search for it in the database. Then assign it to the local variable "authenticatedKey"
 	}
 	
 	public void authenticate(Key key) {
-		
+		authenticatedKey = key;
 	}
 
 	public Optional<Key> getAuthenticatedKey() {
-		return Optional.empty();
+		return new Optional<Key>.ofNullable(authenticatedKey);
 	}
 	
 	public Optional<User> getAuthenticatedUser() {
+		if (authenticatedKey != null) {
+			return new Optional<Key>.ofNullable(authenticatedKey.getUser());
+		}
 		return Optional.empty();
 	}
 	
