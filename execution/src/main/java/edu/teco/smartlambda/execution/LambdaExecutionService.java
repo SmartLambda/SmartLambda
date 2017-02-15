@@ -71,8 +71,8 @@ public class LambdaExecutionService {
 			// initialize class loader
 			final URLClassLoader classLoader;
 			try {
-				classLoader = new URLClassLoader(new URL[] {new File(LAMBDA_ARCHIVE_LOCATION).toURI().toURL()}, LambdaExecutionService
-						.class.getClassLoader());
+				classLoader = new URLClassLoader(new URL[] {new File(LAMBDA_ARCHIVE_LOCATION).toURI().toURL()},
+						LambdaExecutionService.class.getClassLoader());
 			} catch (MalformedURLException e) {
 				assert false;
 				return;
@@ -95,8 +95,9 @@ public class LambdaExecutionService {
 				lambdaFunction = lambdaMainClass.getDeclaredMethod(metaData.getLambdaMethodName(), lambdaParameterClass);
 			} catch (ClassNotFoundException | NoSuchMethodException e) {
 				e.printStackTrace();
-				executionReturnValue = new ExecutionReturnValue(null, new InvalidLambdaDefinitionException("Invalid lambda meta file: " +
-				                                                                                           e.getMessage()));
+				executionReturnValue =
+						new ExecutionReturnValue(null, new InvalidLambdaDefinitionException("Invalid lambda meta file: " + e.getMessage
+								()));
 				return;
 			}
 			
@@ -109,12 +110,12 @@ public class LambdaExecutionService {
 				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), null);
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
-				executionReturnValue = new ExecutionReturnValue(null, new InvalidLambdaDefinitionException("No accessible default " +
-				                                                                                           "constructor in lambda class"));
+				executionReturnValue = new ExecutionReturnValue(null,
+						new InvalidLambdaDefinitionException("No accessible default " + "constructor in lambda class"));
 			} catch (InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
-				executionReturnValue = new ExecutionReturnValue(null, new InvalidLambdaDefinitionException("Could not invoke lambda " +
-				                                                                                           "function: " + e.getMessage()));
+				executionReturnValue = new ExecutionReturnValue(null,
+						new InvalidLambdaDefinitionException("Could not invoke lambda " + "function: " + e.getMessage()));
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null, e.getCause());
