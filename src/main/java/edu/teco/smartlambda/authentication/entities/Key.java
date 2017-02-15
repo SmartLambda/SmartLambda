@@ -100,7 +100,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, PermissionType.GRANT)) {
 				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, type)) {
-					Permission permission = new Permission(lambda, type, this);
+					Permission permission = new Permission(lambda, type);
 					permissions.add(permission);
 					//TODO set permission in Database
 				}
@@ -113,7 +113,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, PermissionType.GRANT)) {
 				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, type)) {
-					Permission permission = new Permission(user, type, this);
+					Permission permission = new Permission(user, type);
 					permissions.add(permission);
 					//TODO set permission in Database
 				}
@@ -126,7 +126,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, PermissionType.GRANT)) {
 				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(lambda, type)) {
-					Permission permission = new Permission(lambda, type, this);
+					Permission permission = new Permission(lambda, type);
 					permissions.remove(permission);
 					//TODO remove permission in Database
 				}
@@ -139,7 +139,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, PermissionType.GRANT)) {
 				if (AuthenticationService.getInstance().getAuthenticatedKey().get().hasPermission(user, type)) {
-					Permission permission = new Permission(user, type, this);
+					Permission permission = new Permission(user, type);
 					permissions.remove(permission);
 					//TODO remove permission in Database
 				}

@@ -7,7 +7,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -18,7 +17,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Permission {
 	
 	private int id;
-	private Key key;
 	private User user;
 	private Lambda lambda;
 	private PermissionType permissionType;
@@ -34,15 +32,6 @@ public class Permission {
 		this.id = id;
 	}
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "Key", nullable = false)
-	public Key getKey() {
-		return key;
-	}
-	
-	private void setKey(final Key key) {
-		this.key = key;
-	}
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "User")
@@ -73,16 +62,14 @@ public class Permission {
 		this.permissionType = permissionType;
 	}
 	
-	public Permission(Lambda lambda, PermissionType type, Key key) {
+	public Permission(Lambda lambda, PermissionType type) {
 		this.setLambda(lambda);
 		this.setPermissionType(type);
-		this.setKey(key);
 	}
 	
-	public  Permission (User user, PermissionType type, Key key) {
+	public  Permission (User user, PermissionType type) {
 		this.setUser(user);
 		this.setPermissionType(type);
-		this.setKey(key);
 	}
 	
 }
