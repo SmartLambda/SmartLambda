@@ -1,16 +1,15 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.lambda.Lambda;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
+import java.util.Set;
 
 /**
  * Created by Matteo on 07.02.2017.
@@ -26,13 +25,17 @@ public class KeyTest {
 	
 	@BeforeClass
 	public void buildUp() {
-		
-		key = new Key("abcd", new User());
+		try {
+		key = (Key) user.createKey().getRight();
+
 		key.grantPermission(lambda, PermissionType.DELETE);
 		key.grantPermission(lambda, PermissionType.EXECUTE);
 		
 		key.grantPermission(user, PermissionType.DELETE);
 		key.grantPermission(user, PermissionType.GRANT);
+		} catch (InsufficientPermissionsException i) {
+			Assert.fail();
+		}
 		/*
 			Interesting test case: grant permission to create on behalf of another user
 			and check if it works
@@ -57,17 +60,20 @@ public class KeyTest {
 	public void getPermissions() throws Exception {
 		
 		List<Permission> list = new ArrayList<>();
-		list.add(new Permission(PermissionType.DELETE, lambda));
+		list.add(new Permission(lambda, PermissionType.DELETE));
 		if (!revokedFirst) {
-			list.add(new Permission(PermissionType.EXECUTE, lambda));
+			list.add(new Permission(lambda, PermissionType.EXECUTE));
 			
 		}
-		list.add(new Permission(PermissionType.DELETE, user));
+		list.add(new Permission(user, PermissionType.DELETE));
 		if (!revokedSecond) {
-			list.add(new Permission(PermissionType.GRANT, user));
+			list.add(new Permission(user, PermissionType.GRANT));
 		}
 		int size = list.size();
-		List<Permission> permissions = key.getPermissions();
+		Method m = key.getClass().getDeclaredMethod("getPermissions");
+		m.setAccessible(true);
+		Set<Permission> permissions = (Set<Permission>) m.invoke(key);
+		m.setAccessible(false);
 		Assert.assertTrue(size == permissions.size());
 		Assert.assertEquals(size, list.size());
 		
