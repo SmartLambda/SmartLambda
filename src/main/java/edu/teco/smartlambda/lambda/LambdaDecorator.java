@@ -3,46 +3,96 @@ package edu.teco.smartlambda.lambda;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.schedule.Event;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Created by Melanie on 01.02.2017.
+ * A decorator for lambdas that can be extended and partially overridden to add behaviour to existing lambda calls. By calling the super
+ * method, the lambda functionality or any decorator surrounding the lambda will be called.
  */
+@RequiredArgsConstructor
 public abstract class LambdaDecorator extends AbstractLambda {
-	protected AbstractLambda lambda;
+	protected final AbstractLambda lambda;
 	
-	public Optional<String> execute(String params, boolean async) {
-		return null;
+	@Override
+	public Optional<String> execute(final String params, final boolean async) {
+		return this.lambda.execute(params, async);
 	}
-	public void save() {}
-	public void update() {}
-	public void delete() {}
-	public void schedule(Event event) {}
-	public void deployBinary(byte[] content) {}
-	public Event getScheduledEvent() {
-		return null;
+	
+	@Override
+	public void save() {
+		this.lambda.save();
 	}
+	
+	@Override
+	public void update() {
+		this.lambda.update();
+	}
+	
+	@Override
+	public void delete() {
+		this.lambda.delete();
+	}
+	
+	@Override
+	public void schedule(final Event event) {
+		this.lambda.schedule(event);
+	}
+	
+	@Override
+	public void deployBinary(final byte[] content) {
+		this.lambda.deployBinary(content);
+	}
+	
+	@Override
+	public Event getScheduledEvent(final String name) {
+		return this.lambda.getScheduledEvent(name);
+	}
+	
+	@Override
 	public List<Event> getScheduledEvents() {
-		return null;
+		return this.lambda.getScheduledEvents();
 	}
+	
+	@Override
 	public List<MonitoringEvent> getMonitoringEvents() {
-		return null;
+		return this.lambda.getMonitoringEvents();
 	}
-	public String getName() {
-		return null;
+	
+	@Override
+	public final String getName() {
+		return this.lambda.getName();
 	}
-	public User getOwner() {
-		return null;
+	
+	@Override
+	public final User getOwner() {
+		return this.lambda.getOwner();
 	}
-	public boolean getAsync() {
-		return false;
+	
+	@Override
+	public final boolean isAsync() {
+		return this.lambda.isAsync();
 	}
-	public Runtime getRuntime() {
-		return null;
+	
+	@Override
+	public final Runtime getRuntime() {
+		return this.lambda.getRuntime();
 	}
-	public void setName(String name) {}
-	public void setOwner(User owner) {}
-	public void setAsync(boolean async) {}
+	
+	@Override
+	public final void setName(final String name) {
+		this.lambda.setName(name);
+	}
+	
+	@Override
+	public final void setOwner(final User owner) {
+		this.lambda.setOwner(owner);
+	}
+	
+	@Override
+	public final void setAsync(final boolean async) {
+		this.lambda.setAsync(async);
+	}
 }

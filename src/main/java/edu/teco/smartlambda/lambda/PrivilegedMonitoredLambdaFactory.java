@@ -1,12 +1,13 @@
 package edu.teco.smartlambda.lambda;
 
-/**
- * Created by Melanie on 01.02.2017.
- */
 public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
+	
+	//// FIXME: 2/15/17
 	public AbstractLambda createLambda() {
 		return null;
 	}
+	
+	//// FIXME: 2/15/17 
 	public AbstractLambda getLambdaByName() {
 		return null;
 	}
