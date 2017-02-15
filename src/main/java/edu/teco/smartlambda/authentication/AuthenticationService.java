@@ -2,7 +2,6 @@ package edu.teco.smartlambda.authentication;
 
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.util.Optional;
@@ -13,7 +12,6 @@ import java.util.Optional;
 public class AuthenticationService {
 	
 	private static Configuration                      conf             = new Configuration();
-	public static  SessionFactory                     sessionFactory   = conf.buildSessionFactory();
 	private static ThreadLocal<AuthenticationService> instance         = null;
 	private        Key                                authenticatedKey = null;
 	
