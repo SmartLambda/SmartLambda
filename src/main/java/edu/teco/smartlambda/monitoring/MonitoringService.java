@@ -8,44 +8,38 @@ import java.util.Calendar;
 /**
  * Created by Melanie on 29.01.2017.
  */
+//// FIXME: 2/15/17 TODO persist the monitoring events
 public class MonitoringService {
 	
 	private ThreadLocal<MonitoringService> instance;
-	@Getter private MonitoringEvent                monitoringEvent;
+	@Getter
+	private MonitoringEvent                monitoringEvent;
 	
-	public MonitoringService () {}
+	public MonitoringService() {}
 	
-	private void monitoringService() {}
-	
-	public void onLambdaExecutionStart(AbstractLambda lambda) {
+	public void onLambdaExecutionStart(final AbstractLambda lambda) {
+		monitoringEvent = new MonitoringEvent(lambda.getOwner(), lambda.getName(), MonitoringEvent.MonitoringEventType.EXECUTION);
 		monitoringEvent.setTime(Calendar.getInstance());
-		monitoringEvent.setLambdaName(lambda.getName());
-		monitoringEvent.setLambdaOwner(lambda.getOwner());
-		monitoringEvent.setStatus(MonitoringEvent.MonitoringEventType.EXECUTION);
 	}
 	
-	public void onLambdaExecutionEnd(AbstractLambda lambda, int CPUTime) {
+	public void onLambdaExecutionEnd(final AbstractLambda lambda, final int CPUTime) {
 		monitoringEvent.setCPUTime(CPUTime);
-		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis()-monitoringEvent.getTime().getTimeInMillis());
+		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis() - monitoringEvent.getTime().getTimeInMillis());
 	}
 	
-	public void onLambdaExecutionEnd(AbstractLambda lambda, int CPUTime, String error) {
+	public void onLambdaExecutionEnd(final AbstractLambda lambda, final int CPUTime, final String error) {
 		monitoringEvent.setCPUTime(CPUTime);
-		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis()-monitoringEvent.getTime().getTimeInMillis());
+		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis() - monitoringEvent.getTime().getTimeInMillis());
 		monitoringEvent.setError(error);
 	}
 	
-	public void onLambdaDeletion(AbstractLambda lambda) {
+	public void onLambdaDeletion(final AbstractLambda lambda) {
+		monitoringEvent = new MonitoringEvent(lambda.getOwner(), lambda.getName(), MonitoringEvent.MonitoringEventType.DELETION);
 		monitoringEvent.setTime(Calendar.getInstance());
-		monitoringEvent.setLambdaName(lambda.getName());
-		monitoringEvent.setLambdaOwner(lambda.getOwner());
-		monitoringEvent.setStatus(MonitoringEvent.MonitoringEventType.DELETION);
 	}
 	
-	public void onLambdaDeployment(AbstractLambda lambda) {
+	public void onLambdaDeployment(final AbstractLambda lambda) {
+		monitoringEvent = new MonitoringEvent(lambda.getOwner(), lambda.getName(), MonitoringEvent.MonitoringEventType.DEPLOYMENT);
 		monitoringEvent.setTime(Calendar.getInstance());
-		monitoringEvent.setLambdaName(lambda.getName());
-		monitoringEvent.setLambdaOwner(lambda.getOwner());
-		monitoringEvent.setStatus(MonitoringEvent.MonitoringEventType.DEPLOYMENT);
 	}
 }
