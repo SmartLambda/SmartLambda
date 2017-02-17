@@ -32,8 +32,7 @@ public class User {
 	private String   name;
 	private Key      primaryKey;
 	private boolean  isAdmin;
-	private Set<Key> keyList;
-	
+		
 	public User() {
 		//TODO (Git-Hub) authentication.
 	}
@@ -49,6 +48,10 @@ public class User {
 		this.id = id;
 	}
 	
+	/**
+	 * Returns the Name of this User
+	 * @return name
+	 */
 	@Column(name = "name", unique = true, nullable = false)
 	public String getName() {
 		return name;
@@ -58,6 +61,10 @@ public class User {
 		this.name = name;
 	}
 	
+	/**
+	 * Returns the PrimaryKey of this User
+	 * @return PrimaryKey
+	 */
 	@OneToOne(fetch = FetchType.LAZY,mappedBy = "User")
 	public Key getPrimaryKey() {
 		return primaryKey;
@@ -67,6 +74,10 @@ public class User {
 		this.primaryKey = primaryKey;
 	}
 	
+	/**
+	 * Returns true if this User is a Admin-User, false otherwise
+	 * @return Result
+	 */
 	@Column(name = "isAdmin",nullable = false)
 	public boolean isAdmin() {
 		return isAdmin;
@@ -76,7 +87,13 @@ public class User {
 		isAdmin = admin;
 	}
 	
-
+	/**
+	 * Creates a new Cey Object and adds it to the Database
+	 * @param name Name for the Key
+	 * @return Pair of the Key object and the Keys ID as a String
+	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
+	 * @throws NameConflictException If the Name is already used for this User
+	 */
 	public Pair<Key, String> createKey(String name) throws InsufficientPermissionsException, NameConflictException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
@@ -86,16 +103,17 @@ public class User {
 		throw new InsufficientPermissionsException();
 	}
 	
-	
-	
+	/**
+	 * Returns all Users, which this User can See (all Users if this User is an Admin and Users with shared Lambdas otherwise)
+ 	 * @return Set of Users
+	 */
 	public Set<User> getVisibleUsers() {
 		if (this.isAdmin) {
 			//TODO return all Users
 		} else {
 			//TODO search in database for all own keys and all of their permissions for foreign Users. return them as a Set.
 		}
-		
-			return null;
+		return null;
 	}
 	
 	/**
