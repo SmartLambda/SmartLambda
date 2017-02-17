@@ -15,9 +15,7 @@ mainClassName = "edu.teco.smartlambda.Application"
 sourceCompatibility = 1.8
 
 repositories {
-    maven {
-        url "http://uk.maven.org/maven2"
-    }
+    mavenCentral()
 }
 
 dependencies {
@@ -30,6 +28,7 @@ dependencies {
     compile 'org.hibernate:hibernate-core:5.2.7.Final'
     compile 'org.hibernate:hibernate-c3p0:5.2.7.Final'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    compile group: 'com.spotify', name: 'docker-client', version:'7.0.2'
 
     // compile time dependencies
     compileOnly "org.projectlombok:lombok:1.16.12"
