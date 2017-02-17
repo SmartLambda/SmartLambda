@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,10 +72,9 @@ public class KeyTest {
 			list.add(new Permission(user, PermissionType.GRANT));
 		}
 		int size = list.size();
-		Method m = key.getClass().getDeclaredMethod("getPermissions");
-		m.setAccessible(true);
-		Set<Permission> permissions = (Set<Permission>) m.invoke(key);
-		m.setAccessible(false);
+
+		Set<Permission> permissions = key.getPermissions();
+
 		Assert.assertTrue(size == permissions.size());
 		Assert.assertEquals(size, list.size());
 		
