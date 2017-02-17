@@ -52,8 +52,8 @@ public class Key {
 	}
 	
 	@OneToMany(fetch = FetchType.LAZY,mappedBy = "Key")
-	private Set<Permission> getPermissions() {
-		return null;
+	public Set<Permission> getPermissions() {
+		return permissions;
 	}
 	
 	private void setPermissions(Set<Permission> permissions) {
