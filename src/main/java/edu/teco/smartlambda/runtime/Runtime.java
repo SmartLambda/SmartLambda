@@ -6,7 +6,7 @@ package edu.teco.smartlambda.runtime;
 public interface Runtime {
 	
 	/**
-	 * @return //// FIXME: 2/15/17
+	 * @return the runtime specific command that executes a lambda within a started container
 	 */
 	public String getCommand();
 	
@@ -16,8 +16,7 @@ public interface Runtime {
 	public String getName();
 	
 	/**
-	 * @return the name of the runtime specific binary that shall be executed in the container and will receive the lambda call context,
-	 * execute it and return the return value
+	 * @return the name of the lambda binary file inside the container. It is the same for all lambdas that are of the same runtime
 	 */
 	public String getBinaryName();
 }
