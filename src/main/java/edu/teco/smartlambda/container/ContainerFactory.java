@@ -21,6 +21,7 @@ public final class ContainerFactory {
 	 * @return a container instance representing a previously created container
 	 */
 	public static Container getContainerById(final String containerId) {
+		//// FIXME: 2/20/17 
 		return new DockerContainer(containerId);
 	}
 }
