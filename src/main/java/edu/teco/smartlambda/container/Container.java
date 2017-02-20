@@ -7,8 +7,10 @@ public interface Container {
 	
 	/**
 	 * Starts a container of an image.
+	 *
+	 * @throws Exception on any virtualization engine specific exception
 	 */
-	public void start();
+	public void start() throws Exception;
 	
 	/**
 	 * ???
