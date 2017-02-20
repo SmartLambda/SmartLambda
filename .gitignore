@@ -15,7 +15,7 @@
 .idea/dataSources.local.xml
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
-.idea/uiDesigner.xml
+.idea/uiDesigner.dxml
 
 # Gradle:
 .idea/gradle.xml
@@ -79,3 +79,4 @@ gradle-app.setting
 #Custom Stuff
 .directory
 *.hprof
+.idea/dictionaries
