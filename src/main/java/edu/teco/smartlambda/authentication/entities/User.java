@@ -2,6 +2,7 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
+import edu.teco.smartlambda.authentication.NameConflictException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.persistence.Column;
@@ -28,6 +29,10 @@ public class User {
 	private Key      primaryKey;
 	private boolean  isAdmin;
 	private Set<Key> keyList;
+	
+	public User() {
+		//TODO (Git-Hub) authentication.
+	}
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -68,7 +73,7 @@ public class User {
 	}
 	
 
-	public Pair createKey() throws InsufficientPermissionsException {
+	public Pair<Key, String> createKey(String name) throws InsufficientPermissionsException, NameConflictException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
 				//TODO create Key and return it

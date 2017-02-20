@@ -1,31 +1,33 @@
 package edu.teco.smartlambda.authentication;
 
 import edu.teco.smartlambda.authentication.entities.Key;
-import org.apache.commons.lang3.ObjectUtils;
+import edu.teco.smartlambda.authentication.entities.User;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Jonathan on 10.02.17.
  */
 public class AuthenticationServiceTest {
 	AuthenticationService authenticationService = null;
+	User user = null;
 	
 	@Before
 	public void setUp() throws Exception {
 		authenticationService = null;
+		user = null;
 	}
 	
 	@After
 	public void tearDown() throws Exception {
 		authenticationService = null;
+		user = null;
 	}
 	
 	@Test
@@ -65,10 +67,18 @@ public class AuthenticationServiceTest {
 			@Override
 			public void run() {
 				authenticationService = AuthenticationService.getInstance();
-				Key key = new Key("");//TODO also use an existing Key
-				authenticationService.authenticate(key);
-				//checking for the Result after setting Key twice
-				authenticationService.authenticate(key);
+				user = new User();//TODO also use an existing User an Key
+				try {
+					Key key = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
+					authenticationService.authenticate(key);
+					//checking for the Result after setting Key twice
+					authenticationService.authenticate(key);
+				} catch (InsufficientPermissionsException i) {
+					Assert.fail("InsufficientPermissionsException");
+				} catch (NameConflictException n) {
+					Assert.fail("NameConflictException");
+				}
+
 			}
 		});
 		thread.start();
@@ -96,11 +106,18 @@ public class AuthenticationServiceTest {
 			@Override
 			public void run() {
 				authenticationService = AuthenticationService.getInstance();
-				Key key = new Key("");//TODO also use an existing Key
-				authenticationService.authenticate(key);
-				Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-				Assert.assertTrue(keyOpt.isPresent());
-				Assert.assertEquals(keyOpt.get(), key);
+				user = new User();//TODO also use an existing User an Key
+				try {
+					Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
+					authenticationService.authenticate(key);
+					Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
+					Assert.assertTrue(keyOpt.isPresent());
+					Assert.assertEquals(keyOpt.get(), key);
+				} catch (InsufficientPermissionsException i) {
+					Assert.fail("InsufficientPermissionsException");
+				} catch (NameConflictException n) {
+					Assert.fail("NameConflictException");
+				}
 			}
 		});
 		thread.start();
@@ -116,7 +133,23 @@ public class AuthenticationServiceTest {
 				authenticationService.authenticate("");//TODO use an existing Key
 				Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
 				Assert.assertTrue(keyOpt.isPresent());
-				Assert.assertEquals(keyOpt.get().getId(), ""/*TODO use an existing Key*/ );
+				Key authenticatedKey = keyOpt.get();
+				
+				try {
+					Method m = authenticatedKey.getClass().getDeclaredMethod("getId");
+					
+					m.setAccessible(true);
+					String authenticatedKeyID = (String) m.invoke(authenticatedKey);
+					m.setAccessible(false);
+					
+					Assert.assertEquals(authenticatedKeyID, ""/*TODO use an existing Key*/ );
+				} catch (NoSuchMethodException n) {
+					Assert.fail("NoSuchMethodException");
+				} catch (IllegalAccessException i ) {
+					Assert.fail("IllegalAccessException");
+				} catch (InvocationTargetException i) {
+					Assert.fail("InvocationTargetException");
+				}
 			}
 		});
 		thread.start();
@@ -129,11 +162,18 @@ public class AuthenticationServiceTest {
 			@Override
 			public void run() {
 				authenticationService = AuthenticationService.getInstance();
-				Key key = new Key("");//TODO also use an existing Key
-				authenticationService.authenticate(key);
-				Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-				Assert.assertTrue(keyOpt.isPresent());
-				Assert.assertEquals(keyOpt.get().getUser(), key.getUser());
+				user = new User();//TODO also use an existing User an Key
+				try {
+					Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedUserViaKey").getLeft();
+					authenticationService.authenticate(key);
+					Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
+					Assert.assertTrue(keyOpt.isPresent());
+					Assert.assertEquals(keyOpt.get().getUser(), key.getUser());
+				} catch (InsufficientPermissionsException i) {
+					Assert.fail("InsufficientPermissionsException");
+				} catch (NameConflictException n) {
+					Assert.fail("NameConflictException");
+				}
 			}
 		});
 		thread.start();

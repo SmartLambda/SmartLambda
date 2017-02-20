@@ -1,12 +1,12 @@
 package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
+import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +26,7 @@ public class KeyTest {
 	@BeforeClass
 	public void buildUp() {
 		try {
-		key = (Key) user.createKey().getRight();
+		key = user.createKey("KeyTest.buildUp").getLeft();
 
 		key.grantPermission(lambda, PermissionType.DELETE);
 		key.grantPermission(lambda, PermissionType.EXECUTE);
@@ -35,6 +35,8 @@ public class KeyTest {
 		key.grantPermission(user, PermissionType.GRANT);
 		} catch (InsufficientPermissionsException i) {
 			Assert.fail();
+		} catch (NameConflictException n) {
+			Assert.fail("NameConflictException");
 		}
 		/*
 			Interesting test case: grant permission to create on behalf of another user
@@ -70,10 +72,9 @@ public class KeyTest {
 			list.add(new Permission(user, PermissionType.GRANT));
 		}
 		int size = list.size();
-		Method m = key.getClass().getDeclaredMethod("getPermissions");
-		m.setAccessible(true);
-		Set<Permission> permissions = (Set<Permission>) m.invoke(key);
-		m.setAccessible(false);
+
+		Set<Permission> permissions = key.getPermissions();
+
 		Assert.assertTrue(size == permissions.size());
 		Assert.assertEquals(size, list.size());
 		
