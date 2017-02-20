@@ -24,10 +24,15 @@ dependencies {
     // runtime dependencies
     compile 'com.sparkjava:spark-core:2.5.4'
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
     compile 'org.apache.commons:commons-configuration2:2.1'
     compile 'commons-beanutils:commons-beanutils:1.9.3'
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.1'
-    compile 'org.hibernate:hibernate-core:5.2.6.Final'
+    compile 'org.hibernate:hibernate-core:5.2.7.Final'
+    compile 'org.hibernate:hibernate-c3p0:5.2.7.Final'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.6'
 
     // compile time dependencies
     compileOnly "org.projectlombok:lombok:1.16.12"
@@ -42,8 +47,10 @@ buildConfig {
     version = project.version
     packageName = project.group + "." + project.name
     if(Os.isFamily(Os.FAMILY_WINDOWS)) {
-        buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda.xml"
+        buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda\\\\smartlambda.xml"
+        buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "C:\\\\smartlambda\\\\hibernate.xml"
     } else {
         buildConfigField "String", "CONFIGURATION_PATH", "/etc/smartlambda/smartlambda.xml"
+        buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "/etc/smartlambda/hibernate.xml"
     }
 }
