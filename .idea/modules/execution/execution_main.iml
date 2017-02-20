@@ -14,5 +14,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.12" level="project" />
     <orderEntry type="library" name="Gradle: com.google.auto:auto-common:0.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="module" module-name="smartlambda_main" />
   </component>
 </module>
