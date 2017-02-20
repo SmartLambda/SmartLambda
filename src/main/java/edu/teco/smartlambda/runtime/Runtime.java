@@ -1,14 +1,13 @@
 package edu.teco.smartlambda.runtime;
 
+import edu.teco.smartlambda.container.ContainerBuilder;
+
 /**
  * The runtime environment of a lambda
  */
 public interface Runtime {
 	
-	/**
-	 * @return the runtime specific command that executes a lambda within a started container
-	 */
-	public String getCommand();
+	public void setupContainerImage(final ContainerBuilder builder);
 	
 	/**
 	 * @return the name of the runtime
