@@ -14,13 +14,6 @@ public final class ContainerFactory {
 	}
 	
 	/**
-	 * @return a new empty container istance
-	 */
-	public static Container createContainer() {
-		return new DockerContainer();
-	}
-	
-	/**
 	 * Get an existing container
 	 *
 	 * @param containerId the unique identifier that represents a previously created and saved container
