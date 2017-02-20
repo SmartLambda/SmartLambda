@@ -15,7 +15,7 @@ import spark.Spark;
 import java.io.File;
 
 public class Application {
-	private static Application    instance;
+	private static Application instance = null;
 	private        SessionFactory sessionFactory;
 	
 	private Application() {
@@ -59,6 +59,7 @@ public class Application {
 	
 	private void initializeHibernate() {
 		final Configuration configuration = new Configuration();
+		configuration.setProperty("hibernate.current_session_context_class", "thread");
 		configuration.configure(new File(BuildConfig.HIBERNATE_CONFIGURATION_PATH));
 		
 		sessionFactory = configuration.buildSessionFactory();
@@ -72,13 +73,15 @@ public class Application {
 	}
 	
 	public static void main(final String... args) {
-		instance = new Application();
+		getInstance();
 	}
 	
 	/**
 	 * @return the singleton Application instance
 	 */
 	public static Application getInstance() {
+		if (instance == null) instance = new Application();
+		
 		return instance;
 	}
 }
