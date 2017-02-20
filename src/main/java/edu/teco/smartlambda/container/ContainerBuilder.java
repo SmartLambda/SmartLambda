@@ -9,8 +9,10 @@ public interface ContainerBuilder {
 	 * Builds a new {@link Container} instance with the previously configured settings
 	 *
 	 * @return a new concrete Container instance
+	 *
+	 * @throws Exception on any container engine specific error
 	 */
-	public Container build();
+	public Container build() throws Exception;
 	
 	/**
 	 * Append a command to a container file that is executed upon container spawn
@@ -19,7 +21,7 @@ public interface ContainerBuilder {
 	 *
 	 * @return this builder instance
 	 */
-	public ContainerBuilder appendCommand(final String command);
+	public ContainerBuilder setCommand(final String command);
 	
 	/**
 	 * Stores a non-executable file in the container

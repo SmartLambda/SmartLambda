@@ -1,23 +1,56 @@
 package edu.teco.smartlambda.container;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * A builder implementation for {@link DockerContainer}s
  */
 public class DockerContainerBuilder implements ContainerBuilder {
 	
-	private final List<String> commands = new ArrayList<>();
+	private String command;
 	
 	@Override
-	public DockerContainer build() {
-		return null;
+	public DockerContainer build() throws DockerCertificateException, IOException, DockerException, InterruptedException {
+		final String containerId = generateContainerId();
+		
+		final File tmpDirectory = new File(containerId);
+		assert !tmpDirectory.exists() : "Temporary docker file directory already exists!";
+		//noinspection ResultOfMethodCallIgnored
+		tmpDirectory.mkdir();
+		
+		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
+		final FileWriter writer     = new FileWriter(dockerFile);
+		
+		//// FIXME: 2/20/17
+		writer.write("EXPOSE 31337");
+		writer.write("CMD " + this.command);
+		writer.flush();
+		writer.close();
+		
+		final DockerClient dockerClient = DefaultDockerClient.fromEnv().build();
+		final String       imageId      = dockerClient.build(tmpDirectory.toPath(), DockerClient.BuildParam.name(containerId));
+		
+		//noinspection ResultOfMethodCallIgnored
+		tmpDirectory.delete();
+		
+		// TODO debug code
+		if (!Objects.equals(imageId, containerId)) throw new AssertionError("image id != container id");
+		
+		return new DockerContainer(containerId);
 	}
 	
 	@Override
-	public ContainerBuilder appendCommand(final String command) {
-		this.commands.add(command);
+	public ContainerBuilder setCommand(final String command) {
+		this.command = command;
 		return this;
 	}
 	
@@ -27,8 +60,10 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		return this;
 	}
 	
+	/**
+	 * @return a randomly generated ID for a container
+	 */
 	private String generateContainerId() {
-		//// FIXME: 2/20/17
-		return null;
+		return UUID.randomUUID().toString();
 	}
 }
