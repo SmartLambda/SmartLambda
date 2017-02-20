@@ -16,14 +16,4 @@ public class DockerContainer implements Container {
 	public void start() {
 		
 	}
-	
-	@Override
-	public void storeBinary(final byte[] content, final String name) {
-		
-	}
-	
-	@Override
-	public String save() {
-		return null;
-	}
 }

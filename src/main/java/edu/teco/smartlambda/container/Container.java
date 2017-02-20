@@ -11,9 +11,4 @@ public interface Container {
 	 * @throws Exception on any virtualization engine specific exception
 	 */
 	public void start() throws Exception;
-	
-	/**
-	 * @return a unique id to identify the container later
-	 */
-	public String save();
 }
