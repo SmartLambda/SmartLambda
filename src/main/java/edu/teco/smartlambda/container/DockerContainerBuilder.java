@@ -31,13 +31,17 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
 		//// FIXME: 2/20/17
-		writer.write("EXPOSE 31337");
-		writer.write("CMD " + this.command);
+		writer.write("FROM openjdk:8\n");
+		writer.write("COPY . /usr/workspace\n");
+		writer.write("WORKDIR /usr/workspace\n");
+		writer.write("EXPOSE 31337\n");
+		writer.write("CMD " + this.command + "\n");
 		writer.flush();
 		writer.close();
 		
 		final DockerClient dockerClient = DefaultDockerClient.fromEnv().build();
-		final String       imageId      = dockerClient.build(tmpDirectory.toPath(), DockerClient.BuildParam.name(containerId));
+		System.out.println(tmpDirectory.getAbsoluteFile().toPath());
+		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
 		
 		//noinspection ResultOfMethodCallIgnored
 		tmpDirectory.delete();
