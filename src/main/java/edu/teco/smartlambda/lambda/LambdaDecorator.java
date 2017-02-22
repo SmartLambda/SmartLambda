@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
@@ -18,7 +19,7 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	protected final AbstractLambda lambda;
 	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		return this.lambda.execute(params, async);
 	}
 	

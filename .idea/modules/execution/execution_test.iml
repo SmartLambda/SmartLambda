@@ -16,6 +16,7 @@
     <orderEntry type="library" name="Gradle: com.google.auto:auto-common:0.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="module" module-name="smartlambda_main" scope="TEST" />
   </component>
   <component name="TestModuleProperties" production-module="execution_main" />
 </module>
