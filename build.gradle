@@ -33,6 +33,8 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.6'
+    compile'org.torpedoquery:org.torpedoquery:1.7.0'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.23'
 
     // compile time dependencies
     compileOnly "org.projectlombok:lombok:1.16.12"
