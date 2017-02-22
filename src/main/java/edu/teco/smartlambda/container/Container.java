@@ -6,11 +6,16 @@ package edu.teco.smartlambda.container;
 public interface Container {
 	
 	/**
-	 * Starts a container of an image.
+	 * Starts a container
 	 *
 	 * @return the wrapped return value or exception of the lambda execution
 	 *
 	 * @throws Exception on any virtualization engine specific exception
 	 */
 	public ExecutionReturnValue start() throws Exception;
+	
+	/**
+	 * Delete the container image
+	 */
+	public void delete();
 }
