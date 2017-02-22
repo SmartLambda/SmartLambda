@@ -8,6 +8,7 @@ import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
+import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import spark.Spark;
@@ -19,6 +20,9 @@ public class Application {
 	private        SessionFactory sessionFactory;
 	
 	private Application() {
+		// Load runtimes
+		RuntimeRegistry.getInstance();
+		
 		initializeHibernate();
 		initializeSpark();
 	}
