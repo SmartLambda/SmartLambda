@@ -96,4 +96,9 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	public final void setAsync(final boolean async) {
 		this.lambda.setAsync(async);
 	}
+	
+	@Override
+	public void setRuntime(final Runtime runtime) {
+		this.lambda.setRuntime(runtime);
+	}
 }

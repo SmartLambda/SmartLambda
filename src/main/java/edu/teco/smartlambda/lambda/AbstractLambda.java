@@ -122,4 +122,11 @@ public abstract class AbstractLambda {
 	 * @param async true, if this lambda shall be executed async by default, false otherwise
 	 */
 	public abstract void setAsync(final boolean async);
+	
+	/**
+	 * Sets the runtime to be used for executing the lambda
+	 *
+	 * @param runtime lambda runtime
+	 */
+	public abstract void setRuntime(final Runtime runtime);
 }
