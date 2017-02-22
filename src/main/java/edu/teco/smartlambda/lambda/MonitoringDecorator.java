@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.schedule.Event;
 
@@ -17,7 +18,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		return super.execute(params, async);
 	}
 	

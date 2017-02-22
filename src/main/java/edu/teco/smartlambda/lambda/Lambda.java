@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
@@ -28,7 +29,7 @@ public class Lambda extends AbstractLambda {
 	private String runtime;
 	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		//// FIXME: 2/15/17 
 		return null;
 	}
