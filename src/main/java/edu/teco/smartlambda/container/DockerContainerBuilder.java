@@ -45,7 +45,7 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		writer.flush();
 		writer.close();
 		
-		//// FIXME: 2/22/17 
+		//// FIXME: 2/22/17
 		final DockerClient dockerClient = new DefaultDockerClient("unix:///var/run/docker.sock");
 		System.out.println(tmpDirectory.getAbsoluteFile().toPath());
 		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
