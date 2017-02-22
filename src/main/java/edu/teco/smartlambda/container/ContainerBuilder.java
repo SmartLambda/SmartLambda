@@ -1,5 +1,7 @@
 package edu.teco.smartlambda.container;
 
+import java.io.IOException;
+
 /**
  * A builder for container files that shall be configured to execute the lambda on spawn
  */
@@ -31,7 +33,7 @@ public interface ContainerBuilder {
 	 *
 	 * @return this builder instance
 	 */
-	public default ContainerBuilder storeFile(final byte[] binary, final String name) {
+	public default ContainerBuilder storeFile(final byte[] binary, final String name) throws IOException {
 		return this.storeFile(binary, name, false);
 	}
 	
@@ -44,5 +46,5 @@ public interface ContainerBuilder {
 	 *
 	 * @return this builder instance
 	 */
-	public ContainerBuilder storeFile(final byte[] binary, final String name, final boolean executable);
+	public ContainerBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException;
 }
