@@ -147,6 +147,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(user.getPrimaryKey())) {
 				
+				user.getKeys().remove(this);
 				Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 				session.delete(this);
 			}
