@@ -145,6 +145,8 @@ public class User {
 		return null;
 	}
 	
+	public Set<Key> getKeys() { return keys; }
+	
 	/**
 	 * Retrieve a single User by its name
 	 *
