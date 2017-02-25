@@ -32,8 +32,7 @@ public class User {
 	private String   name;
 	private Key      primaryKey;
 	private boolean  isAdmin;
-	private Set<Key> keyList;
-	
+		
 	public User() {
 		//TODO (Git-Hub) authentication.
 	}
