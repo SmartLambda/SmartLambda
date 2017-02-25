@@ -8,6 +8,7 @@ import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
+import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import spark.Spark;
@@ -15,10 +16,13 @@ import spark.Spark;
 import java.io.File;
 
 public class Application {
-	private static Application    instance;
+	private static Application instance = null;
 	private        SessionFactory sessionFactory;
 	
 	private Application() {
+		// Load runtimes
+		RuntimeRegistry.getInstance();
+		
 		initializeHibernate();
 		initializeSpark();
 	}
@@ -59,6 +63,7 @@ public class Application {
 	
 	private void initializeHibernate() {
 		final Configuration configuration = new Configuration();
+		configuration.setProperty("hibernate.current_session_context_class", "thread");
 		configuration.configure(new File(BuildConfig.HIBERNATE_CONFIGURATION_PATH));
 		
 		sessionFactory = configuration.buildSessionFactory();
@@ -72,13 +77,15 @@ public class Application {
 	}
 	
 	public static void main(final String... args) {
-		instance = new Application();
+		getInstance();
 	}
 	
 	/**
 	 * @return the singleton Application instance
 	 */
 	public static Application getInstance() {
+		if (instance == null) instance = new Application();
+		
 		return instance;
 	}
 }

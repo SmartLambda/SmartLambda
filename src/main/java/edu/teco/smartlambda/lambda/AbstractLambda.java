@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
@@ -20,7 +21,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
 	 */
-	public final Optional<String> execute(final String params) {
+	public final Optional<ExecutionReturnValue> execute(final String params) {
 		return this.execute(params, this.isAsync());
 	}
 	
@@ -32,7 +33,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
 	 */
-	public abstract Optional<String> execute(final String params, final boolean async);
+	public abstract Optional<ExecutionReturnValue> execute(final String params, final boolean async);
 	
 	/**
 	 * Saves the lambda object into the database
@@ -122,4 +123,11 @@ public abstract class AbstractLambda {
 	 * @param async true, if this lambda shall be executed async by default, false otherwise
 	 */
 	public abstract void setAsync(final boolean async);
+	
+	/**
+	 * Sets the runtime to be used for executing the lambda
+	 *
+	 * @param runtime lambda runtime
+	 */
+	public abstract void setRuntime(final Runtime runtime);
 }

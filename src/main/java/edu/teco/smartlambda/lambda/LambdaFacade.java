@@ -16,8 +16,9 @@ public class LambdaFacade {
 	 * This class is a singleton and therefore handles instantiation itself
 	 */
 	private LambdaFacade() {
-		//// FIXME: 2/15/17
-		factory = null;
+		// this can be interchanged when other factories shall be supported
+		// TODO configurable?
+		factory = new PrivilegedMonitoredLambdaFactory();
 	}
 	
 	/**

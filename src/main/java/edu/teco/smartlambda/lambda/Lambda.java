@@ -1,8 +1,10 @@
 package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
+import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +26,10 @@ public class Lambda extends AbstractLambda {
 	@Setter
 	private boolean async;
 	
+	private String runtime;
+	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		//// FIXME: 2/15/17 
 		return null;
 	}
@@ -75,7 +79,11 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public Runtime getRuntime() {
-		//// FIXME: 2/15/17
-		return null;
+		return RuntimeRegistry.getInstance().getRuntimeByName(this.runtime);
+	}
+	
+	@Override
+	public void setRuntime(final Runtime runtime) {
+		this.runtime = runtime.getName();
 	}
 }
