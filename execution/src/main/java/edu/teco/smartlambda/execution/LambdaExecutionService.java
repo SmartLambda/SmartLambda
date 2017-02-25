@@ -2,7 +2,7 @@ package edu.teco.smartlambda.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.teco.smartlambda.container.ExecutionReturnValue;
+import edu.teco.smartlambda.execution.ExecutionReturnValue;
 import edu.teco.smartlambda.processor.LambdaMetaData;
 import edu.teco.smartlambda.runtime.JRE8;
 

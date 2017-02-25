@@ -19,8 +19,7 @@ import java.util.Calendar;
 @Data
 public class MonitoringEvent {
 	
-	// TODO are there more immutable attributes?
-	private       Calendar            time;
+	private final Calendar            time;
 	private final User                lambdaOwner;
 	private final String              lambdaName;
 	private       long                duration;

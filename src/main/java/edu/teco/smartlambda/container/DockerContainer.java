@@ -14,12 +14,7 @@ public class DockerContainer implements Container {
 	}
 	
 	@Override
-	public ExecutionReturnValue start() {
-		return null;
-	}
-	
-	@Override
-	public void delete() {
+	public void start() {
 		
 	}
 }
