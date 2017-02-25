@@ -1,20 +1,30 @@
 package edu.teco.smartlambda.container;
 
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.exceptions.DockerException;
+import edu.teco.smartlambda.configuration.ConfigurationService;
+
 /**
  *
  */
 public class DockerContainer implements Container {
 	
-	public DockerContainer(final String containerId) {
-		//// FIXME: 2/17/17
-	}
+	public static final String DEFAULT_SOCKET = "unix:///var/run/docker.sock";
 	
-	public DockerContainer() {
-		// empty container
+	final String dockerContainerId;
+	
+	public DockerContainer(final String containerId) {
+		this.dockerContainerId = containerId;
 	}
 	
 	@Override
-	public void start() {
-		
+	public void start() throws DockerException, InterruptedException {
+		new DefaultDockerClient(ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DEFAULT_SOCKET))
+				.startContainer(this.dockerContainerId);
+	}
+	
+	@Override
+	public String getContainerId() {
+		return this.dockerContainerId;
 	}
 }

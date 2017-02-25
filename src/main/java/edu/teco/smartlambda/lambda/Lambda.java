@@ -13,6 +13,8 @@ import java.util.Optional;
 
 public class Lambda extends AbstractLambda {
 	
+	public static final int PORT = 4_0_0_0_1;
+	
 	@Getter
 	@Setter
 	private User owner;
