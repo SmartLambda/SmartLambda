@@ -1,6 +1,5 @@
 package edu.teco.smartlambda.lambda;
 
-import edu.teco.smartlambda.execution.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.schedule.Event;

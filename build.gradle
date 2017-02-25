@@ -34,7 +34,6 @@ dependencies {
     compile'org.torpedoquery:org.torpedoquery:1.7.0'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.23'
     compile group: 'com.spotify', name: 'docker-client', version:'7.0.2'
-    compile project("execution")
 
     // compile time dependencies
     compileOnly "org.projectlombok:lombok:1.16.12"

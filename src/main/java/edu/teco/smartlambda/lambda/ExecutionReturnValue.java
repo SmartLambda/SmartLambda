@@ -1,12 +1,13 @@
-package edu.teco.smartlambda.execution;
+package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.container.Container;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * The serializable object that is returned by the {@link LambdaExecutionService} whenever a lambda is executed
+ * The serializable object that is returned by the {@link Container} whenever a lambda is executed
  */
 @RequiredArgsConstructor
 public class ExecutionReturnValue implements Serializable {
