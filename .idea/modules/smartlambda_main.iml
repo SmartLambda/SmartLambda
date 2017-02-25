@@ -67,5 +67,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.2.7.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.torpedoquery:org.torpedoquery:1.7.0" level="project" />
   </component>
 </module>
