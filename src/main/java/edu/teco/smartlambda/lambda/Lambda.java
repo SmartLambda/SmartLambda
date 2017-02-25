@@ -8,13 +8,30 @@ import edu.teco.smartlambda.schedule.Event;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import java.util.List;
 import java.util.Optional;
 
+@Entity
+@Table(name = "Lambda")
 public class Lambda extends AbstractLambda {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Getter
+	private int id;
 	
 	@Getter
 	@Setter
+	@ManyToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
 	private User owner;
 	
 	@Getter
@@ -29,7 +46,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public Optional<String> execute(final String params, final boolean async) {
-		//// FIXME: 2/15/17 
+		//// FIXME: 2/15/17
 		return null;
 	}
 	
