@@ -16,7 +16,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
-import static javafx.beans.binding.Bindings.select;
 import static javax.persistence.GenerationType.IDENTITY;
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
