@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
@@ -14,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -27,6 +29,22 @@ public class Key {
 	private String          name;
 	private User            user;
 	private Set<Permission> permissions;
+	
+	
+	public Key(String id, String name, User user) {
+		
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		
+		this.id = id;
+		this.name = name;
+		this.user = user;
+		this.permissions = new HashSet<>();
+		
+		session.save(this);
+		session.getTransaction().commit();
+	}
+	
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false)
@@ -86,7 +104,7 @@ public class Key {
 	 */
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
 		if (lambda == null) throw new IllegalStateException("Input parameter lambda == null");
-		for (Permission perm : this.getPermissions()) {
+		for (Permission perm : permissions) {
 			if (perm.getLambda().equals(lambda) && perm.getPermissionType().equals(type)) {
 				return true;
 			}
@@ -102,7 +120,7 @@ public class Key {
 	 */
 	public boolean hasPermission(User user, PermissionType type) {
 		if (user == null) throw new IllegalStateException("Input parameter user == null");
-		for (Permission perm : this.getPermissions()) {
+		for (Permission perm : permissions) {
 			if (perm.getUser().equals(user) && perm.getPermissionType().equals(type)) {
 				return true;
 			}
@@ -129,7 +147,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(user.getPrimaryKey())) {
 				
-				Session session = AuthenticationService.getInstance().sessionFactory.openSession();
+				Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 				session.delete(this);
 			}
 		}
@@ -146,8 +164,12 @@ public class Key {
 	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
 			Permission permission = new Permission(lambda, type);
+			
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			session.beginTransaction();
 			permissions.add(permission);
-			//TODO set permission in Database
+			session.save(permissions);
+			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -162,8 +184,12 @@ public class Key {
 	public void grantPermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			Permission permission = new Permission(user, type);
+			
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			session.beginTransaction();
 			permissions.add(permission);
-			//TODO set permission in Database
+			session.save(permissions);
+			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -179,7 +205,7 @@ public class Key {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
 			Permission permission = new Permission(lambda, type);
 			permissions.remove(permission);
-			Session session = AuthenticationService.getInstance().sessionFactory.openSession();
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.delete(permission);
 		}
 		throw new InsufficientPermissionsException();
@@ -196,7 +222,7 @@ public class Key {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			Permission permission = new Permission(user, type);
 			permissions.remove(permission);
-			Session session = AuthenticationService.getInstance().sessionFactory.openSession();
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.delete(permission);
 		}
 		throw new InsufficientPermissionsException();
