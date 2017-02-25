@@ -1,11 +1,13 @@
 package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.authentication.entities.User;
+
+import java.util.Optional;
+
 public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
-	
-	//// FIXME: 2/17/17 
 	@Override
-	public AbstractLambda getLambdaByName(final String name) {
-		return null;
+	public Optional<AbstractLambda> getLambdaByOwnerAndName(final User owner, final String name) {
+		return Optional.empty();
 	}
 	
 	/**
