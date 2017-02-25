@@ -30,6 +30,8 @@ public class User {
 	private boolean  isAdmin;
 		
 	public User() {
+		
+		this.primaryKey = new Key();
 		//TODO (Git-Hub) authentication.
 	}
 	
@@ -93,7 +95,9 @@ public class User {
 	public Pair<Key, String> createKey(String name) throws InsufficientPermissionsException, NameConflictException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
-				//TODO create Key and return it
+				
+				Pair<Key, String> toReturn = Pair.of(new Key(), name);
+				return toReturn;
 			}
 		}
 		throw new InsufficientPermissionsException();
