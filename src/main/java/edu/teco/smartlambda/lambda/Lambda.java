@@ -32,6 +32,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
@@ -154,7 +155,11 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void deployBinary(final byte[] content) {
-		//// FIXME: 2/15/17 
+		try {
+			builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
