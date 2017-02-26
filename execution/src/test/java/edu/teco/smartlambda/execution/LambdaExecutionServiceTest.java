@@ -3,6 +3,7 @@ package edu.teco.smartlambda.execution;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.lambda.ExecutionReturnValue;
+import edu.teco.smartlambda.lambda.Lambda;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class LambdaExecutionServiceTest {
 		new Thread(LambdaExecutionService::main).start();
 		
 		final Gson             gson         = new GsonBuilder().create();
-		final Socket           socket       = new Socket("localhost", 31337);
+		final Socket           socket       = new Socket("localhost", Lambda.PORT);
 		final DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 		
 		outputStream.writeUTF("{\"demoValue\": \"string\"}");
