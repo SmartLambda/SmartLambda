@@ -12,6 +12,7 @@ repositories {
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.4'
     compile group: 'com.google.auto.service', name: 'auto-service', version: '1.0-rc2'
+    compile rootProject
 
     compileOnly "org.projectlombok:lombok:1.16.12"
 

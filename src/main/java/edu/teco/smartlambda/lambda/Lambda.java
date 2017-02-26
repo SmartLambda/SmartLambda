@@ -23,6 +23,8 @@ import java.util.Optional;
 @Table(name = "Lambda")
 public class Lambda extends AbstractLambda {
 	
+	public static final int PORT = 4_0_0_0_1;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
@@ -45,8 +47,8 @@ public class Lambda extends AbstractLambda {
 	private String runtime;
 	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
-		//// FIXME: 2/15/17
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
+		//// FIXME: 2/15/17 
 		return null;
 	}
 	

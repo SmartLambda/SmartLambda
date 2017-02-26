@@ -1,16 +1,20 @@
 package edu.teco.smartlambda.runtime;
 
+import edu.teco.smartlambda.container.ContainerBuilder;
+
 /**
  * A {@link Runtime} implementation for Java 8
  */
 public class JRE8 implements Runtime {
 	
-	private static final String NAME = "JRE8";
+	private static final String NAME        = "JRE8";
+	public static final  String BINARY_NAME = "lambda.jar";
+	
+	private static final String EXECUTION_SERVICE_NAME = "executionservice.jar";
 	
 	@Override
-	public String getCommand() {
-		//// FIXME: 2/15/17
-		return null;
+	public void setupContainerImage(final ContainerBuilder builder) {
+		builder.setCommand("java -jar " + EXECUTION_SERVICE_NAME);
 	}
 	
 	@Override
@@ -20,7 +24,6 @@ public class JRE8 implements Runtime {
 	
 	@Override
 	public String getBinaryName() {
-		//// FIXME: 2/15/17
-		return "something like LambdaExecutionService.jar";
+		return BINARY_NAME;
 	}
 }

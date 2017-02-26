@@ -20,7 +20,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
 	 */
-	public final Optional<String> execute(final String params) {
+	public final Optional<ExecutionReturnValue> execute(final String params) {
 		return this.execute(params, this.isAsync());
 	}
 	
@@ -32,7 +32,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
 	 */
-	public abstract Optional<String> execute(final String params, final boolean async);
+	public abstract Optional<ExecutionReturnValue> execute(final String params, final boolean async);
 	
 	/**
 	 * Saves the lambda object into the database

@@ -2,7 +2,10 @@ package edu.teco.smartlambda.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.teco.smartlambda.lambda.ExecutionReturnValue;
+import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.processor.LambdaMetaData;
+import edu.teco.smartlambda.runtime.JRE8;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,16 +32,6 @@ public class LambdaExecutionService {
 	public static final String LAMBDA_META_DATA_FILE = "META-INF/lambda.json";
 	
 	/**
-	 * the location of the lambda archive that is loaded
-	 */
-	private static final String LAMBDA_ARCHIVE_LOCATION = "lambda.jar";
-	
-	/**
-	 * the port where parameters are received
-	 */
-	private static final int PORT = 31337;
-	
-	/**
 	 * Main function of the lambda executor service that executes the lambda archive inside a container
 	 *
 	 * @param args ignored command line parameters
@@ -57,7 +50,7 @@ public class LambdaExecutionService {
 		
 		// initialize socket
 		try {
-			socket = new ServerSocket(PORT);
+			socket = new ServerSocket(Lambda.PORT);
 			clientSocket = socket.accept();
 			input = new DataInputStream(clientSocket.getInputStream());
 			output = new DataOutputStream(clientSocket.getOutputStream());
@@ -71,7 +64,7 @@ public class LambdaExecutionService {
 			// initialize class loader
 			final URLClassLoader classLoader;
 			try {
-				classLoader = new URLClassLoader(new URL[] {new File(LAMBDA_ARCHIVE_LOCATION).toURI().toURL()},
+				classLoader = new URLClassLoader(new URL[] {new File(JRE8.BINARY_NAME).toURI().toURL()},
 						LambdaExecutionService.class.getClassLoader());
 			} catch (MalformedURLException e) {
 				assert false;

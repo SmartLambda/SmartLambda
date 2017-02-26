@@ -17,7 +17,7 @@ public class PermissionDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<String> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		return super.execute(params, async);
 	}
 	
