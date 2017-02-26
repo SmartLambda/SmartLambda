@@ -8,11 +8,18 @@ group 'edu.teco'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'application'
+apply plugin: 'idea'
 
 //noinspection GroovyUnusedAssignment
 mainClassName = "edu.teco.smartlambda.Application"
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
+
+idea {
+    module {
+        sourceDirs += file("build/gen/buildconfig/src/main")
+    }
+}
 
 repositories {
     mavenCentral()
@@ -46,7 +53,7 @@ dependencies {
 buildConfig {
     appName = project.name
     version = project.version
-    packageName = project.group + "." + project.name
+    packageName = project.group + "." + "smartlambda"
     if(Os.isFamily(Os.FAMILY_WINDOWS)) {
         buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda\\\\smartlambda.xml"
         buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "C:\\\\smartlambda\\\\hibernate.xml"

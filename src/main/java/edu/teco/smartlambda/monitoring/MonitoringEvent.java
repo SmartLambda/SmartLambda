@@ -1,14 +1,18 @@
 package edu.teco.smartlambda.monitoring;
 
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 import lombok.Data;
+import org.hibernate.Session;
+import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Table;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -19,63 +23,34 @@ import java.util.Calendar;
 @Data
 public class MonitoringEvent {
 	
-	private final Calendar            time;
-	private final User                lambdaOwner;
-	private final String              lambdaName;
-	private       long                duration;
-	private       int                 CPUTime;
-	private       String              error;
-	private final MonitoringEventType type;
-	private final Key                 key;
-	private int                       id;
-	
-	
-	@Id
-	@GeneratedValue(generator="increment")
-	@GenericGenerator(name="increment", strategy = "increment")
-	public int getId() {
-		return id;
-	}
-	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "time")
-	public Calendar getTime() {
-		return time;
-	}
-	
+	private final Calendar            time;
 	@Column(name = "lambdaOwner")
-	public User getLambdaOwner() {
-		return lambdaOwner;
-	}
-	
+	private final User                lambdaOwner;
 	@Column(name = "lambdaName")
-	public String getLambdaName() {
-		return lambdaName;
-	}
-	
+	private final String              lambdaName;
 	@Column(name = "duration")
-	public long getDuration() {
-		return duration;
-	}
-	
+	private       long                duration;
 	@Column(name = "CPUTime")
-	public int getCPUTime() {
-		return CPUTime;
-	}
-	
+	private       int                 CPUTime;
 	@Column(name = "error")
-	public String getError() {
-		return error;
-	}
-	
+	private       String              error;
 	@Column(name = "type")
-	public MonitoringEventType getType() {
-		return type;
-	}
-	
+	private final MonitoringEventType type;
 	@Column(name = "key")
-	public Key getKey() {
-		return key;
+	private final Key                 key;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int                       id;
+	
+	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+	
+	
+	public void save() {
+		session.beginTransaction();
+		session.save(this);
+		session.getTransaction().commit();
 	}
 	
 	enum MonitoringEventType {

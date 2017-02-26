@@ -3,57 +3,48 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.lambda.Lambda;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Set;
 
 /**
  * Created by Matteo on 01.02.2017.
  */
+@Entity
+@Table(name = "Key")
 public class Key {
-	
-	private String          id;
-	private String          name;
-	private User            user;
-	private Set<Permission> permissions;
-	
+	@Getter
 	@Id
 	@Column(name = "id", unique = true, nullable = false)
-	private String getId() {
-		return id;
-	}
+	private String          id;
+	@Getter
+	@Setter
+	@Column(name = "name", nullable = false)
+	private String          name;
+	@Getter
+	@OneToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private User            user;
+	@Getter
+	@OneToMany(fetch = FetchType.LAZY)
+	private Set<Permission> permissions;
 	
 	private void setId(final String id) {
 		this.id = id;
 	}
 	
-	@Column(name = "name", nullable = false)
-	public String getName() {
-		return name;
-	}
-	
-	private void setName(final String name) {
-		this.name = name;
-	}
-	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "User", nullable = false)
-	public User getUser() {
-		return user;
-	}
-	
-	private void setUser(User user) {
+	private void setUser(final User user) {
 		this.user = user;
-	}
-	
-	@OneToMany(fetch = FetchType.LAZY,mappedBy = "Key")
-	public Set<Permission> getPermissions() {
-		return permissions;
 	}
 	
 	private void setPermissions(Set<Permission> permissions) {
@@ -61,7 +52,6 @@ public class Key {
 	}
 	
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
-		
 		for (Permission perm : this.getPermissions()) {
 			if (perm.getLambda().equals(lambda) && perm.getPermissionType().equals(type)) {
 					return true;
@@ -80,6 +70,7 @@ public class Key {
 		return false;
 	}
 	
+	@Transient
 	public boolean isPrimaryKey() {
 		if (this.getUser().getPrimaryKey().equals(this)) {
 			return true;

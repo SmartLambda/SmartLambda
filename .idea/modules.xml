@@ -11,11 +11,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" group="lambda-test" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda_main.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda_main.iml" group="smartlambda" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smartlambda_test.iml" filepath="$PROJECT_DIR$/.idea/modules/smartlambda_test.iml" group="smartlambda" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/source.iml" filepath="$PROJECT_DIR$/.idea/modules/source.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/source.iml" filepath="$PROJECT_DIR$/.idea/source.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_main.iml" filepath="$PROJECT_DIR$/.idea/modules/source_main.iml" group="source" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_test.iml" filepath="$PROJECT_DIR$/.idea/modules/source_test.iml" group="source" />
     </modules>
   </component>
 </project>

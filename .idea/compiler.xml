@@ -13,6 +13,8 @@
       <module name="lambda-test_test" target="1.8" />
       <module name="smartlambda_main" target="1.8" />
       <module name="smartlambda_test" target="1.8" />
+      <module name="source_main" target="1.8" />
+      <module name="source_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
