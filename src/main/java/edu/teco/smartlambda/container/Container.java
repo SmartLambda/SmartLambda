@@ -10,7 +10,7 @@ public interface Container {
 	 *
 	 * @throws Exception on any virtualization engine specific exception
 	 */
-	public void start() throws Exception;
+	public String start() throws Exception;
 	
 	/**
 	 * @return a unique id that can be used to reference the container

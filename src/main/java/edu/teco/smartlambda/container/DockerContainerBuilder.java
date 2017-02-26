@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,8 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	}
 	
 	@Override
-	public DockerContainer build() throws DockerCertificateException, IOException, DockerException, InterruptedException {
+	public DockerContainer build()
+			throws DockerCertificateException, IOException, DockerException, InterruptedException, URISyntaxException {
 		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
@@ -50,7 +52,6 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		//// FIXME: 2/22/17
 		final DockerClient dockerClient = new DefaultDockerClient(
 				ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DockerContainer.DEFAULT_SOCKET));
-		System.out.println(tmpDirectory.getAbsoluteFile().toPath());
 		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
 		
 		//noinspection ResultOfMethodCallIgnored
