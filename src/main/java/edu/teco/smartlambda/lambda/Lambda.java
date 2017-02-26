@@ -1,35 +1,42 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.container.BuilderFactory;
 import edu.teco.smartlambda.container.Container;
 import edu.teco.smartlambda.container.ContainerBuilder;
 import edu.teco.smartlambda.container.ContainerFactory;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Table;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
