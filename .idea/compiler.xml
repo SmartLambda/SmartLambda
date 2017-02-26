@@ -5,6 +5,8 @@
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="demolambda_main" target="1.8" />
+      <module name="demolambda_test" target="1.8" />
       <module name="execution_main" target="1.8" />
       <module name="execution_test" target="1.8" />
       <module name="lambda-test_main" target="1.8" />
