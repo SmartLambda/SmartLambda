@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -28,7 +29,6 @@ import static org.torpedoquery.jpa.Torpedo.where;
 @Table(name = "User")
 public class User {
 	
-
 	private int      id;
 	private String   name;
 	private Key      primaryKey;
@@ -37,13 +37,18 @@ public class User {
 		
 	public User() {
 		
+		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
+		
+		//Der Id wird von der Datenbank gesetzt
+		//TODO (Git-Hub) authentication
+		// Wie wird ermittelt, ob der User Administrator ist? Gibt's nur einen Admin? In dem Fall vllt mit einer Klassenvariable?
 		try {
 			this.primaryKey = addKey(this.name).getLeft();
 		} catch (NameConflictException e){
 			// This is the first Key of this User, there cannot be another Key with the same name
 		}
-		//TODO (Git-Hub) authentication.
 	}
+	
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -55,6 +60,7 @@ public class User {
 	private void setId(final int id) {
 		this.id = id;
 	}
+	
 	
 	/**
 	 * Returns the Name of this User
@@ -69,6 +75,7 @@ public class User {
 		this.name = name;
 	}
 	
+	
 	/**
 	 * Returns the PrimaryKey of this User
 	 * @return PrimaryKey
@@ -81,6 +88,7 @@ public class User {
 	private void setPrimaryKey(final Key primaryKey) {
 		this.primaryKey = primaryKey;
 	}
+	
 	
 	/**
 	 * Returns true if this User is a Admin-User, false otherwise
@@ -95,6 +103,7 @@ public class User {
 		isAdmin = admin;
 	}
 	
+	
 	/**
 	 * Creates a new Key Object and adds it to the Database
 	 * @param name Name for the Key
@@ -107,20 +116,25 @@ public class User {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
 				
 				return addKey(name);
-				
 			}
 		}
 		throw new InsufficientPermissionsException();
 	}
 	
+	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
 		
-		//TODO: query mit dem Namen, wenn es schon einen gibt wirft es eine Exception. Wenn der User nicht vorliegt gibt's auch keine
-		// Exception
+		for (Key key : keys) {
+			if (key.getName().equals(name)) {
+				//TODO: throw NameConflictException
+			}
+		}
 				
 		String generatedNumber = "";
 		String id = "";
 		//TODO: generate number and hash it
+		//Der KeyId wird nicht von Hibernate generiert, ist das richtig? Wenn doch, können wir nicht den Id in der Datenbank speichern
+		// und die gehashte Version zurückgeben?
 		Key key = new Key(id, name, this);
 		
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
@@ -132,20 +146,35 @@ public class User {
 		return Pair.of(key, generatedNumber);
 	}
 	
+	
 	/**
 	 * Returns all Users, which this User can See (all Users if this User is an Admin and Users with shared Lambdas otherwise)
  	 * @return Set of Users
 	 */
 	public Set<User> getVisibleUsers() {
 		if (this.isAdmin) {
-			//TODO return all Users
+			//TODO return all Users: Torpedo query list()
+			return null;
 		} else {
-			//TODO search in database for all own keys and all of their permissions for foreign Users. return them as a Set.
+			Set<User> toReturn = new HashSet<>();
+			for (Key key : keys) {
+				for (Permission perm : key.getPermissions()) {
+					
+					if (perm.getUser() != null) {
+						toReturn.add(perm.getUser());
+					} else {
+						toReturn.add(perm.getLambda().getOwner());
+					}
+					toReturn.remove(this); // Richtig??
+				}
+			}
+			return toReturn;
 		}
-		return null;
 	}
 	
+	
 	public Set<Key> getKeys() { return keys; }
+	
 	
 	/**
 	 * Retrieve a single User by its name
