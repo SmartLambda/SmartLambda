@@ -1,9 +1,7 @@
 package edu.teco.smartlambda.authentication;
 
-import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import org.hibernate.SessionFactory;
 
 import java.util.Optional;
 
@@ -14,8 +12,6 @@ public class AuthenticationService {
 	
 	private static ThreadLocal<AuthenticationService> instance         = null;
 	private        Key                                authenticatedKey = null;
-	public SessionFactory sessionFactory = Application.getInstance().getSessionFactory(); //TODO is this the right place for the Factory
-	// Static!?
 	
 	/**
 	 * The AuthenticationService is managed as a ThreadLocal Singleton.
