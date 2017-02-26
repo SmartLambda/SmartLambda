@@ -5,15 +5,19 @@ import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.Lambda;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Session;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,10 +28,20 @@ import java.util.Set;
 @Entity
 @Table(name = "Key")
 public class Key {
-	
+	@Getter
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
 	private String          id;
+	@Getter
+	@Setter
+	@Column(name = "name", nullable = false)
 	private String          name;
+	@Getter
+	@OneToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
 	private User            user;
+	@Getter
+	@OneToMany(fetch = FetchType.LAZY)
 	private Set<Permission> permissions;
 	
 	
@@ -56,43 +70,8 @@ public class Key {
 		this.id = id;
 	}
 	
-	
-	/**
-	 * Returns the Keys Name
-	 * @return name
-	 */
-	@Column(name = "name", nullable = false)
-	public String getName() {
-		return name;
-	}
-	
-	private void setName(final String name) {
-		this.name = name;
-	}
-	
-	
-	/**
-	 * Returns the Keys User
-	 * @return user
-	 */
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "User", nullable = false)
-	public User getUser() {
-		return user;
-	}
-	
-	private void setUser(User user) {
+	private void setUser(final User user) {
 		this.user = user;
-	}
-	
-	
-	/**
-	 * Returns the Keys Permissions as a Set
-	 * @return permissions
-	 */
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "Key")
-	public Set<Permission> getPermissions() {
-		return permissions;
 	}
 	
 	private void setPermissions(Set<Permission> permissions) {
@@ -138,6 +117,7 @@ public class Key {
 	 * Returns true if this key is a primaryKey, false otherwise
 	 * @return
 	 */
+	@Transient
 	public boolean isPrimaryKey() {
 		if (this.getUser().getPrimaryKey().equals(this)) {
 			return true;

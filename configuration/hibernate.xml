@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/smartlambda</property>
+        <property name="hibernate.connection.username">smartlambda</property>
+        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.c3p0.min_size">4</property>
+    </session-factory>
+</hibernate-configuration>

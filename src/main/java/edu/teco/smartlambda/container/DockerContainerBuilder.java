@@ -4,6 +4,8 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import edu.teco.smartlambda.configuration.ConfigurationService;
+import edu.teco.smartlambda.lambda.Lambda;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -40,13 +42,14 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		writer.write("FROM openjdk:8\n");
 		writer.write("COPY . ~\n");
 		writer.write("WORKDIR ~\n");
-		writer.write("EXPOSE 31337\n");
+		writer.write("EXPOSE " + Lambda.PORT + "\n");
 		writer.write("CMD " + this.command + "\n");
 		writer.flush();
 		writer.close();
 		
 		//// FIXME: 2/22/17
-		final DockerClient dockerClient = new DefaultDockerClient("unix:///var/run/docker.sock");
+		final DockerClient dockerClient = new DefaultDockerClient(
+				ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DockerContainer.DEFAULT_SOCKET));
 		System.out.println(tmpDirectory.getAbsoluteFile().toPath());
 		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
 		

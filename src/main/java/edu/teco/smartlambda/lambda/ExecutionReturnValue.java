@@ -1,5 +1,6 @@
-package edu.teco.smartlambda.container;
+package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.container.Container;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;

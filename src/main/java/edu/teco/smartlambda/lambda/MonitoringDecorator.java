@@ -1,7 +1,7 @@
 package edu.teco.smartlambda.lambda;
 
-import edu.teco.smartlambda.container.ExecutionReturnValue;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Decorates lambdas with calls to the monitoring service
  */
-//// FIXME: 2/15/17 
+
 public class MonitoringDecorator extends LambdaDecorator {
 	
 	public MonitoringDecorator(final AbstractLambda lambda) {
@@ -19,11 +19,22 @@ public class MonitoringDecorator extends LambdaDecorator {
 	
 	@Override
 	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		return super.execute(params, async);
+		if(!async) {
+			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+			Optional<ExecutionReturnValue> returnVal = super.execute(params, async);
+				//TODO: get CPUTime
+			MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
+			
+			return returnVal;
+		} else {
+			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+			return super.execute(params, async);
+		}
 	}
 	
 	@Override
 	public void save() {
+		MonitoringService.getInstance().onLambdaDeployment(lambda);
 		super.save();
 	}
 	
@@ -34,6 +45,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	
 	@Override
 	public void delete() {
+		MonitoringService.getInstance().onLambdaDeletion(lambda);
 		super.delete();
 	}
 	
