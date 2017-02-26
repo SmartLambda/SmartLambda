@@ -43,21 +43,25 @@ public class MonitoringService {
 	public void onLambdaExecutionEnd(final AbstractLambda lambda, final int CPUTime) {
 		monitoringEvent.setCPUTime(CPUTime);
 		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis() - monitoringEvent.getTime().getTimeInMillis());
+		monitoringEvent.save();
 	}
 	
 	public void onLambdaExecutionEnd(final AbstractLambda lambda, final int CPUTime, final String error) {
 		monitoringEvent.setCPUTime(CPUTime);
 		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis() - monitoringEvent.getTime().getTimeInMillis());
 		monitoringEvent.setError(error);
+		monitoringEvent.save();
 	}
 	
 	public void onLambdaDeletion(final AbstractLambda lambda) {
 		monitoringEvent = new MonitoringEvent(Calendar.getInstance(), lambda.getOwner(), lambda.getName(), MonitoringEvent.MonitoringEventType.DELETION,
 				authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
+		monitoringEvent.save();
 	}
 	
 	public void onLambdaDeployment(final AbstractLambda lambda) {
 		monitoringEvent = new MonitoringEvent(Calendar.getInstance(), lambda.getOwner(), lambda.getName(), MonitoringEvent.MonitoringEventType.DEPLOYMENT,
 				authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
+		monitoringEvent.save();
 	}
 }

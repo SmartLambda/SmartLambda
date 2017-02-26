@@ -8,6 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="smartlambda_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -17,7 +18,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="smartlambda_main" />
     <orderEntry type="library" name="Gradle: com.sparkjava:spark-core:2.5.4" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:19.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />
