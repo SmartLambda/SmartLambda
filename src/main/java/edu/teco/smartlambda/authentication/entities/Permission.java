@@ -27,6 +27,39 @@ public class Permission {
 	private Lambda lambda = null;
 	private PermissionType permissionType;
 	
+	
+	/**
+	 * Creates a Permission for the supplied Lambda and PermissionType
+	 * @param lambda
+	 * @param type
+	 */
+	public Permission(Lambda lambda, PermissionType type) {
+		
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		this.lambda = lambda;
+		this.permissionType = type;
+		session.save(this);
+		session.getTransaction().commit();
+	}
+	
+	
+	/**
+	 * Creates a Permission for the supplied User and PermissionType
+	 * @param user
+	 * @param type
+	 */
+	public  Permission (User user, PermissionType type) {
+		
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		this.user = user;
+		this.permissionType = type;
+		session.save(this);
+		session.getTransaction().commit();
+	}
+	
+	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
@@ -37,6 +70,7 @@ public class Permission {
 	private void setId(final int id) {
 		this.id = id;
 	}
+	
 	
 	/**
 	 * Returns the User Object if this is a Permission for al Lambda, null otherwise
@@ -52,6 +86,7 @@ public class Permission {
 		this.user = user;
 	}
 	
+	
 	/**
 	 * Returns the Lambda Object if this is a Permission for al Lambda, null otherwise
 	 * @return the Lambda Object
@@ -66,6 +101,7 @@ public class Permission {
 		this.lambda = lambda;
 	}
 	
+	
 	/**
 	 * Returns the PermissionType of this Permission
 	 * @return permissionType
@@ -79,36 +115,6 @@ public class Permission {
 		this.permissionType = permissionType;
 	}
 	
-	/**
-	 * Creates a Permission for the supplied Lambda and PermissionType
-	 * @param lambda
-	 * @param type
-	 */
-	public Permission(Lambda lambda, PermissionType type) {
-			
-		//TODO: generateId?
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		this.lambda = lambda;
-		this.permissionType = type;
-		
-		session.save(this);
-		session.getTransaction().commit();
-	}
 	
-	/**
-	 * Creates a Permission for the supplied User and PermissionType
-	 * @param user
-	 * @param type
-	 */
-	public  Permission (User user, PermissionType type) {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		this.user = user;
-		this.permissionType = type;
-		
-		session.save(this);
-		session.getTransaction().commit();
-	}
 	
 }

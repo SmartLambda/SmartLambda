@@ -56,6 +56,7 @@ public class Key {
 		this.id = id;
 	}
 	
+	
 	/**
 	 * Returns the Keys Name
 	 * @return name
@@ -68,6 +69,7 @@ public class Key {
 	private void setName(final String name) {
 		this.name = name;
 	}
+	
 	
 	/**
 	 * Returns the Keys User
@@ -83,6 +85,7 @@ public class Key {
 		this.user = user;
 	}
 	
+	
 	/**
 	 * Returns the Keys Permissions as a Set
 	 * @return permissions
@@ -95,6 +98,7 @@ public class Key {
 	private void setPermissions(Set<Permission> permissions) {
 		this.permissions = permissions;
 	}
+	
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied Lambda
@@ -112,6 +116,7 @@ public class Key {
 		return false;
 	}
 	
+	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied User
 	 * @param user a Permission has to be a Permission for this User
@@ -128,6 +133,7 @@ public class Key {
 		return false;
 	}
 	
+	
 	/**
 	 * Returns true if this key is a primaryKey, false otherwise
 	 * @return
@@ -138,6 +144,7 @@ public class Key {
 		}
 		return false;
 	}
+	
 	
 	/**
 	 * Deletes this Key from the Database
@@ -154,6 +161,7 @@ public class Key {
 		}
 		throw new InsufficientPermissionsException();
 	}
+	
 	
 	/**
 	 * Adds a Permission for the supplied Lambda of the supplied type to this Key Object
@@ -175,6 +183,7 @@ public class Key {
 		throw new InsufficientPermissionsException();
 	}
 	
+	
 	/**
 	 * Adds a Permission for the supplied User of the supplied type to this Key Object
 	 * @param user the supplied User
@@ -195,6 +204,7 @@ public class Key {
 		throw new InsufficientPermissionsException();
 	}
 	
+	
 	/**
 	 * Removes a Permission for the supplied Lambda of the supplied type to this Key Object
 	 * @param lambda the supplied Lambda
@@ -211,6 +221,7 @@ public class Key {
 		}
 		throw new InsufficientPermissionsException();
 	}
+	
 	
 	/**
 	 * Removes a Permission for the supplied User of the supplied type to this Key Object
@@ -229,6 +240,7 @@ public class Key {
 		throw new InsufficientPermissionsException();
 	}
 	
+	
 	private boolean currentAuthenticatedUserHasLambdaPermissionToGrant(Lambda lambda, PermissionType type) {
 		
 		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
@@ -241,6 +253,7 @@ public class Key {
 		
 		return false;
 	}
+	
 	
 	private boolean currentAuthenticatedUserHasUserPermissionToGrant(User user, PermissionType type) {
 		
