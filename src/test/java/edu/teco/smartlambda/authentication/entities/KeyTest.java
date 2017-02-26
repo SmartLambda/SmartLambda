@@ -4,10 +4,9 @@ import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,7 @@ public class KeyTest {
 	boolean revokedSecond = false;
 	
 	
-	@BeforeClass
+	@Before
 	public void buildUp() {
 		try {
 		key = user.createKey("KeyTest.buildUp").getLeft();
