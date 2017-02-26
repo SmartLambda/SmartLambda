@@ -44,7 +44,7 @@ public class MonitoringEvent {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int                       id;
 	
-	private Session session = Application.getInstance().getSessionFactory().openSession();
+	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 	
 	
 	public void save() {
