@@ -1,14 +1,19 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.container.BuilderFactory;
 import edu.teco.smartlambda.container.Container;
 import edu.teco.smartlambda.container.ContainerBuilder;
 import edu.teco.smartlambda.container.ContainerFactory;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
@@ -30,6 +35,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
@@ -65,31 +72,53 @@ public class Lambda extends AbstractLambda {
 	private String containerId;
 	
 	@Transient
+	
 	private ContainerBuilder builder = BuilderFactory.getContainerBuilder();
 	
-	private Session session = Application.getInstance().getSessionFactory().openSession();
+	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 	
 	@Override
 	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		Container container = ContainerFactory.getContainerById(containerId);
-		try {
-			container.start();
-		} catch (Exception e) {
-			throw (new RuntimeException(e));
-		}
-		final Gson   gson = new GsonBuilder().create();
-		final Socket socket;
-		final DataInputStream inputStream;
-		final ExecutionReturnValue returnValue;
-		try {
+		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
+			final Container container = ContainerFactory.getContainerById(containerId);
+			try {
+				container.start();
+			} catch (Exception e) {
+				throw (new RuntimeException(e));
+			}
+			final Gson                 gson = new GsonBuilder().create();
+			final Socket               socket;
+			final DataInputStream      inputStream;
+			final ExecutionReturnValue returnValue;
+			
 			socket = new Socket("localhost", PORT);
 			inputStream = new DataInputStream(socket.getInputStream());
 			returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
-		} catch (Exception e) {
-			throw (new RuntimeException(e));
-		}
+			
+			return returnValue;
+		});
 		
-		return Optional.of(returnValue);
+		if (async) {
+			Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
+				//TODO: CPUTime!
+				@Override
+				public void onSuccess(final ExecutionReturnValue result) {
+					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
+				}
+				
+				@Override
+				public void onFailure(final Throwable t) {
+					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
+				}
+			});
+			return Optional.empty();
+		} else {
+			try {
+				return Optional.of(future.get());
+			} catch (InterruptedException | ExecutionException e) {
+				throw (new RuntimeException(e));
+			}
+		}
 	}
 	
 	@Override
@@ -112,7 +141,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void delete() {
-		Object lambda = session.load(Lambda.class, id);
+		AbstractLambda lambda = session.load(Lambda.class, id);
 		session.delete(lambda);
 	}
 	

@@ -22,13 +22,9 @@ public class MonitoringDecorator extends LambdaDecorator {
 		if(!async) {
 			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
 			Optional<ExecutionReturnValue> returnVal = super.execute(params, async);
-			if(!returnVal.isPresent() || !returnVal.get().isException()) {
 				//TODO: get CPUTime
-				MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0);
-			} else {
-				//TODO: get CPUTime
-				MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get().getException().get().getStackTrace().toString());
-			}
+			MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
+			
 			return returnVal;
 		} else {
 			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
