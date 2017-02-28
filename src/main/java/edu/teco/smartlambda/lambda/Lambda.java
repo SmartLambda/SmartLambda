@@ -32,6 +32,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -85,11 +86,9 @@ public class Lambda extends AbstractLambda {
 			} catch (Exception e) {
 				throw (new RuntimeException(e));
 			}
-			final Gson                 gson = new GsonBuilder().create();
-			final DataInputStream      inputStream;
-			final ExecutionReturnValue returnValue;
-			Socket                     socket;
-			int                        connectionRetries = 0;
+			final Gson gson              = new GsonBuilder().create();
+			Socket     socket;
+			int        connectionRetries = 0;
 			
 			while (true) {
 				try {
@@ -103,8 +102,12 @@ public class Lambda extends AbstractLambda {
 				}
 			}
 			
-			inputStream = new DataInputStream(socket.getInputStream());
-			returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
+			final DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+			outputStream.writeUTF(params);
+			outputStream.flush();
+			
+			final DataInputStream      inputStream = new DataInputStream(socket.getInputStream());
+			final ExecutionReturnValue returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
 			
 			return returnValue;
 		});
