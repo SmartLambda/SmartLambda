@@ -12,8 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class User {
 	private String  name;
 	@Getter
 	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@JoinColumn(name = "primaryKey")
 	private Key     primaryKey;
 	@Getter
 	@Column(name = "isAdmin", nullable = false)

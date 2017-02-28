@@ -21,16 +21,14 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import edu.teco.smartlambda.shared.GlobalOptions;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Session;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
@@ -57,21 +55,17 @@ public class Lambda extends AbstractLambda {
 	@Getter
 	@Setter
 	@ManyToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
-	@Column(name = "owner")
+	@JoinColumn(name = "owner")
 	private User owner;
 	
 	@Getter
 	@Setter
-	@Column(name = "name")
 	private String name;
 	
 	@Getter
 	@Setter
-	@Column(name = "async")
 	private boolean async;
 	
-	@Column(name = "runtime")
 	private String runtime;
 	
 	private String containerId;
@@ -79,10 +73,7 @@ public class Lambda extends AbstractLambda {
 	@Transient
 	private ContainerBuilder builder = BuilderFactory.getContainerBuilder();
 	
-	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-	
-	private int connectionRetrys;
-	private static final int MAX_RETRYS = 4;
+	private static final int MAX_RETRIES = 4;
 	
 	@Override
 	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
@@ -95,9 +86,10 @@ public class Lambda extends AbstractLambda {
 				throw (new RuntimeException(e));
 			}
 			final Gson                 gson = new GsonBuilder().create();
-			Socket                     socket;
 			final DataInputStream      inputStream;
 			final ExecutionReturnValue returnValue;
+			Socket                     socket;
+			int                        connectionRetries = 0;
 			
 			while (true) {
 				try {
@@ -105,9 +97,9 @@ public class Lambda extends AbstractLambda {
 					break;
 				} catch (ConnectException e) {
 					Thread.sleep(200);
-					connectionRetrys++;
+					connectionRetries++;
 					
-					if (connectionRetrys > MAX_RETRYS) throw e;
+					if (connectionRetries > MAX_RETRIES) throw e;
 				}
 			}
 			
@@ -149,9 +141,7 @@ public class Lambda extends AbstractLambda {
 		} catch (Exception e) {
 			throw (new RuntimeException(e));
 		}
-		session.beginTransaction();
-		session.save(this);
-		session.getTransaction().commit();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
 	@Override
@@ -161,8 +151,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void delete() {
-		AbstractLambda lambda = session.load(Lambda.class, id);
-		session.delete(lambda);
+		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 	}
 	
 	@Override
@@ -196,7 +185,7 @@ public class Lambda extends AbstractLambda {
 		MonitoringEvent query = from(MonitoringEvent.class);
 		where(query.getLambdaName()).eq(name).and(query.getLambdaOwner()).eq(owner);
 		
-		return select(query).list(session);
+		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
 	@Override

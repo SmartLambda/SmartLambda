@@ -28,7 +28,7 @@ public class RuntimeRegistry {
 		for (String runtime : runtimes) {
 			try {
 				final Runtime runtimeInstance = (Runtime) Class.forName(runtime).getConstructor().newInstance();
-				this.runtimes.put(runtime, runtimeInstance);
+				this.runtimes.put(runtimeInstance.getName(), runtimeInstance);
 				LoggerFactory.getLogger(RuntimeRegistry.class).info("Loaded runtime " + runtime);
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				LoggerFactory.getLogger(RuntimeRegistry.class).error("Exception while loading runtime");

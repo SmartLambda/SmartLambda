@@ -1,6 +1,7 @@
 package edu.teco.smartlambda;
 
 import com.google.gson.Gson;
+import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.Permission;
 import edu.teco.smartlambda.authentication.entities.User;
@@ -79,6 +80,11 @@ public class Application {
 		
 		Spark.exception(LambdaNotFoundException.class, (Exception exception, Request request, Response response) -> {
 			response.status(404);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(NotAuthenticatedException.class, (Exception exception, Request request, Response response) -> {
+			response.status(401);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 	}
