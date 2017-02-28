@@ -2,10 +2,9 @@ package edu.teco.smartlambda.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.teco.smartlambda.lambda.ExecutionReturnValue;
-import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.processor.LambdaMetaData;
-import edu.teco.smartlambda.runtime.JRE8;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import edu.teco.smartlambda.shared.GlobalOptions;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -50,7 +49,7 @@ public class LambdaExecutionService {
 		
 		// initialize socket
 		try {
-			socket = new ServerSocket(Lambda.PORT);
+			socket = new ServerSocket(GlobalOptions.PORT);
 			clientSocket = socket.accept();
 			input = new DataInputStream(clientSocket.getInputStream());
 			output = new DataOutputStream(clientSocket.getOutputStream());
@@ -64,7 +63,7 @@ public class LambdaExecutionService {
 			// initialize class loader
 			final URLClassLoader classLoader;
 			try {
-				classLoader = new URLClassLoader(new URL[] {new File(JRE8.BINARY_NAME).toURI().toURL()},
+				classLoader = new URLClassLoader(new URL[] {new File(GlobalOptions.JRE_8_BINARY_NAME).toURI().toURL()},
 						LambdaExecutionService.class.getClassLoader());
 			} catch (MalformedURLException e) {
 				assert false;

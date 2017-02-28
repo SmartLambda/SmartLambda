@@ -2,6 +2,7 @@ package edu.teco.smartlambda.lambda;
 
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.schedule.Event;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;

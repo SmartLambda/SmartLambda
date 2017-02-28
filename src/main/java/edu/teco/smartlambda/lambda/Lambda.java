@@ -17,6 +17,8 @@ import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import edu.teco.smartlambda.shared.GlobalOptions;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,8 +46,6 @@ import static org.torpedoquery.jpa.Torpedo.where;
 @Entity
 @Table(name = "Lambda")
 public class Lambda extends AbstractLambda {
-	
-	public static final int PORT = 40001;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,7 +93,7 @@ public class Lambda extends AbstractLambda {
 			
 			while (true) {
 				try {
-					socket = new Socket(IP, PORT);
+					socket = new Socket(IP, GlobalOptions.PORT);
 					break;
 				} catch (ConnectException e) {
 					Thread.sleep(200);
