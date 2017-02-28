@@ -19,7 +19,7 @@ public class KeyTest {
 	
 	Key    key;
 	Lambda lambda = new Lambda();
-	User user = new User();
+	User user = new User("KeyTest.User");
 	boolean revokedFirst = false;
 	boolean revokedSecond = false;
 	

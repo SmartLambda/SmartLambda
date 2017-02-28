@@ -1,12 +1,8 @@
 package edu.teco.smartlambda.authentication.entities;
 
-import edu.teco.smartlambda.authentication.*;
+import edu.teco.smartlambda.authentication.AuthenticationService;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import javax.swing.text.html.Option;
-import java.util.Optional;
 
 /**
  * Created by Matteo on 07.02.2017.
@@ -14,7 +10,7 @@ import java.util.Optional;
 public class UserTest {
 	
 	AuthenticationService service = AuthenticationService.getInstance();
-	User user = new User();
+	User user = new User("UserTest.User");
 	
 	@Before
 	public void buildUp() {
