@@ -23,6 +23,7 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	private final String containerId;
 	private       String command;
 	private final File   tmpDirectory;
+	private       String template;
 	
 	public DockerContainerBuilder() {
 		containerId = generateContainerId();
@@ -40,8 +41,7 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
-		//// FIXME: 2/20/17
-		writer.write("FROM openjdk:8\n");
+		writer.write("FROM " + template + "\n");
 		writer.write("COPY . ~\n");
 		writer.write("WORKDIR ~\n");
 		writer.write("EXPOSE " + Lambda.PORT + "\n");
@@ -49,7 +49,6 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		writer.flush();
 		writer.close();
 		
-		//// FIXME: 2/22/17
 		final DockerClient dockerClient = new DefaultDockerClient(
 				ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DockerContainer.DEFAULT_SOCKET));
 		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
@@ -63,6 +62,12 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	@Override
 	public ContainerBuilder setCommand(final String command) {
 		this.command = command;
+		return this;
+	}
+	
+	@Override
+	public ContainerBuilder setTemplate(final String template) {
+		this.template = template;
 		return this;
 	}
 	

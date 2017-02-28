@@ -26,6 +26,15 @@ public interface ContainerBuilder {
 	public ContainerBuilder setCommand(final String command);
 	
 	/**
+	 * Set the template the container derives from
+	 *
+	 * @param template docker image template
+	 *
+	 * @return this builder instance
+	 */
+	public ContainerBuilder setTemplate(final String template);
+	
+	/**
 	 * Stores a non-executable file in the container
 	 *
 	 * @param binary binary content
