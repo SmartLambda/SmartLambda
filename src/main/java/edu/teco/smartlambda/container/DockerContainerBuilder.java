@@ -6,12 +6,14 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.lambda.Lambda;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
@@ -38,6 +40,15 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	@Override
 	public DockerContainer build()
 			throws DockerCertificateException, IOException, DockerException, InterruptedException, URISyntaxException {
+		// copy execution service into tmp directory
+		//// FIXME: 2/28/17
+		final InputStream      inputStream  = DockerContainerBuilder.class.getClassLoader().getResourceAsStream("executionservice.jar");
+		final FileOutputStream outputStream = new FileOutputStream(new File(tmpDirectory, "executionservice.jar"));
+		outputStream.write(IOUtils.toByteArray(inputStream));
+		outputStream.flush();
+		outputStream.close();
+		inputStream.close();
+		
 		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
