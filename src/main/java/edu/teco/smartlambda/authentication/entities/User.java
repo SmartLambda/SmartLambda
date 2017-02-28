@@ -4,6 +4,9 @@ import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
+import edu.teco.smartlambda.identity.IdentityException;
+import edu.teco.smartlambda.identity.IdentityProvider;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -18,6 +21,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -49,7 +53,7 @@ public class User {
 	@Getter
 	private Set<Key> keys;
 		
-	public User(String identificationToken) {
+	public User(Map<String, String> parameters) {
 		
 		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
 		
@@ -57,7 +61,9 @@ public class User {
 		
 		//TODO (Git-Hub) authentication
 		//in this case the identificationToken is directly used as the name (instead of asking Git-Hub)
-		this.name = identificationToken;
+		IdentityProvider identityProvider = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
+		identityProvider.register(parameters);
+		this.name = identityProvider.getName().orElseThrow(IdentityException::new);
 		
 		// Wie wird ermittelt, ob der User Administrator ist? Gibt's nur einen Admin? In dem Fall vllt mit einer Klassenvariable?
 		try {
