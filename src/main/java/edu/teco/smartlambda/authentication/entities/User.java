@@ -4,6 +4,10 @@ import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
+import edu.teco.smartlambda.identity.IdentityException;
+import edu.teco.smartlambda.identity.IdentityProvider;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 
@@ -13,8 +17,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -28,14 +35,25 @@ import static org.torpedoquery.jpa.Torpedo.where;
 @Entity
 @Table(name = "User")
 public class User {
-	
-	private int      id;
-	private String   name;
-	private Key      primaryKey;
-	private boolean  isAdmin;
+	@Getter
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	private int     id;
+	@Getter
+	@Column(name = "name", unique = true, nullable = false)
+	private String  name;
+	@Getter
+	@OneToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private Key     primaryKey;
+	@Getter
+	@Column(name = "isAdmin", nullable = false)
+	private boolean isAdmin;
+	@Getter
 	private Set<Key> keys;
 		
-	public User(String identificationToken) {
+	public User(Map<String, String> parameters) {
 		
 		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
 		
@@ -43,7 +61,9 @@ public class User {
 		
 		//TODO (Git-Hub) authentication
 		//in this case the identificationToken is directly used as the name (instead of asking Git-Hub)
-		this.name = identificationToken;
+		IdentityProvider identityProvider = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
+		identityProvider.register(parameters);
+		this.name = identityProvider.getName().orElseThrow(IdentityException::new);
 		
 		// Wie wird ermittelt, ob der User Administrator ist? Gibt's nur einen Admin? In dem Fall vllt mit einer Klassenvariable?
 		try {
@@ -53,54 +73,16 @@ public class User {
 		}
 	}
 	
-	
-	@Id
-	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private int getId() {
-		return id;
-	}
-	
 	private void setId(final int id) {
 		this.id = id;
-	}
-	
-	
-	/**
-	 * Returns the Name of this User
-	 * @return name
-	 */
-	@Column(name = "name", unique = true, nullable = false)
-	public String getName() {
-		return name;
 	}
 	
 	private void setName(final String name) {
 		this.name = name;
 	}
 	
-	
-	/**
-	 * Returns the PrimaryKey of this User
-	 * @return PrimaryKey
-	 */
-	@OneToOne(fetch = FetchType.LAZY,mappedBy = "User")
-	public Key getPrimaryKey() {
-		return primaryKey;
-	}
-	
 	private void setPrimaryKey(final Key primaryKey) {
 		this.primaryKey = primaryKey;
-	}
-	
-	
-	/**
-	 * Returns true if this User is a Admin-User, false otherwise
-	 * @return Result
-	 */
-	@Column(name = "isAdmin",nullable = false)
-	public boolean isAdmin() {
-		return isAdmin;
 	}
 	
 	private void setAdmin(final boolean admin) {
@@ -155,6 +137,7 @@ public class User {
 	 * Returns all Users, which this User can See (all Users if this User is an Admin and Users with shared Lambdas otherwise)
  	 * @return Set of Users
 	 */
+	@Transient
 	public Set<User> getVisibleUsers() {
 		if (this.isAdmin) {
 			//TODO return all Users: Torpedo query list()
@@ -176,10 +159,6 @@ public class User {
 		}
 	}
 	
-	
-	public Set<Key> getKeys() { return keys; }
-	
-	
 	/**
 	 * Retrieve a single User by its name
 	 *
@@ -188,7 +167,6 @@ public class User {
 	 * @return a User object
 	 */
 	public static User getByName(final String name) {
-		
 		final User query = from(User.class);
 		where(query.getName()).eq(name);
 		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());

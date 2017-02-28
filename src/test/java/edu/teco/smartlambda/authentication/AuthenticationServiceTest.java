@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,7 +62,9 @@ public class AuthenticationServiceTest {
 	public void authenticateViaKey() throws Exception {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
-			final User                  user                  = new User("AuthenticationServiceTest.authenticateViaKey.User");//TODO also
+			Map<String, String >        params                = new HashMap<String, String>();
+			params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
+			final User                  user                  = new User(params);//TODO also
 			// use an existing User an Key
 			final Key                   key                   = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
 			authenticationService.authenticate(key);
@@ -85,7 +89,9 @@ public class AuthenticationServiceTest {
 	public void getAuthenticatedKeyViaKey() throws Exception {
 		executorService.submit(() -> {
 			AuthenticationService authenticationService = AuthenticationService.getInstance();
-			User                  user                  = new User("AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");//TODO also
+			Map<String, String >        params                = new HashMap<String, String>();
+			params.put("name", "AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");
+			User                  user                  = new User(params);//TODO also
 			// use an existing User an Key
 			Key                   key                   = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
 			authenticationService.authenticate(key);
@@ -122,7 +128,9 @@ public class AuthenticationServiceTest {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
 			
-			final User user = new User("AuthenticationServiceTest.getAuthenticatedUserViaKey.User");//TODO also use an existing User an Key
+			Map<String, String >        params                = new HashMap<String, String>();
+			params.put("name", "AuthenticationServiceTest.getAuthenticatedUserViaKey.User");
+			final User user = new User(params);//TODO also use an existing User an Key
 			
 			Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedUserViaKey").getLeft();
 			authenticationService.authenticate(key);
@@ -151,8 +159,9 @@ public class AuthenticationServiceTest {
 	public void getForeignAuthenticatedKeyViaKey() throws Exception {
 		AuthenticationService as0 = AuthenticationService.getInstance();
 		Assume.assumeNotNull(as0);
-		
-		final User user = new User("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");//TODO also use an existing User an
+		Map<String, String >        params                = new HashMap<String, String>();
+		params.put("name", "AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");
+		final User user = new User(params);//TODO also use an existing User an
 		// Key
 		final Key  key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
 		as0.authenticate(key0);
