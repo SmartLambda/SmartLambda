@@ -33,6 +33,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
@@ -80,6 +81,9 @@ public class Lambda extends AbstractLambda {
 	
 	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 	
+	private int connectionRetrys;
+	private static final int MAX_RETRYS = 4;
+	
 	@Override
 	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
@@ -91,11 +95,22 @@ public class Lambda extends AbstractLambda {
 				throw (new RuntimeException(e));
 			}
 			final Gson                 gson = new GsonBuilder().create();
-			final Socket               socket;
+			Socket                     socket;
 			final DataInputStream      inputStream;
 			final ExecutionReturnValue returnValue;
 			
-			socket = new Socket(IP, PORT);
+			while (true) {
+				try {
+					socket = new Socket(IP, PORT);
+					break;
+				} catch (ConnectException e) {
+					Thread.sleep(200);
+					connectionRetrys++;
+					
+					if (connectionRetrys > MAX_RETRYS) throw e;
+				}
+			}
+			
 			inputStream = new DataInputStream(socket.getInputStream());
 			returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
 			
