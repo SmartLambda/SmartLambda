@@ -18,7 +18,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,13 +56,6 @@ public class Key {
 		
 		session.save(this);
 		session.getTransaction().commit();
-	}
-	
-	
-	@Id
-	@Column(name = "id", unique = true, nullable = false)
-	private String getId() {
-		return id;
 	}
 	
 	private void setId(final String id) {

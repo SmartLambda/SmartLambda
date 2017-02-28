@@ -60,7 +60,8 @@ public class AuthenticationServiceTest {
 	public void authenticateViaKey() throws Exception {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
-			final User                  user                  = new User();//TODO also use an existing User an Key
+			final User                  user                  = new User("AuthenticationServiceTest.authenticateViaKey.User");//TODO also
+			// use an existing User an Key
 			final Key                   key                   = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
 			authenticationService.authenticate(key);
 			//checking for the Result after setting Key twice
@@ -84,7 +85,8 @@ public class AuthenticationServiceTest {
 	public void getAuthenticatedKeyViaKey() throws Exception {
 		executorService.submit(() -> {
 			AuthenticationService authenticationService = AuthenticationService.getInstance();
-			User                  user                  = new User();//TODO also use an existing User an Key
+			User                  user                  = new User("AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");//TODO also
+			// use an existing User an Key
 			Key                   key                   = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
 			authenticationService.authenticate(key);
 			Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
@@ -120,7 +122,7 @@ public class AuthenticationServiceTest {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
 			
-			final User user = new User();//TODO also use an existing User an Key
+			final User user = new User("AuthenticationServiceTest.getAuthenticatedUserViaKey.User");//TODO also use an existing User an Key
 			
 			Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedUserViaKey").getLeft();
 			authenticationService.authenticate(key);
@@ -150,7 +152,8 @@ public class AuthenticationServiceTest {
 		AuthenticationService as0 = AuthenticationService.getInstance();
 		Assume.assumeNotNull(as0);
 		
-		final User user = new User();//TODO also use an existing User an Key
+		final User user = new User("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");//TODO also use an existing User an
+		// Key
 		final Key  key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
 		as0.authenticate(key0);
 		Optional<Key> key0Opt = as0.getAuthenticatedKey();

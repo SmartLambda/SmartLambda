@@ -49,12 +49,16 @@ public class User {
 	@Getter
 	private Set<Key> keys;
 		
-	public User() {
+	public User(String identificationToken) {
 		
 		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
 		
 		//Der Id wird von der Datenbank gesetzt
+		
 		//TODO (Git-Hub) authentication
+		//in this case the identificationToken is directly used as the name (instead of asking Git-Hub)
+		this.name = identificationToken;
+		
 		// Wie wird ermittelt, ob der User Administrator ist? Gibt's nur einen Admin? In dem Fall vllt mit einer Klassenvariable?
 		try {
 			this.primaryKey = addKey(this.name).getLeft();
