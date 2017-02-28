@@ -46,7 +46,7 @@ import static org.torpedoquery.jpa.Torpedo.where;
 @Table(name = "Lambda")
 public class Lambda extends AbstractLambda {
 	
-	public static final int PORT = 4_0_0_0_1;
+	public static final int PORT = 40001;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,8 +84,9 @@ public class Lambda extends AbstractLambda {
 	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
 		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
 			final Container container = ContainerFactory.getContainerById(containerId);
+			final String    IP;
 			try {
-				container.start();
+				IP = container.start();
 			} catch (Exception e) {
 				throw (new RuntimeException(e));
 			}
@@ -94,7 +95,7 @@ public class Lambda extends AbstractLambda {
 			final DataInputStream      inputStream;
 			final ExecutionReturnValue returnValue;
 			
-			socket = new Socket("localhost", PORT);
+			socket = new Socket(IP, PORT);
 			inputStream = new DataInputStream(socket.getInputStream());
 			returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
 			
