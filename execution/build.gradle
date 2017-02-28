@@ -9,6 +9,19 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    baseName = "executionservice"
+    version = ""
+
+    manifest {
+        attributes 'Main-Class': 'edu.teco.smartlambda.execution.LambdaExecutionService'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.4'
     compile group: 'com.google.auto.service', name: 'auto-service', version: '1.0-rc2'
