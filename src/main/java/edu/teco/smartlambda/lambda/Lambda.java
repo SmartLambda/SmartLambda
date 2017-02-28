@@ -128,7 +128,8 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public void save() {
 		try {
-			Container container = builder.build();
+			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
+			final Container container = builder.build();
 			containerId = container.getContainerId();
 		} catch (Exception e) {
 			throw (new RuntimeException(e));
