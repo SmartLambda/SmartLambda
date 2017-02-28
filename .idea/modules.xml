@@ -11,6 +11,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" group="lambda-test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared.iml" group="shared" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared_main.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared_main.iml" group="shared" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared_test.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared_test.iml" group="shared" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/source.iml" filepath="$PROJECT_DIR$/.idea/modules/source.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_main.iml" filepath="$PROJECT_DIR$/.idea/modules/source_main.iml" group="source" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_test.iml" filepath="$PROJECT_DIR$/.idea/modules/source_test.iml" group="source" />
