@@ -5,40 +5,36 @@ import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 import lombok.Data;
 import org.hibernate.Session;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Table;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Calendar;
 
 @Entity
-@Table(appliesTo = "MonitoringEvent")
+@Table(name = "MonitoringEvent")
 @Data
 public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
-	@Column(name = "time")
 	private final Calendar            time;
-	@Column(name = "lambdaOwner")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "lambdaOwner")
 	private final User                lambdaOwner;
-	@Column(name = "lambdaName")
 	private final String              lambdaName;
-	@Column(name = "duration")
 	private       long                duration;
-	@Column(name = "CPUTime")
 	private       int                 CPUTime;
-	@Column(name = "error")
 	private       String              error;
-	@Column(name = "type")
 	private final MonitoringEventType type;
-	@Column(name = "key")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "key")
 	private final Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
