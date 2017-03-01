@@ -39,7 +39,7 @@ public class AuthenticationServiceTest {
 	}
 	
 	@Test
-	public void getInstanceReturnsSingelton() throws Exception {
+	public void getInstanceReturnsSingleton() throws Exception {
 		AuthenticationService asFirst = AuthenticationService.getInstance();
 		Assert.assertNotNull(asFirst);
 		AuthenticationService asSecond = AuthenticationService.getInstance();
@@ -48,7 +48,7 @@ public class AuthenticationServiceTest {
 	}
 	
 	@Test
-	public void getInstanceSingeltonIsThreadlocal() throws Exception {
+	public void getInstanceSingletonIsThreadlocal() throws Exception {
 		AuthenticationService asFirst = AuthenticationService.getInstance();
 		Assert.assertNotNull(asFirst);
 		

@@ -3,9 +3,10 @@ package edu.teco.smartlambda.monitoring;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import lombok.Data;
+import edu.teco.smartlambda.lambda.AbstractLambda;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,31 +22,49 @@ import java.util.Calendar;
 
 @Entity
 @Table(name = "MonitoringEvent")
-@Data
 public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
-	private final Calendar            time;
+	@Getter
+	private Calendar            time;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambdaOwner")
-	private final User                lambdaOwner;
-	private final String              lambdaName;
+	@Getter
+	private  User                lambdaOwner;
+	@Getter
+	private  String              lambdaName;
+	@Setter
 	private       long                duration;
+	@Setter
 	private       int                 CPUTime;
+	@Setter
 	private       String              error;
-	private final MonitoringEventType type;
+	@Getter
+	private MonitoringEventType type;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "key")
-	private final Key                 key;
+	@Getter
+	private Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int                       id;
 	
-	public SessionFactory sessionFactory = Application.getInstance().getSessionFactory();
+	public MonitoringEvent() {
+		
+	}
 	
+	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
+		
+		this.time =Calendar.getInstance();
+		this.lambdaOwner= lambda.getOwner();
+		this.lambdaName=lambda.getName();
+		this.type = type;
+		this.key=key;
+	}
 	
+		
 	public void save() {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.save(this);
 		session.getTransaction().commit();
 	}

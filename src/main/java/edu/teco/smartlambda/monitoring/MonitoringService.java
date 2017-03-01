@@ -31,7 +31,7 @@ public class MonitoringService {
 	}
 	
 	public void onLambdaExecutionStart(final AbstractLambda lambda) {
-		monitoringEvent = new MonitoringEvent(Calendar.getInstance(), lambda.getOwner(), lambda.getName(),
+		monitoringEvent = new MonitoringEvent(lambda,
 				MonitoringEvent.MonitoringEventType.EXECUTION,
 				authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 	}
@@ -46,14 +46,14 @@ public class MonitoringService {
 	}
 	
 	public void onLambdaDeletion(final AbstractLambda lambda) {
-		monitoringEvent = new MonitoringEvent(Calendar.getInstance(), lambda.getOwner(), lambda.getName(),
+		monitoringEvent = new MonitoringEvent(lambda,
 				MonitoringEvent.MonitoringEventType.DELETION,
 				authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 		monitoringEvent.save();
 	}
 	
 	public void onLambdaDeployment(final AbstractLambda lambda) {
-		monitoringEvent = new MonitoringEvent(Calendar.getInstance(), lambda.getOwner(), lambda.getName(),
+		monitoringEvent = new MonitoringEvent(lambda,
 				MonitoringEvent.MonitoringEventType.DEPLOYMENT,
 				authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 		monitoringEvent.save();

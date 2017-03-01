@@ -16,8 +16,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
@@ -45,12 +45,16 @@ public class User {
 	private String  name;
 	@Getter
 	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@JoinColumn(name = "primaryKey")
 	private Key     primaryKey;
 	@Getter
 	@Column(name = "isAdmin", nullable = false)
 	private boolean isAdmin;
+	
+	public User() {
 		
+	}
+	
 	public User(Map<String, String> parameters) {
 		
 				
@@ -141,7 +145,7 @@ public class User {
 			//TODO return all Users: Torpedo query list()
 			return null;
 		} else {
-			Set<User> toReturn = new HashSet<>();
+			/*Set<User> toReturn = new HashSet<>();
 			for (Key key : keys) {
 				for (Permission perm : key.getPermissions()) {
 					
@@ -153,7 +157,8 @@ public class User {
 					toReturn.remove(this); // Richtig??
 				}
 			}
-			return toReturn;
+			return toReturn;*/
+			return null; //TODO
 		}
 	}
 	
