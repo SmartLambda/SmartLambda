@@ -1,11 +1,9 @@
 package edu.teco.smartlambda.monitoring;
 
-import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
-import org.hibernate.SessionFactory;
 
 import java.util.Calendar;
 
@@ -18,7 +16,6 @@ public class MonitoringService {
 	private static ThreadLocal<MonitoringService> instance;
 	private        MonitoringEvent                monitoringEvent;
 	private AuthenticationService authenticationService = AuthenticationService.getInstance();
-	public  SessionFactory        sessionFactory        = Application.getInstance().getSessionFactory();
 	
 	public MonitoringService() {}
 	
