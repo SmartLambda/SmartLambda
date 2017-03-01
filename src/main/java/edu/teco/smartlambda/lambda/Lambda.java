@@ -33,6 +33,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -107,9 +108,18 @@ public class Lambda extends AbstractLambda {
 			outputStream.flush();
 			
 			final DataInputStream      inputStream = new DataInputStream(socket.getInputStream());
-			final ExecutionReturnValue returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
 			
-			return returnValue;
+			String returnValue = "";
+			
+			while (!socket.isClosed()) {
+				try {
+					returnValue += inputStream.readUTF();
+				} catch (EOFException e) {
+					break;
+				}
+			}
+			
+			return gson.fromJson(returnValue, ExecutionReturnValue.class);
 		});
 		
 		if (async) {
