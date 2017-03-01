@@ -50,13 +50,10 @@ public class User {
 	@Getter
 	@Column(name = "isAdmin", nullable = false)
 	private boolean isAdmin;
-	@Getter
-	private Set<Key> keys;
 		
 	public User(Map<String, String> parameters) {
 		
-		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
-		
+				
 		//Der Id wird von der Datenbank gesetzt
 		
 		//TODO (Git-Hub) authentication
@@ -109,7 +106,7 @@ public class User {
 	
 	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
-		
+		Set<Key> keys = new HashSet<>();
 		for (Key key : keys) {
 			if (key.getName().equals(name)) {
 				//TODO: throw NameConflictException
@@ -139,6 +136,7 @@ public class User {
 	 */
 	@Transient
 	public Set<User> getVisibleUsers() {
+		Set<Key> keys = new HashSet<>();
 		if (this.isAdmin) {
 			//TODO return all Users: Torpedo query list()
 			return null;
