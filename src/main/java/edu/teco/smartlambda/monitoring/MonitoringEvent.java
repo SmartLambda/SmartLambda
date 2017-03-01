@@ -5,6 +5,7 @@ import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 import lombok.Data;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,11 +41,11 @@ public class MonitoringEvent {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int                       id;
 	
-	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+	public SessionFactory sessionFactory = Application.getInstance().getSessionFactory();
 	
 	
 	public void save() {
-		session.beginTransaction();
+		Session session = sessionFactory.getCurrentSession();
 		session.save(this);
 		session.getTransaction().commit();
 	}
