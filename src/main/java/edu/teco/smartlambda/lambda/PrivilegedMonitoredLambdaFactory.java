@@ -1,13 +1,22 @@
 package edu.teco.smartlambda.lambda;
 
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
 
 import java.util.Optional;
 
+import static org.torpedoquery.jpa.Torpedo.from;
+import static org.torpedoquery.jpa.Torpedo.select;
+import static org.torpedoquery.jpa.Torpedo.where;
+
 public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	@Override
 	public Optional<AbstractLambda> getLambdaByOwnerAndName(final User owner, final String name) {
-		return Optional.empty();
+		final Lambda query = from(Lambda.class);
+		where(query.getOwner()).eq(owner).and(query.getName()).eq(name);
+		
+		return Optional.ofNullable(select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()));
+		// TODO decorate
 	}
 	
 	/**
@@ -17,6 +26,8 @@ public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	 */
 	@Override
 	public AbstractLambda createLambda() {
-		return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
+		return new Lambda();
+		// TODO decorate
+		//return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
 	}
 }

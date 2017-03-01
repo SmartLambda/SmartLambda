@@ -7,6 +7,11 @@ import edu.teco.smartlambda.container.ContainerBuilder;
  */
 public interface Runtime {
 	
+	/**
+	 * Setup the runtime specific configuration of a container
+	 *
+	 * @param builder the builder instance that builds the new container
+	 */
 	public void setupContainerImage(final ContainerBuilder builder);
 	
 	/**

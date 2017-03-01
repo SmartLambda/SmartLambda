@@ -4,12 +4,10 @@ import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
-import edu.teco.smartlambda.lambda.ExecutionReturnValue;
-import lombok.Getter;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import org.hibernate.SessionFactory;
 
 import java.util.Calendar;
-import java.util.function.Supplier;
 
 /**
  * Created by Melanie on 29.01.2017.

@@ -1,3 +1,6 @@
 include 'execution'
 include 'lambda-test'
+include 'Demo'
+findProject(':Demo')?.name = 'demolambda'
+include 'shared'
 
