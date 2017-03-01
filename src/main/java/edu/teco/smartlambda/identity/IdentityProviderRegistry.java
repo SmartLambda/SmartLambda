@@ -7,7 +7,7 @@ import java.util.Map;
  * Created on 28.02.17.
  */
 public class IdentityProviderRegistry {
-	private Map<String, IdentityProvider> providers;
+	private Map<String, Class<? extends IdentityProvider>> providers;
 	private static IdentityProviderRegistry instance = null;
 	
 	public static IdentityProviderRegistry getInstance() {
@@ -18,21 +18,27 @@ public class IdentityProviderRegistry {
 	}
 	
 	private IdentityProviderRegistry() {
-		providers = new HashMap<String, IdentityProvider>();
+		providers = new HashMap<>();
 		
 		initialize();
 	}
 	
 	private void initialize() {
 		//Initialized the NullIdentityProvider
-		providers.put("NullIdentityProvider", new NullIdentityProvider());
-		//TODO for other IdentityProviders it could be bad to return always the same Instance of the Provider
+		providers.put("NullIdentityProvider", NullIdentityProvider.class);
 	}
 	
 	public IdentityProvider getIdentityProviderByName(String name) {
-		IdentityProvider identityProvider = providers.get(name);
-		if (identityProvider == null) {
+		IdentityProvider identityProvider = null;
+		if (providers.get(name) == null) {
 			throw new IdentityProviderNotFoundException();
+		}
+		try {
+			identityProvider = providers.get(name).newInstance();
+		} catch (InstantiationException e) {
+			throw new IdentityException(e.getLocalizedMessage());
+		} catch (IllegalAccessException e) {
+			throw new IdentityException(e.getLocalizedMessage());
 		}
 		return identityProvider;
 	}
