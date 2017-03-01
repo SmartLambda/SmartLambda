@@ -33,7 +33,8 @@
     <orderEntry type="library" name="Gradle: org.torpedoquery:org.torpedoquery:1.7.0" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.23" level="project" />
     <orderEntry type="library" name="Gradle: com.spotify:docker-client:7.0.2" level="project" />
-    <orderEntry type="library" name="Gradle: de.mkammerer:argon2-jvm:2.2" level="project" />
+    <orderEntry type="module" module-name="shared_main" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />
     <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.7.4" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-server:9.3.6.v20151106" level="project" />
@@ -67,7 +68,6 @@
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-unixsocket:0.8" level="project" />
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Gradle: org.bouncycastle:bcpkix-jdk15on:1.52" level="project" />
-    <orderEntry type="library" name="Gradle: net.java.dev.jna:jna:4.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy:1.6.5" level="project" />
     <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy-agent:1.6.5" level="project" />

@@ -13,12 +13,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,13 +34,15 @@ public class Key {
 	@Column(name = "name", nullable = false)
 	private String          name;
 	@Getter
-	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="user")
 	private User            user;
-	@Getter
-	@OneToMany(fetch = FetchType.LAZY)
-	private Set<Permission> permissions;
+
 	
+	
+	public Key() {
+		
+	}
 	
 	public Key(String id, String name, User user) {
 		
@@ -52,7 +52,7 @@ public class Key {
 		this.id = id;
 		this.name = name;
 		this.user = user;
-		this.permissions = new HashSet<>();
+		
 		
 		session.save(this);
 		session.getTransaction().commit();
@@ -66,10 +66,9 @@ public class Key {
 		this.user = user;
 	}
 	
-	private void setPermissions(Set<Permission> permissions) {
-		this.permissions = permissions;
+	public Set<Permission> getPermissions() {
+		return null;//TODO
 	}
-	
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied Lambda
@@ -78,12 +77,13 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
-		if (lambda == null) throw new IllegalStateException("Input parameter lambda == null");
-		for (Permission perm : permissions) {
+		
+		/*if (lambda == null) throw new IllegalStateException("Input parameter lambda == null");
+		for (Permission perm : permissions) {//TODO torpedo
 			if (perm.getLambda().equals(lambda) && perm.getPermissionType().equals(type)) {
 				return true;
 			}
-		}
+		}*/
 		return false;
 	}
 	
@@ -95,12 +95,12 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(User user, PermissionType type) {
-		if (user == null) throw new IllegalStateException("Input parameter user == null");
+		/*if (user == null) throw new IllegalStateException("Input parameter user == null");
 		for (Permission perm : permissions) {
 			if (perm.getUser().equals(user) && perm.getPermissionType().equals(type)) {
 				return true;
 			}
-		}
+		}*///TODO Hibernate
 		return false;
 	}
 	
@@ -126,7 +126,7 @@ public class Key {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(user.getPrimaryKey())) {
 				
-				user.getKeys().remove(this);
+				//user.getKeys().remove(this);
 				Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 				session.delete(this);
 			}
@@ -148,8 +148,8 @@ public class Key {
 			
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
-			permissions.add(permission);
-			session.save(permissions);
+			/*permissions.add(permission);
+			session.save(permissions);*///TODO Hibernate
 			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
@@ -169,8 +169,8 @@ public class Key {
 			
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
-			permissions.add(permission);
-			session.save(permissions);
+			/*permissions.add(permission);
+			session.save(permissions);*///TODO Hibernate
 			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
@@ -187,7 +187,7 @@ public class Key {
 	public void revokePermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
 			Permission permission = new Permission(lambda, type);
-			permissions.remove(permission);
+			//permissions.remove(permission); TODO Hibernate
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.delete(permission);
 		}
@@ -205,7 +205,7 @@ public class Key {
 	public void revokePermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			Permission permission = new Permission(user, type);
-			permissions.remove(permission);
+			//permissions.remove(permission);TODO Hibernate
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.delete(permission);
 		}
