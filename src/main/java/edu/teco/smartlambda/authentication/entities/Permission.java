@@ -3,12 +3,16 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.hibernate.Session;
+import lombok.Getter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -22,9 +26,23 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "Permission")
 public class Permission {
 	
-	private int id;
-	private User user = null;
-	private Lambda lambda = null;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	@Getter
+	private int            id;
+	@Getter
+	@ManyToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private User           user = null;
+	@Getter
+	@ManyToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private Key            key;
+	@Getter
+	@ManyToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private Lambda         lambda = null;
 	private PermissionType permissionType;
 	
 	
@@ -59,42 +77,16 @@ public class Permission {
 		session.getTransaction().commit();
 	}
 	
-	
-	@Id
-	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private int getId() {
-		return id;
-	}
-	
 	private void setId(final int id) {
 		this.id = id;
-	}
-	
-	
-	/**
-	 * Returns the User Object if this is a Permission for al Lambda, null otherwise
-	 * @return the User Object
-	 */
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "User")
-	public User getUser() {
-		return user;
 	}
 	
 	private void setUser(final User user) {
 		this.user = user;
 	}
 	
-	
-	/**
-	 * Returns the Lambda Object if this is a Permission for al Lambda, null otherwise
-	 * @return the Lambda Object
-	 */
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "Lambda")
-	public Lambda getLambda() {
-		return lambda;
+	private void setKey(final Key key) {
+		this.key = key;
 	}
 	
 	private void setLambda(final Lambda lambda) {
