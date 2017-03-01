@@ -1,5 +1,7 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
@@ -7,6 +9,7 @@ import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.identity.IdentityException;
 import edu.teco.smartlambda.identity.IdentityProvider;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.runtime.Runtime;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -112,24 +115,38 @@ public class User {
 		
 		for (Key key : keys) {
 			if (key.getName().equals(name)) {
-				//TODO: throw NameConflictException
+				throw new NameConflictException();
 			}
 		}
 				
-		String generatedNumber = "";
-		String id = "";
-		//TODO: generate number and hash it
-		//Der KeyId wird nicht von Hibernate generiert, ist das richtig? Wenn doch, können wir nicht den Id in der Datenbank speichern
-		// und die gehashte Version zurückgeben?
-		Key key = new Key(id, name, this);
+		String id;
+		String generatedNumber = Math.random() + "";
+		Argon2 argon2   = Argon2Factory.create();
+		String hash;
 		
+		// Hash password
+		hash = argon2.hash(2, 65536, 1, generatedNumber);
+		
+		// Verify password
+		if (!argon2.verify(hash, generatedNumber)) {
+			throw new RuntimeException("Hash doesn't match generatedNumber");
+		}
+		
+		id = argon2.hash(2, 65536, 1, hash);
+		
+		// Verify password
+		if (!argon2.verify(id, hash)) {
+			throw new RuntimeException("Id doesn't match hash");
+		}
+		
+		Key key = new Key(id, name, this);
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		keys.add(key);
 		session.save(keys);
 		session.getTransaction().commit();
 		
-		return Pair.of(key, generatedNumber);
+		return Pair.of(key, hash);
 	}
 	
 	
