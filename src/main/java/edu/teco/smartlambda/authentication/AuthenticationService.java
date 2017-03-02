@@ -1,5 +1,7 @@
 package edu.teco.smartlambda.authentication;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 
@@ -37,7 +39,18 @@ public class AuthenticationService {
 	 * @param key ID of the Key which is meant to authenticate
 	 */
 	public void authenticate(final String key) throws NameNotFoundException{
-		//TODO hash parameter key and search for it in the database. Then assign it to the local variable "authenticatedKey"
+		String hash;
+		Argon2 argon2 = Argon2Factory.create();
+		
+		// Hash key
+		hash = argon2.hash(2, 65536, 1, key);
+		
+		// Verify hash
+		if (!argon2.verify(hash, key)) {
+			throw new RuntimeException("hash doesn't match key");
+		}
+		
+		authenticatedKey = Key.getKeyById(hash);
 	}
 	
 	/**

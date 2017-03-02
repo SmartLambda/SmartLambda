@@ -3,6 +3,7 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
+import edu.teco.smartlambda.authentication.NameNotFoundException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -247,5 +248,12 @@ public class Key {
 			}
 		}
 		return false;
+	}
+	
+	public static Key getKeyById(String id) throws NameNotFoundException{
+		final Key query = from(Key.class);
+		where(query.getId()).eq(id);
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElseThrow
+				(NameNotFoundException::new);
 	}
 }
