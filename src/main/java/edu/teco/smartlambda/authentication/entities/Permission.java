@@ -51,12 +51,13 @@ public class Permission {
 	 * @param lambda
 	 * @param type
 	 */
-	public Permission(Lambda lambda, PermissionType type) {
+	public Permission(Lambda lambda, PermissionType type, Key key) {
 		
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		this.lambda = lambda;
 		this.permissionType = type;
+		this.key = key;
 		session.save(this);
 		session.getTransaction().commit();
 	}
@@ -67,12 +68,13 @@ public class Permission {
 	 * @param user
 	 * @param type
 	 */
-	public  Permission (User user, PermissionType type) {
+	public  Permission (User user, PermissionType type, Key key) {
 		
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		this.user = user;
 		this.permissionType = type;
+		this.key = key;
 		session.save(this);
 		session.getTransaction().commit();
 	}

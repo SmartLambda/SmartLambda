@@ -61,6 +61,9 @@ public class User {
 	}
 	
 	public User(Map<String, String> parameters) {
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		//TODO-ASK WOrkaround abklären.//session.beginTransaction();
+		session.getTransaction();
 		//TODO Use Git-Hub authentication instead
 		IdentityProvider identityProvider = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
 		identityProvider.register(parameters);
@@ -71,6 +74,8 @@ public class User {
 		} catch (NameConflictException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
 		}
+		session.save(this);
+		session.getTransaction().commit();
 	}
 	
 	private void setId(final int id) {
@@ -86,7 +91,7 @@ public class User {
 	}
 	
 	private void setAdmin(final boolean admin) {
-		//TODO muss hier auch ein session.save + commit usw. rein?
+		//TODO-ASK muss hier auch ein session.save + commit usw. rein?
 		isAdmin = admin;
 	}
 	
@@ -112,12 +117,12 @@ public class User {
 	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
+		//TODO-ASK Workaround abklären.//session.beginTransaction();
+		session.getTransaction();
 		
 		final Key query = from(Key.class);
 		where(query.getName()).eq(name);
-		//TODO-ASK update torpedoquery von 1.7.0 auf 2.2.1 abchecken mit Yussuf
-		final Optional<Key> keyOptional = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
+		final Optional<Key> keyOptional = select(query).get(session);
 		if (keyOptional.isPresent()) {
 			throw new NameConflictException();
 		}

@@ -72,14 +72,14 @@ public class KeyTest {
 	public void getPermissions() throws Exception {
 		
 		List<Permission> list = new ArrayList<>();
-		list.add(new Permission(lambda, PermissionType.DELETE));
+		list.add(new Permission(lambda, PermissionType.DELETE, key));
 		if (!revokedFirst) {
-			list.add(new Permission(lambda, PermissionType.EXECUTE));
+			list.add(new Permission(lambda, PermissionType.EXECUTE, key));
 			
 		}
-		list.add(new Permission(user, PermissionType.DELETE));
+		list.add(new Permission(user, PermissionType.DELETE, key));
 		if (!revokedSecond) {
-			list.add(new Permission(user, PermissionType.GRANT));
+			list.add(new Permission(user, PermissionType.GRANT, key));
 		}
 		int size = list.size();
 
