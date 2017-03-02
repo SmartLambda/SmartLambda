@@ -3,6 +3,8 @@ package edu.teco.smartlambda.authentication;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.identity.NullIdentityProvider;
 import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -66,8 +68,9 @@ public class AuthenticationServiceTest {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Map<String, String>         params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
-		final User user = new User(params);//TODO also
-		// use an existing User an Key
+		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+				(params);
+		//TODO also use an existing User an Key
 		final Key key = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
 		authenticationService.authenticate(key);
 		//checking for the Result after setting Key twice
@@ -87,8 +90,9 @@ public class AuthenticationServiceTest {
 		AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Map<String, String>   params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");
-		User user = new User(params);//TODO also
-		// use an existing User an Key
+		User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+				(params);
+		//TODO also use an existing User an Key
 		Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
 		authenticationService.authenticate(key);
 		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
@@ -119,7 +123,9 @@ public class AuthenticationServiceTest {
 		
 		Map<String, String> params = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.getAuthenticatedUserViaKey.User");
-		final User user = new User(params);//TODO also use an existing User an Key
+		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+				(params);
+		//TODO also use an existing User an Key
 		
 		Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedUserViaKey").getLeft();
 		authenticationService.authenticate(key);
@@ -147,7 +153,9 @@ public class AuthenticationServiceTest {
 		Assume.assumeNotNull(as0);
 		Map<String, String> params = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");
-		final User user = new User(params);//TODO also use an existing User an
+		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+				(params);
+		//TODO also use an existing User an
 		// Key
 		final Key key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
 		as0.authenticate(key0);

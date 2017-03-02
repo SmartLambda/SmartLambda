@@ -3,6 +3,8 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.identity.NullIdentityProvider;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.hibernate.Transaction;
 import org.junit.After;
@@ -32,7 +34,7 @@ public class KeyTest {
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 		Map<String, String> params = new HashMap<>();
 		params.put("name", "KeyTest.User");
-		user    = new User(params);
+		user    = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register(params);
 		
 		try {
 		key = user.createKey("KeyTest.buildUp").getLeft();
