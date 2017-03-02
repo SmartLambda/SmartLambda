@@ -25,7 +25,11 @@ public class IdentityProviderRegistry {
 	
 	private void initialize() {
 		//Initialized the NullIdentityProvider
-		providers.put("NullIdentityProvider", NullIdentityProvider.class);
+		initializeIdentityProviderWithStandardName(NullIdentityProvider.class);
+	}
+	
+	private void initializeIdentityProviderWithStandardName(Class<? extends IdentityProvider> ipClass) {
+		providers.put(ipClass.getName(), ipClass);
 	}
 	
 	public IdentityProvider getIdentityProviderByName(String name) {
