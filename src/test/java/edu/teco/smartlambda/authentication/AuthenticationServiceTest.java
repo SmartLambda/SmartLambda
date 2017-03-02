@@ -62,11 +62,11 @@ public class AuthenticationServiceTest {
 	public void authenticateViaKey() throws Exception {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
-			Map<String, String >        params                = new HashMap<String, String>();
+			Map<String, String>         params                = new HashMap<String, String>();
 			params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
-			final User                  user                  = new User(params);//TODO also
+			final User user = new User(params);//TODO also
 			// use an existing User an Key
-			final Key                   key                   = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
+			final Key key = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
 			authenticationService.authenticate(key);
 			//checking for the Result after setting Key twice
 			authenticationService.authenticate(key);
@@ -89,11 +89,11 @@ public class AuthenticationServiceTest {
 	public void getAuthenticatedKeyViaKey() throws Exception {
 		executorService.submit(() -> {
 			AuthenticationService authenticationService = AuthenticationService.getInstance();
-			Map<String, String >        params                = new HashMap<String, String>();
+			Map<String, String>   params                = new HashMap<String, String>();
 			params.put("name", "AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");
-			User                  user                  = new User(params);//TODO also
+			User user = new User(params);//TODO also
 			// use an existing User an Key
-			Key                   key                   = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
+			Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
 			authenticationService.authenticate(key);
 			Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
 			assert keyOpt.isPresent();
@@ -128,7 +128,7 @@ public class AuthenticationServiceTest {
 		executorService.submit(() -> {
 			final AuthenticationService authenticationService = AuthenticationService.getInstance();
 			
-			Map<String, String >        params                = new HashMap<String, String>();
+			Map<String, String> params = new HashMap<String, String>();
 			params.put("name", "AuthenticationServiceTest.getAuthenticatedUserViaKey.User");
 			final User user = new User(params);//TODO also use an existing User an Key
 			
@@ -140,18 +140,20 @@ public class AuthenticationServiceTest {
 			
 			return null;
 		}).get();
-
 	}
 	
 	@Test
 	public void getAuthenticatedUserViaString() throws Exception {
 		executorService.submit(() -> {
-				final AuthenticationService authenticationService = AuthenticationService.getInstance();
+			final AuthenticationService authenticationService = AuthenticationService.getInstance();
+			try {
 				authenticationService.authenticate("");//TODO use an existing Key
-				Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-				Assert.assertTrue(keyOpt.isPresent());
-				Assert.assertSame(keyOpt.get().getUser(), ""/*TODO use the User of the Key*/);
-			
+			} catch (NameNotFoundException e) {
+				e.printStackTrace();
+			}
+			Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
+			Assert.assertTrue(keyOpt.isPresent());
+			Assert.assertSame(keyOpt.get().getUser(), ""/*TODO use the User of the Key*/);
 		}).get();
 	}
 	
@@ -159,11 +161,11 @@ public class AuthenticationServiceTest {
 	public void getForeignAuthenticatedKeyViaKey() throws Exception {
 		AuthenticationService as0 = AuthenticationService.getInstance();
 		Assume.assumeNotNull(as0);
-		Map<String, String >        params                = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<String, String>();
 		params.put("name", "AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");
 		final User user = new User(params);//TODO also use an existing User an
 		// Key
-		final Key  key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
+		final Key key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
 		as0.authenticate(key0);
 		Optional<Key> key0Opt = as0.getAuthenticatedKey();
 		Assert.assertTrue(key0Opt.isPresent());

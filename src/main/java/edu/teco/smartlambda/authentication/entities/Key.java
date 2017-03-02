@@ -40,11 +40,11 @@ public class Key {
 
 	
 	
-	public Key() {
+	Key() {
 		
 	}
 	
-	public Key(String id, String name, User user) {
+	Key(String id, String name, User user) {
 		
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();

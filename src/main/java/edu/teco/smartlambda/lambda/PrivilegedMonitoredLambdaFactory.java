@@ -12,10 +12,10 @@ import static org.torpedoquery.jpa.Torpedo.where;
 public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	@Override
 	public Optional<AbstractLambda> getLambdaByOwnerAndName(final User owner, final String name) {
-		final Lambda query = from(Lambda.class);
+		final AbstractLambda query = from(Lambda.class);
 		where(query.getOwner()).eq(owner).and(query.getName()).eq(name);
 		
-		return Optional.ofNullable(select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()));
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
 		// TODO decorate
 	}
 	

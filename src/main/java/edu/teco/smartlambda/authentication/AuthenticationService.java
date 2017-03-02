@@ -36,7 +36,7 @@ public class AuthenticationService {
 	 * Finds the corresponding Key and sets it as the currently authenticated Key
 	 * @param key ID of the Key which is meant to authenticate
 	 */
-	public void authenticate(final String key) {
+	public void authenticate(final String key) throws NameNotFoundException{
 		//TODO hash parameter key and search for it in the database. Then assign it to the local variable "authenticatedKey"
 	}
 	

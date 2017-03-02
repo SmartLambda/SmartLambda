@@ -69,7 +69,7 @@ public class LambdaController {
 		return null;
 	}
 	
-	public static Object readLambda(final Request request, final Response response) {
+	public static Object readLambda(final Request request, final Response response) throws IOException{
 		final LambdaResponse lambdaResponse = new LambdaResponse();
 		final String         name           = request.params(":name");
 		final User           user           = User.getByName(request.params(":user"));
