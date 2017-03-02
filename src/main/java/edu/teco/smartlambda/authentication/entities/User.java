@@ -7,9 +7,6 @@ import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.authentication.NameNotFoundException;
-import edu.teco.smartlambda.identity.IdentityException;
-import edu.teco.smartlambda.identity.IdentityProvider;
-import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -25,7 +22,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,26 +56,20 @@ public class User {
 		
 	}
 	
-	public User(Map<String, String> parameters) {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		//TODO-ASK WOrkaround abklären.//session.beginTransaction();
-		session.getTransaction();
-		//TODO Use Git-Hub authentication instead
-		IdentityProvider identityProvider = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
-		identityProvider.register(parameters);
-		this.name = identityProvider.getName().orElseThrow(IdentityException::new);
-		
+	public static Pair<User, String> createUser(String name) {
+		User user = new User(name);
+		Pair<Key, String> pair = null; //This will not stay null in any case
 		try {
-			this.primaryKey = addKey(this.name).getLeft();
+			pair = user.addKey(user.name);
 		} catch (NameConflictException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
 		}
-		session.save(this);
-		session.getTransaction().commit();
+		user.primaryKey = pair.getLeft();
+		return Pair.of(user, pair.getRight());
 	}
 	
-	private void setId(final int id) {
-		this.id = id;
+	private User(String name) {
+		this.name = name;
 	}
 	
 	private void setName(final String name) {
@@ -90,9 +80,9 @@ public class User {
 		this.primaryKey = primaryKey;
 	}
 	
-	private void setAdmin(final boolean admin) {
-		//TODO-ASK muss hier auch ein session.save + commit usw. rein?
+	void setAdmin(final boolean admin) {
 		isAdmin = admin;
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
 	/**
@@ -117,9 +107,6 @@ public class User {
 	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		//TODO-ASK Workaround abklären.//session.beginTransaction();
-		session.getTransaction();
-		
 		final Key query = from(Key.class);
 		where(query.getName()).eq(name);
 		final Optional<Key> keyOptional = select(query).get(session);
@@ -148,11 +135,8 @@ public class User {
 		}
 		
 		Key key = new Key(id, name, this);
-		//TODO-ASK was muss hier alles wirklich gesavet werden?
 		session.save(key);
-		session.save(this);
-		session.getTransaction().commit();
-		
+
 		return Pair.of(key, hash);
 	}
 	
@@ -163,10 +147,10 @@ public class User {
 	 */
 	@Transient
 	public Set<User> getVisibleUsers() {
-		Set<Key> keys = new HashSet<>();
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		if (this.isAdmin) {
 			final User query = from(User.class);
-			return new HashSet<>(select(query).list(Application.getInstance().getSessionFactory().getCurrentSession()));
+			return new HashSet<>(select(query).list(session));
 		} else {
 			final Key key = from(Key.class);
 			where(key.getUser()).eq(this);
@@ -175,7 +159,7 @@ public class User {
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).in(keyQuery);
 			final Set<Permission> permissionSet =
-					new HashSet<>(select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()));
+					new HashSet<>(select(permission).list(session));
 			
 			Set<User> userSet = new HashSet<>();
 			

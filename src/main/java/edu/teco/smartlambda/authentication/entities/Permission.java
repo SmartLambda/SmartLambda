@@ -3,7 +3,6 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
-import org.hibernate.Session;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -52,14 +51,10 @@ public class Permission {
 	 * @param type
 	 */
 	public Permission(Lambda lambda, PermissionType type, Key key) {
-		
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
 		this.lambda = lambda;
 		this.permissionType = type;
 		this.key = key;
-		session.save(this);
-		session.getTransaction().commit();
+		persist();
 	}
 	
 	
@@ -69,14 +64,10 @@ public class Permission {
 	 * @param type
 	 */
 	public  Permission (User user, PermissionType type, Key key) {
-		
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
 		this.user = user;
 		this.permissionType = type;
 		this.key = key;
-		session.save(this);
-		session.getTransaction().commit();
+		persist();
 	}
 	
 	private void setId(final int id) {
@@ -109,6 +100,8 @@ public class Permission {
 		this.permissionType = permissionType;
 	}
 	
-	
+	private void persist() {
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
+	}
 	
 }

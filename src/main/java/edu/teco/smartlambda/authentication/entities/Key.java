@@ -53,17 +53,10 @@ public class Key {
 	}
 	
 	Key(String id, String name, User user) {
-		
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.getTransaction();
-		
 		this.id = id;
 		this.name = name;
 		this.user = user;
-		
-		
-		session.save(this);
-		session.getTransaction().commit();
+		persist();
 	}
 	
 	private void setId(final String id) {
@@ -133,10 +126,8 @@ public class Key {
 	public void delete() throws InsufficientPermissionsException {
 		Key authenticatedKey = AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new);
 		if (authenticatedKey.equals(user.getPrimaryKey())) {
-			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			//TODO what to do when the primaryKey deletes itself: delete User too?
-			session.delete(this);
-			session.getTransaction().commit();
+			Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -172,9 +163,7 @@ public class Key {
 	}
 	
 	private void grantPermission(Permission permission) {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.save(permission);
-		session.getTransaction().commit();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 	}
 	
 	
@@ -195,7 +184,6 @@ public class Key {
 			for (Permission perm : permissions) {
 				session.delete(perm);
 			}
-			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -218,7 +206,6 @@ public class Key {
 			for (Permission perm : permissions) {
 				session.delete(perm);
 			}
-			session.getTransaction().commit();
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -255,5 +242,9 @@ public class Key {
 		where(query.getId()).eq(id);
 		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElseThrow
 				(NameNotFoundException::new);
+	}
+	
+	private void persist() {
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }
