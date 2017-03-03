@@ -54,7 +54,7 @@ public class Permission {
 		this.lambda = lambda;
 		this.permissionType = type;
 		this.key = key;
-		persist();
+		//persist();
 	}
 	
 	
@@ -67,7 +67,7 @@ public class Permission {
 		this.user = user;
 		this.permissionType = type;
 		this.key = key;
-		persist();
+		//persist();
 	}
 	
 	private void setId(final int id) {

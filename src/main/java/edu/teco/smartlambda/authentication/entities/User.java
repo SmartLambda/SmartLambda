@@ -65,6 +65,7 @@ public class User {
 			// This is the first Key of this User, there cannot be another Key with the same name
 		}
 		user.primaryKey = pair.getLeft();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		return Pair.of(user, pair.getRight());
 	}
 	
@@ -136,7 +137,7 @@ public class User {
 		
 		Key key = new Key(id, name, this);
 		session.save(key);
-
+		
 		return Pair.of(key, hash);
 	}
 	

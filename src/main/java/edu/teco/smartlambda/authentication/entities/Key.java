@@ -56,7 +56,7 @@ public class Key {
 		this.id = id;
 		this.name = name;
 		this.user = user;
-		persist();
+		//persist();
 	}
 	
 	private void setId(final String id) {
@@ -142,7 +142,9 @@ public class Key {
 	 */
 	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
-			grantPermission(new Permission(lambda, type, this));
+			Permission permission = new Permission(lambda, type, this);
+			grantPermission(permission);
+			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -157,7 +159,9 @@ public class Key {
 	 */
 	public void grantPermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
-			grantPermission(new Permission(user, type, this));
+			Permission permission = new Permission(user, type, this);
+			grantPermission(permission);
+			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		}
 		throw new InsufficientPermissionsException();
 	}

@@ -1,6 +1,5 @@
 package edu.teco.smartlambda.identity;
 
-import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
 
 import java.util.Map;
@@ -21,9 +20,10 @@ public class NullIdentityProvider implements IdentityProvider{
 		if (name == null) {
 			throw new IdentitySyntaxException();
 		}
-		User user = User.createUser(name).getLeft();
-		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
-		return user;
+		//User user = User.createUser(name).getLeft();
+		//Application.getInstance().getSessionFactory().getCurrentSession().save(user);
+		//return user;
+		return User.createUser(name).getLeft();
 	}
 	
 	@Override
