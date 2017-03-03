@@ -81,6 +81,7 @@ public class LambdaController {
 		lambdaResponse.setAsync(lambda.isAsync());
 		lambdaResponse.setRuntime(lambda.getRuntime().getName());
 		
+		response.status(200);
 		return lambdaResponse;
 	}
 	
