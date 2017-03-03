@@ -81,10 +81,19 @@ public class LambdaController {
 		lambdaResponse.setAsync(lambda.isAsync());
 		lambdaResponse.setRuntime(lambda.getRuntime().getName());
 		
+		response.status(200);
 		return lambdaResponse;
 	}
 	
 	public static Object deleteLambda(final Request request, final Response response) {
+		final String name = request.params(":name");
+		final User   user = User.getByName(request.params(":user"));
+		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
+				.orElseThrow(() -> new LambdaNotFoundException(name));
+		
+		lambda.delete();
+		
+		response.status(200);
 		return null;
 	}
 	

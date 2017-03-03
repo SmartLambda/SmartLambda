@@ -36,6 +36,9 @@ public class Application {
 		RuntimeRegistry.getInstance();
 		
 		initializeHibernate();
+	}
+	
+	private void start() {
 		initializeSpark();
 	}
 	
@@ -117,7 +120,7 @@ public class Application {
 	}
 	
 	public static void main(final String... args) {
-		getInstance();
+		getInstance().start();
 	}
 	
 	/**
