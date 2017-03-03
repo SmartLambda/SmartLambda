@@ -6,6 +6,7 @@ import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.Permission;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.configuration.ConfigurationService;
+import edu.teco.smartlambda.lambda.DuplicateLambdaException;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.controller.KeyController;
@@ -86,6 +87,11 @@ public class Application {
 		
 		Spark.exception(NotAuthenticatedException.class, (Exception exception, Request request, Response response) -> {
 			response.status(401);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(DuplicateLambdaException.class, (Exception exception, Request request, Response response) -> {
+			response.status(409);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 	}
