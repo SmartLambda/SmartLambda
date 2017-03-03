@@ -1,11 +1,15 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.identity.NullIdentityProvider;
 import edu.teco.smartlambda.lambda.Lambda;
+import org.hibernate.Transaction;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,22 +23,19 @@ import java.util.Set;
  */
 public class KeyTest {
 	
-	
 	Key    key;
 	Lambda lambda = new Lambda();
 	static User user;
 	boolean revokedFirst = false;
 	boolean revokedSecond = false;
 	
-	@BeforeClass
-	public static void initialize() {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("name", "KeyTest.User");
-		user    = new User(params);
-	}
-	
 	@Before
 	public void buildUp() {
+		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
+		Map<String, String> params = new HashMap<>();
+		params.put("name", "KeyTest.User");
+		user    = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register(params);
+		
 		try {
 		key = user.createKey("KeyTest.buildUp").getLeft();
 
@@ -52,7 +53,12 @@ public class KeyTest {
 			Interesting test case: grant permission to create on behalf of another user
 			and check if it works
 		 */
-		
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		if (transaction.isActive()) transaction.rollback();
 	}
 	
 	@Test
@@ -72,14 +78,14 @@ public class KeyTest {
 	public void getPermissions() throws Exception {
 		
 		List<Permission> list = new ArrayList<>();
-		list.add(new Permission(lambda, PermissionType.DELETE));
+		list.add(new Permission(lambda, PermissionType.DELETE, key));
 		if (!revokedFirst) {
-			list.add(new Permission(lambda, PermissionType.EXECUTE));
+			list.add(new Permission(lambda, PermissionType.EXECUTE, key));
 			
 		}
-		list.add(new Permission(user, PermissionType.DELETE));
+		list.add(new Permission(user, PermissionType.DELETE, key));
 		if (!revokedSecond) {
-			list.add(new Permission(user, PermissionType.GRANT));
+			list.add(new Permission(user, PermissionType.GRANT, key));
 		}
 		int size = list.size();
 

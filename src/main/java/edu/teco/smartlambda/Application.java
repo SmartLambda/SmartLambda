@@ -104,6 +104,7 @@ public class Application {
 	private void initializeHibernate() {
 		final Configuration configuration = new Configuration();
 		configuration.setProperty("hibernate.current_session_context_class", "thread");
+		configuration.setProperty("hibernate.globally_quoted_identifiers", "true");
 		configuration.addAnnotatedClass(Key.class);
 		configuration.addAnnotatedClass(User.class);
 		configuration.addAnnotatedClass(Permission.class);

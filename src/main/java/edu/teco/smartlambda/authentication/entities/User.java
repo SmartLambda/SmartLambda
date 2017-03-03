@@ -1,15 +1,18 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
-import edu.teco.smartlambda.identity.IdentityException;
-import edu.teco.smartlambda.identity.IdentityProvider;
-import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.authentication.NameNotFoundException;
+import edu.teco.smartlambda.lambda.AbstractLambda;
+import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
+import org.torpedoquery.jpa.Query;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +24,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -55,27 +58,22 @@ public class User {
 		
 	}
 	
-	public User(Map<String, String> parameters) {
-		
-				
-		//Der Id wird von der Datenbank gesetzt
-		
-		//TODO (Git-Hub) authentication
-		//in this case the identificationToken is directly used as the name (instead of asking Git-Hub)
-		IdentityProvider identityProvider = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
-		identityProvider.register(parameters);
-		this.name = identityProvider.getName().orElseThrow(IdentityException::new);
-		
-		// Wie wird ermittelt, ob der User Administrator ist? Gibt's nur einen Admin? In dem Fall vllt mit einer Klassenvariable?
+	public static Pair<User, String> createUser(String name) {
+		User user = new User(name);
+		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
+		Pair<Key, String> pair = null; //This will not stay null in any case
 		try {
-			this.primaryKey = addKey(this.name).getLeft();
-		} catch (NameConflictException e){
+			pair = user.addKey(user.name);
+		} catch (NameConflictException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
 		}
+		user.primaryKey = pair.getLeft();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
+		return Pair.of(user, pair.getRight());
 	}
 	
-	private void setId(final int id) {
-		this.id = id;
+	private User(String name) {
+		this.name = name;
 	}
 	
 	private void setName(final String name) {
@@ -86,17 +84,20 @@ public class User {
 		this.primaryKey = primaryKey;
 	}
 	
-	private void setAdmin(final boolean admin) {
+	void setAdmin(final boolean admin) {
 		isAdmin = admin;
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
-	
 	
 	/**
 	 * Creates a new Key Object and adds it to the Database
+	 *
 	 * @param name Name for the Key
+	 *
 	 * @return Pair of the Key object and the Keys ID as a String
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
-	 * @throws NameConflictException If the Name is already used for a key of this User
+	 * @throws NameConflictException            If the Name is already used for a key of this User
 	 */
 	public Pair<Key, String> createKey(String name) throws InsufficientPermissionsException, NameConflictException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
@@ -108,57 +109,91 @@ public class User {
 		throw new InsufficientPermissionsException();
 	}
 	
-	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
-		Set<Key> keys = new HashSet<>();
-		for (Key key : keys) {
-			if (key.getName().equals(name)) {
-				//TODO: throw NameConflictException
-			}
-		}
-				
-		String generatedNumber = "";
-		String id = "";
-		//TODO: generate number and hash it
-		//Der KeyId wird nicht von Hibernate generiert, ist das richtig? Wenn doch, können wir nicht den Id in der Datenbank speichern
-		// und die gehashte Version zurückgeben?
-		Key key = new Key(id, name, this);
-		
 		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		keys.add(key);
-		session.save(keys);
-		session.getTransaction().commit();
+		final Key query = from(Key.class);
+		where(query.getName()).eq(name);
+		final Optional<Key> keyOptional = select(query).get(session);
+		if (keyOptional.isPresent()) {
+			throw new NameConflictException();
+		}
 		
-		return Pair.of(key, generatedNumber);
+		String id;
+		String hash;
+		String generatedNumber = "" + Math.random();
+		Argon2 argon2          = Argon2Factory.create();
+		
+		// Hash generatedNumber
+		hash = argon2.hash(2, 65536, 1, generatedNumber);
+		
+		// Verify generatedNumber
+		if (!argon2.verify(hash, generatedNumber)) {
+			throw new RuntimeException("hash doesn't match generatedNumber");
+		}
+		
+		id = argon2.hash(2, 65536, 1, hash);
+		
+		// Verify hash
+		if (!argon2.verify(id, hash)) {
+			throw new RuntimeException("id doesn't match hash");
+		}
+		
+		Key key = new Key(id, name, this);
+		session.save(key);
+		
+		return Pair.of(key, hash);
 	}
-	
 	
 	/**
 	 * Returns all Users, which this User can See (all Users if this User is an Admin and Users with shared Lambdas otherwise)
- 	 * @return Set of Users
+	 *
+	 * @return Set of Users
 	 */
 	@Transient
 	public Set<User> getVisibleUsers() {
-		Set<Key> keys = new HashSet<>();
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		if (this.isAdmin) {
-			//TODO return all Users: Torpedo query list()
-			return null;
+			final User query = from(User.class);
+			return new HashSet<>(select(query).list(session));
 		} else {
-			/*Set<User> toReturn = new HashSet<>();
-			for (Key key : keys) {
-				for (Permission perm : key.getPermissions()) {
-					
-					if (perm.getUser() != null) {
-						toReturn.add(perm.getUser());
-					} else {
-						toReturn.add(perm.getLambda().getOwner());
-					}
-					toReturn.remove(this); // Richtig??
+			final Key key = from(Key.class);
+			where(key.getUser()).eq(this);
+			final Query<Key> keyQuery = select(key);
+			
+			final Permission permission = from(Permission.class);
+			where(permission.getKey()).in(keyQuery);
+			final Set<Permission> permissionSet =
+					new HashSet<>(select(permission).list(session));
+			
+			Set<User> userSet = new HashSet<>();
+			
+			for (Permission perm : permissionSet) {
+				if (perm.getUser()!= null) {
+					userSet.add(perm.getUser());
+				} else if (perm.getLambda() != null) {
+					userSet.add(perm.getLambda().getOwner());
 				}
 			}
-			return toReturn;*/
-			return null; //TODO
+			
+			return userSet;
+		}
+	}
+	
+	/**
+	 * Returns all Lambdas, which this User can See (all Lambdas if this User is an Admin and shared Lambdas otherwise)
+	 *
+	 * @return Set of Users
+	 */
+	@Transient
+	public Set<AbstractLambda> getVisibleLambdas() {
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		if (this.isAdmin) {
+			final Lambda query = from(Lambda.class);
+			return new HashSet<>(select(query).list(session));
+		} else {
+			final Lambda query = from(Lambda.class);
+			where(query.getOwner()).in(this.getVisibleUsers());
+			return new HashSet<>(select(query).list(session));
 		}
 	}
 	
@@ -169,9 +204,10 @@ public class User {
 	 *
 	 * @return a User object
 	 */
-	public static User getByName(final String name) {
+	public static User getByName(final String name) throws NameNotFoundException {
 		final User query = from(User.class);
 		where(query.getName()).eq(name);
-		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElseThrow
+				(NameNotFoundException::new);
 	}
 }
