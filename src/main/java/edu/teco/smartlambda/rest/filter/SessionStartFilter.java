@@ -12,7 +12,7 @@ public class SessionStartFilter implements Filter {
 		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		
 		if (transaction.isActive()) transaction.rollback();
-
-		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction().getStatus();
+		
+		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 	}
 }
