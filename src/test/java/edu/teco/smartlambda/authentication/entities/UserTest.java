@@ -1,13 +1,35 @@
 package edu.teco.smartlambda.authentication.entities;
 
+import edu.teco.smartlambda.authentication.AuthenticationService;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Matteo on 07.02.2017.
  */
 public class UserTest {
 	
-	User user = new User();
+	static AuthenticationService service;
+	static Map                   params;
+	static User                  user;
+	
+	@BeforeClass
+	public static void initialize() {
+		service = AuthenticationService.getInstance();
+		params     = new HashMap<String, String>();
+		params.put("name", "UserTest.User");
+		user    = new User(params);
+	}
+	@Before
+	public void buildUp() {
+		
+		service.authenticate(user.getPrimaryKey());
+	}
+		
 	
 	@Test
 	public void createKey() throws Exception {

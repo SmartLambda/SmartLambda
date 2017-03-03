@@ -4,12 +4,14 @@ import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,14 +19,21 @@ import java.util.Set;
  */
 public class KeyTest {
 	
+	
 	Key    key;
 	Lambda lambda = new Lambda();
-	User user = new User();
+	static User user;
 	boolean revokedFirst = false;
 	boolean revokedSecond = false;
 	
-	
 	@BeforeClass
+	public static void initialize() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("name", "KeyTest.User");
+		user    = new User(params);
+	}
+	
+	@Before
 	public void buildUp() {
 		try {
 		key = user.createKey("KeyTest.buildUp").getLeft();

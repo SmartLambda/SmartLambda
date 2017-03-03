@@ -32,6 +32,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -85,11 +87,9 @@ public class Lambda extends AbstractLambda {
 			} catch (Exception e) {
 				throw (new RuntimeException(e));
 			}
-			final Gson                 gson = new GsonBuilder().create();
-			final DataInputStream      inputStream;
-			final ExecutionReturnValue returnValue;
-			Socket                     socket;
-			int                        connectionRetries = 0;
+			final Gson gson              = new GsonBuilder().create();
+			Socket     socket;
+			int        connectionRetries = 0;
 			
 			while (true) {
 				try {
@@ -103,10 +103,23 @@ public class Lambda extends AbstractLambda {
 				}
 			}
 			
-			inputStream = new DataInputStream(socket.getInputStream());
-			returnValue = gson.fromJson(inputStream.readUTF(), ExecutionReturnValue.class);
+			final DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+			outputStream.writeUTF(params);
+			outputStream.flush();
 			
-			return returnValue;
+			final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			
+			String returnValue = "";
+			
+			while (!socket.isClosed()) {
+				try {
+					returnValue += inputStream.readUTF();
+				} catch (EOFException e) {
+					break;
+				}
+			}
+			
+			return gson.fromJson(returnValue, ExecutionReturnValue.class);
 		});
 		
 		if (async) {
@@ -134,6 +147,9 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void save() {
+		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(owner, name).isPresent())
+			throw new DuplicateLambdaException(owner, name);
+		
 		try {
 			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
 			final Container container = builder.build();
@@ -141,6 +157,7 @@ public class Lambda extends AbstractLambda {
 		} catch (Exception e) {
 			throw (new RuntimeException(e));
 		}
+		
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
@@ -151,6 +168,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void delete() {
+		// TODO delete container
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 	}
 	

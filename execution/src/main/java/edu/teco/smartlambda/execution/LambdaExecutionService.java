@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.execution;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.processor.LambdaMetaData;
@@ -117,9 +118,10 @@ public class LambdaExecutionService {
 			executionReturnValue = new ExecutionReturnValue(null, new Exception("Internal Server Error"));
 		} finally {
 			try {
-				output.flush();
-				output.writeUTF(new GsonBuilder().create().toJson(executionReturnValue));
-				output.flush();
+				for (String split : Splitter.fixedLength(65535).split(new GsonBuilder().create().toJson(executionReturnValue))) {
+					output.writeUTF(split);
+					output.flush();
+				}
 				
 				output.close();
 				input.close();

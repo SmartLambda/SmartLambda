@@ -3,52 +3,68 @@ package edu.teco.smartlambda.monitoring;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import lombok.Data;
+import edu.teco.smartlambda.lambda.AbstractLambda;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Session;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Table;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Calendar;
 
 @Entity
-@Table(appliesTo = "MonitoringEvent")
-@Data
+@Table(name = "MonitoringEvent")
 public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
-	@Column(name = "time")
-	private final Calendar            time;
-	@Column(name = "lambdaOwner")
-	private final User                lambdaOwner;
-	@Column(name = "lambdaName")
-	private final String              lambdaName;
-	@Column(name = "duration")
+	@Getter
+	private Calendar            time;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "lambdaOwner")
+	@Getter
+	private  User                lambdaOwner;
+	@Getter
+	private  String              lambdaName;
+	@Setter
 	private       long                duration;
-	@Column(name = "CPUTime")
+	@Setter
 	private       int                 CPUTime;
-	@Column(name = "error")
+	@Setter
 	private       String              error;
-	@Column(name = "type")
-	private final MonitoringEventType type;
-	@Column(name = "key")
-	private final Key                 key;
+	@Getter
+	private MonitoringEventType type;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "key")
+	@Getter
+	private Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int                       id;
 	
-	private Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+	public MonitoringEvent() {
+		
+	}
 	
+	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
+		
+		this.time =Calendar.getInstance();
+		this.lambdaOwner= lambda.getOwner();
+		this.lambdaName=lambda.getName();
+		this.type = type;
+		this.key=key;
+	}
 	
+		
 	public void save() {
-		session.beginTransaction();
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.save(this);
 		session.getTransaction().commit();
 	}
