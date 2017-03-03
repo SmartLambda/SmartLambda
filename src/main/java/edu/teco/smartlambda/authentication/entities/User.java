@@ -7,6 +7,8 @@ import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.authentication.NameNotFoundException;
+import edu.teco.smartlambda.lambda.AbstractLambda;
+import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -58,6 +60,7 @@ public class User {
 	
 	public static Pair<User, String> createUser(String name) {
 		User user = new User(name);
+		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		Pair<Key, String> pair = null; //This will not stay null in any case
 		try {
 			pair = user.addKey(user.name);
@@ -173,6 +176,24 @@ public class User {
 			}
 			
 			return userSet;
+		}
+	}
+	
+	/**
+	 * Returns all Lambdas, which this User can See (all Lambdas if this User is an Admin and shared Lambdas otherwise)
+	 *
+	 * @return Set of Users
+	 */
+	@Transient
+	public Set<AbstractLambda> getVisibleLambdas() {
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		if (this.isAdmin) {
+			final Lambda query = from(Lambda.class);
+			return new HashSet<>(select(query).list(session));
+		} else {
+			final Lambda query = from(Lambda.class);
+			where(query.getOwner()).in(this.getVisibleUsers());
+			return new HashSet<>(select(query).list(session));
 		}
 	}
 	
