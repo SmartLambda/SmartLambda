@@ -96,7 +96,7 @@ public class HttpHijackingWorkaround {
 	 */
 	public static InputStream getInputStream(LogStream stream) {
 		final String[] fields   = new String[] {"reader", "stream"}; //$NON-NLS-1$ //$NON-NLS-2$
-		final String[] declared = new String[] {LogStream.class.getName(), LogReader.class.getName()};
+		final String[] declared = new String[] {"com.spotify.docker.client.DefaultLogStream", LogReader.class.getName()};
 		
 		List<String[]> list = new LinkedList<>();
 		for (int i = 0; i < fields.length; i++) {
