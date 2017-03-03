@@ -107,7 +107,7 @@ public class Lambda extends AbstractLambda {
 			outputStream.writeUTF(params);
 			outputStream.flush();
 			
-			final DataInputStream      inputStream = new DataInputStream(socket.getInputStream());
+			final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 			
 			String returnValue = "";
 			
@@ -147,6 +147,9 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void save() {
+		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(owner, name).isPresent())
+			throw new DuplicateLambdaException(owner, name);
+		
 		try {
 			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
 			final Container container = builder.build();
@@ -154,6 +157,7 @@ public class Lambda extends AbstractLambda {
 		} catch (Exception e) {
 			throw (new RuntimeException(e));
 		}
+		
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
@@ -164,6 +168,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void delete() {
+		// TODO delete container
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 	}
 	

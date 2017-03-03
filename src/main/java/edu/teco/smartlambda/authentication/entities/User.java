@@ -16,8 +16,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
@@ -45,18 +45,19 @@ public class User {
 	private String  name;
 	@Getter
 	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+	@JoinColumn(name = "primaryKey")
 	private Key     primaryKey;
 	@Getter
 	@Column(name = "isAdmin", nullable = false)
 	private boolean isAdmin;
-	@Getter
-	private Set<Key> keys;
+	
+	public User() {
 		
+	}
+	
 	public User(Map<String, String> parameters) {
 		
-		this.keys = new HashSet<>(); // Don't move! -> addKey() needs it
-		
+				
 		//Der Id wird von der Datenbank gesetzt
 		
 		//TODO (Git-Hub) authentication
@@ -109,7 +110,7 @@ public class User {
 	
 	
 	private Pair<Key, String> addKey(String name) throws NameConflictException {
-		
+		Set<Key> keys = new HashSet<>();
 		for (Key key : keys) {
 			if (key.getName().equals(name)) {
 				//TODO: throw NameConflictException
@@ -139,11 +140,12 @@ public class User {
 	 */
 	@Transient
 	public Set<User> getVisibleUsers() {
+		Set<Key> keys = new HashSet<>();
 		if (this.isAdmin) {
 			//TODO return all Users: Torpedo query list()
 			return null;
 		} else {
-			Set<User> toReturn = new HashSet<>();
+			/*Set<User> toReturn = new HashSet<>();
 			for (Key key : keys) {
 				for (Permission perm : key.getPermissions()) {
 					
@@ -155,7 +157,8 @@ public class User {
 					toReturn.remove(this); // Richtig??
 				}
 			}
-			return toReturn;
+			return toReturn;*/
+			return null; //TODO
 		}
 	}
 	
