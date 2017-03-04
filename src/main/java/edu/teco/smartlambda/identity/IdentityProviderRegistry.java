@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created on 28.02.17.
@@ -45,7 +46,7 @@ public class IdentityProviderRegistry {
 		}
 	}
 	
-	public IdentityProvider getIdentityProviderByName(final String name) {
-		return providers.get(name);
+	public Optional<IdentityProvider> getIdentityProviderByName(final String name) {
+		return Optional.ofNullable(providers.get(name));
 	}
 }
