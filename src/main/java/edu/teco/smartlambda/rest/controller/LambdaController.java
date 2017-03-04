@@ -50,7 +50,7 @@ public class LambdaController {
 		lambda.save();
 		
 		response.status(201);
-		return null;
+		return new Object();
 	}
 	
 	public static Object updateLambda(final Request request, final Response response) throws IOException {
@@ -67,7 +67,7 @@ public class LambdaController {
 		lambda.update();
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object readLambda(final Request request, final Response response) throws IOException {
