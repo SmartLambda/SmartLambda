@@ -34,13 +34,11 @@ public class Application {
 	private SessionFactory sessionFactory;
 	
 	private Application() {
-		// Load runtimes
-		RuntimeRegistry.getInstance();
-		
 		initializeHibernate();
 	}
 	
 	private void start() {
+		RuntimeRegistry.getInstance();
 		initializeSpark();
 		ScheduleManager.getInstance().start();
 	}
