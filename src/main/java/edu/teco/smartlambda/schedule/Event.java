@@ -60,7 +60,7 @@ public class Event {
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
-	public void setNextExecutionTime() {
+	private void setNextExecutionTime() {
 		try {
 			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
 		} catch (ParseException e) {

@@ -35,20 +35,25 @@ public class ScheduleManager extends Thread {
 		List<AbstractMap.SimpleEntry<Event, ListenableFuture<ExecutionReturnValue>>> futures = new LinkedList<>();
 		while (true) {
 			for (AbstractMap.SimpleEntry<Event, ListenableFuture<ExecutionReturnValue>> future : futures) {
-				if (!future.getValue().isDone()) future.getKey().setLock(Calendar.getInstance());
-				else futures.remove(future);
+				if (!future.getValue().isDone()) {
+					future.getKey().setLock(Calendar.getInstance());
+					Application.getInstance().getSessionFactory().getCurrentSession().update(future.getKey());
+				} else {
+					future.getKey().save();
+					futures.remove(future);
+				}
 			}
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			Event    query         = from(Event.class);
 			Calendar lockTolerance = Calendar.getInstance();
 			lockTolerance.add(Calendar.MINUTE, -2);
-			where(query.getNextExecution()).lte(Calendar.getInstance())
-					.and(where(query.getLock()).isNull().or(query.getLock()).lte(lockTolerance));
+			where(query.getNextExecution()).lte(Calendar.getInstance()).and(query.getLock()).isNull().or(query.getLock())
+					.lte(lockTolerance);
 			event = select(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).setMaxResults(1).get(session).orElse(null);
 			if (event != null) {
 				event.setLock(Calendar.getInstance());
-				event.save();
+				session.update(event);
 				session.getTransaction().commit();
 				futures.add(new AbstractMap.SimpleEntry<>(event, event.execute()));
 			}
