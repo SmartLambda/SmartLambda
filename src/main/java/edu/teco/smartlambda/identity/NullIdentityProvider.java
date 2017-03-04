@@ -11,10 +11,6 @@ import java.util.Map;
 public class NullIdentityProvider implements IdentityProvider{
 	private static final String NAME = "null";
 	
-	NullIdentityProvider() {
-		
-	}
-	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
 		String name = parameters.get("name");
