@@ -30,6 +30,7 @@ public class IdentityProviderRegistry {
 	
 	private void initializeIdentityProviderWithStandardName(Class<? extends IdentityProvider> ipClass) {
 		providers.put(ipClass.getName(), ipClass);
+		System.out.println(ipClass.getName());
 	}
 	
 	public IdentityProvider getIdentityProviderByName(String name) {

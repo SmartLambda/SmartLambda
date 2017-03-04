@@ -6,6 +6,7 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import lombok.Data;
@@ -42,20 +43,20 @@ public class LambdaController {
 		final AbstractLambda lambda        = LambdaFacade.getInstance().getFactory().createLambda();
 		
 		lambda.setAsync(lambdaRequest.getAsync());
-		lambda.setOwner(User.getByName(request.params(":user")));
+		lambda.setOwner(User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user"))));
 		lambda.setName(request.params(":name"));
 		lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime()));
 		lambda.deployBinary(lambdaRequest.getSrc());
 		lambda.save();
 		
 		response.status(201);
-		return null;
+		return new Object();
 	}
 	
 	public static Object updateLambda(final Request request, final Response response) throws IOException {
 		final LambdaRequest lambdaRequest = new ObjectMapper().readValue(request.body(), LambdaRequest.class);
 		final String        name          = request.params(":name");
-		final User          user          = User.getByName(request.params(":user"));
+		final User user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
@@ -66,13 +67,13 @@ public class LambdaController {
 		lambda.update();
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object readLambda(final Request request, final Response response) throws IOException {
 		final LambdaResponse lambdaResponse = new LambdaResponse();
 		final String         name           = request.params(":name");
-		final User           user           = User.getByName(request.params(":user"));
+		final User user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
@@ -87,20 +88,21 @@ public class LambdaController {
 	
 	public static Object deleteLambda(final Request request, final Response response) {
 		final String name = request.params(":name");
-		final User   user = User.getByName(request.params(":user"));
+		final User   user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
 		lambda.delete();
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object executeLambda(final Request request, final Response response) throws IOException {
 		final String                 name                   = request.params(":name");
 		final LambdaExecutionRequest lambdaExecutionRequest = new ObjectMapper().readValue(request.body(), LambdaExecutionRequest.class);
-		final User                   user                   = User.getByName(request.params(":user"));
+		final User                   user                   =
+				User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		

@@ -5,16 +5,15 @@ import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -64,113 +63,59 @@ public class AuthenticationServiceTest {
 	}
 	
 	@Test
+	public void authenticateViaParimaryKey() throws Exception {
+		final AuthenticationService authenticationService = AuthenticationService.getInstance();
+		Map<String, String>         params                = new HashMap<>();
+		params.put("name", "AuthenticationServiceTest.authenticateViaPrimaryKey.User");
+		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+				(params).getLeft();
+		authenticationService.authenticate(user.getPrimaryKey());
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
+	}
+	
+	@Test
 	public void authenticateViaKey() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Map<String, String>         params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
 		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
-				(params);
-		//TODO also use an existing User an Key
+				(params).getLeft();
+		authenticationService.authenticate(user.getPrimaryKey());
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
 		final Key key = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
 		authenticationService.authenticate(key);
-		//checking for the Result after setting Key twice
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(key, authenticationService.getAuthenticatedKey().get());
+		//Checking double authentication
 		authenticationService.authenticate(key);
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(key, authenticationService.getAuthenticatedKey().get());
 	}
 	
 	@Test
 	public void authenticateViaString() throws Exception {
+		Map<String, String>         params                = new HashMap<>();
+		params.put("name", "AuthenticationServiceTest.authenticateViaString.User");
+		final Pair<User, String> pair = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName
+				()).register(params);
+		final User user = pair.getLeft();
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		authenticationService.authenticate(""/*TODO also use an existing Key*/);
-		//checking for the Result after setting Key twice
-		authenticationService.authenticate("");
+		Assert.assertFalse(authenticationService.getAuthenticatedKey().isPresent());
+		authenticationService.authenticate(pair.getRight());
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
+		//Checking double authentication
+		authenticationService.authenticate(pair.getRight());
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
 	}
+
 	
-	@Test
-	public void getAuthenticatedKeyViaKey() throws Exception {
-		AuthenticationService authenticationService = AuthenticationService.getInstance();
-		Map<String, String>   params                = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.getAuthenticatedKeyViaKey.User");
-		User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
-				(params);
-		//TODO also use an existing User an Key
-		Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedKeyViaKey").getLeft();
-		authenticationService.authenticate(key);
-		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-		assert keyOpt.isPresent();
-		Assert.assertSame(keyOpt.get(), key);
-	}
-	
-	@Test
-	public void getAuthenticatedKeyViaString() throws Exception {
-		AuthenticationService authenticationService = AuthenticationService.getInstance();
-		authenticationService.authenticate("");//TODO use an existing Key
-		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-		assert keyOpt.isPresent();
-		Key authenticatedKey = keyOpt.get();
-		
-		Method m = authenticatedKey.getClass().getDeclaredMethod("getId");
-		
-		m.setAccessible(true);
-		String authenticatedKeyID = (String) m.invoke(authenticatedKey);
-		m.setAccessible(false);
-		
-		Assert.assertSame(authenticatedKeyID, ""/*TODO use an existing Key*/);
-	}
-	
-	@Test
-	public void getAuthenticatedUserViaKey() throws Exception {
+	@Test(expected=NotAuthenticatedException.class)
+	public void getAuthenticatedUserViaWrongString() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		
-		Map<String, String> params = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.getAuthenticatedUserViaKey.User");
-		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
-				(params);
-		//TODO also use an existing User an Key
-		
-		Key key = user.createKey("AuthenticationServiceTest.getAuthenticatedUserViaKey").getLeft();
-		authenticationService.authenticate(key);
-		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-		Assert.assertTrue(keyOpt.isPresent());
-		Assert.assertSame(keyOpt.get().getUser(), key.getUser());
+		authenticationService.authenticate("This is a non existing Key");
 	}
-	
-	@Test
-	public void getAuthenticatedUserViaString() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		try {
-			authenticationService.authenticate("");//TODO use an existing Key
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
-		Assert.assertTrue(keyOpt.isPresent());
-		Assert.assertSame(keyOpt.get().getUser(), ""/*TODO use the User of the Key*/);
-	}
-	
-	/*@Test
-	public void getForeignAuthenticatedKeyViaKey() throws Exception {
-		AuthenticationService as0 = AuthenticationService.getInstance();
-		Assume.assumeNotNull(as0);
-		Map<String, String> params = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey.User");
-		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
-				(params);
-		//TODO also use an existing User an
-		// Key
-		final Key key0 = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey1").getLeft();
-		as0.authenticate(key0);
-		Optional<Key> key0Opt = as0.getAuthenticatedKey();
-		Assert.assertTrue(key0Opt.isPresent());
-		final Future<Key> future = executorService.submit(() -> {
-			final Key key = user.createKey("AuthenticationServiceTest.getForeignAuthenticatedKeyViaKey0").getLeft();
-			AuthenticationService.getInstance().authenticate(key);
-			Optional<Key> keyOpt = AuthenticationService.getInstance().getAuthenticatedKey();
-			Assert.assertTrue(keyOpt.isPresent());
-			Assert.assertSame(keyOpt.get(), key);
-			
-			return key;
-		});
-		assert key0Opt.isPresent();
-		Assert.assertNotSame(key0Opt.get(), future.get());
-	}*/
 }

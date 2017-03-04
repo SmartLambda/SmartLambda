@@ -174,8 +174,12 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void delete() {
-		// TODO delete container
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
+		try {
+			ContainerFactory.getContainerById(this.containerId).delete();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
