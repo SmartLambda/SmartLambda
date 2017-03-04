@@ -56,7 +56,7 @@ public class Event {
 			throw new RuntimeException(e);
 		}
 		this.lock = Calendar.getInstance();
-		lambda.execute(parameters, true);
+		lambda.executeAsync(parameters);
 	}
 	
 	public void save() {

@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.schedule;
 
 import edu.teco.smartlambda.Application;
+import org.hibernate.Session;
 
 import javax.persistence.LockModeType;
 import java.util.Calendar;
@@ -27,15 +28,20 @@ public class ScheduleManager extends Thread {
 	public void run() {
 		Event event;
 		while (true) {
-			Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-			Event query = from(Event.class);
-			where(query.getNextExecution()).lte(Calendar.getInstance()).and(query.getLock()).isNull();
-			event = select(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).setMaxResults(1)
-					.get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
-			if (event != null) event.setLock(Calendar.getInstance());
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Event    query         = from(Event.class);
+			Calendar lockTolerance = Calendar.getInstance();
+			lockTolerance.add(Calendar.MINUTE, -2);
+			where(query.getNextExecution()).lte(Calendar.getInstance())
+					.and(where(query.getLock()).isNull().or(query.getLock()).lte(lockTolerance));
+			event = select(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).setMaxResults(1).get(session).get();
+			if (event != null) {
+				event.setLock(Calendar.getInstance());
 				event.execute();
-			event.save();
-			Application.getInstance().getSessionFactory().getCurrentSession().getTransaction().commit();
+				session.update(event);
+				session.getTransaction().commit();
+			}
 			try {
 				sleep(1000);
 			} catch (InterruptedException e) {

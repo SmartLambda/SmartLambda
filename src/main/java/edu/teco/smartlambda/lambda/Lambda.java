@@ -40,6 +40,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
@@ -78,7 +79,34 @@ public class Lambda extends AbstractLambda {
 	private static final int MAX_RETRIES = 4;
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		try {
+			return Optional.of(future.get());
+		} catch (InterruptedException | ExecutionException e) {
+			throw (new RuntimeException(e));
+		}
+	}
+	
+	@Override
+	public Future<ExecutionReturnValue> executeAsync(final String params) {
+		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
+			//TODO: CPUTime!
+			@Override
+			public void onSuccess(final ExecutionReturnValue result) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
+			}
+			
+			@Override
+			public void onFailure(final Throwable t) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
+			}
+		});
+		return future;
+	}
+	
+	private ListenableFuture<ExecutionReturnValue> execute(final String params) {
 		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
 			final Container container = ContainerFactory.getContainerById(containerId);
 			final String    IP;
@@ -121,28 +149,7 @@ public class Lambda extends AbstractLambda {
 			
 			return gson.fromJson(returnValue, ExecutionReturnValue.class);
 		});
-		
-		if (async) {
-			Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
-				//TODO: CPUTime!
-				@Override
-				public void onSuccess(final ExecutionReturnValue result) {
-					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
-				}
-				
-				@Override
-				public void onFailure(final Throwable t) {
-					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
-				}
-			});
-			return Optional.empty();
-		} else {
-			try {
-				return Optional.of(future.get());
-			} catch (InterruptedException | ExecutionException e) {
-				throw (new RuntimeException(e));
-			}
-		}
+		return future;
 	}
 	
 	@Override

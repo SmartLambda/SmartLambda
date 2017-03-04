@@ -7,6 +7,7 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 /**
  * Decorates lambdas with calls to the monitoring service
@@ -19,18 +20,19 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		if(!async) {
-			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
-			Optional<ExecutionReturnValue> returnVal = super.execute(params, async);
-				//TODO: get CPUTime
-			MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
-			
-			return returnVal;
-		} else {
-			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
-			return super.execute(params, async);
-		}
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+		Optional<ExecutionReturnValue> returnVal = super.executeSync(params);
+		//TODO: get CPUTime
+		MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
+		
+		return returnVal;
+	}
+	
+	@Override
+	public Future<ExecutionReturnValue> executeAsync(final String params) {
+		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+		return super.executeAsync(params);
 	}
 	
 	@Override
