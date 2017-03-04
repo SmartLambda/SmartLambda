@@ -81,7 +81,7 @@ public class Application {
 		Spark.delete("/key/:name", KeyController::deleteKey, gson::toJson);
 		
 		Spark.get("/users", UserController::getUserList, gson::toJson);
-		Spark.put("/:user", UserController::register, gson::toJson);
+		Spark.post("/register", UserController::register, gson::toJson);
 		
 		Spark.exception(Exception.class, (Exception exception, Request request, Response response) -> {
 			response.status(500);
