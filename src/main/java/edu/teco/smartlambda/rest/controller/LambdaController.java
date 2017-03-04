@@ -69,7 +69,7 @@ public class LambdaController {
 		return null;
 	}
 	
-	public static Object readLambda(final Request request, final Response response) throws IOException{
+	public static Object readLambda(final Request request, final Response response) throws IOException {
 		final LambdaResponse lambdaResponse = new LambdaResponse();
 		final String         name           = request.params(":name");
 		final User           user           = User.getByName(request.params(":user"));
@@ -104,9 +104,14 @@ public class LambdaController {
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
-		final ExecutionReturnValue executionReturnValue = lambda.execute(lambdaExecutionRequest.getParameters().toString()).orElse(null);
-		
-		return executionReturnValue.getReturnValue().orElse(null);
+		if (lambda.isAsync()) {
+			lambda.executeAsync(lambdaExecutionRequest.getParameters().toString());
+			return null;
+		} else {
+			final ExecutionReturnValue executionReturnValue =
+					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).orElse(null);
+			return executionReturnValue.getReturnValue().orElse(null);
+		}
 	}
 	
 	public static Object getLambdaList(final Request request, final Response response) {
