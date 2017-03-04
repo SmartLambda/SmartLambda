@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -9,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Future;
 
 /**
  * A decorator for lambdas that can be extended and partially overridden to add behaviour to existing lambda calls. By calling the super
@@ -25,7 +25,7 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	}
 	
 	@Override
-	public Future<ExecutionReturnValue> executeAsync(final String params) {return this.lambda.executeAsync(params);}
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {return this.lambda.executeAsync(params);}
 	
 	@Override
 	public void save() {

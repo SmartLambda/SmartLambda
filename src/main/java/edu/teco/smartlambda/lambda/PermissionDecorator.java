@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
@@ -18,9 +19,12 @@ public class PermissionDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		return super.execute(params, async);
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		return super.executeSync(params);
 	}
+	
+	@Override
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) { return super.executeAsync(params);}
 	
 	@Override
 	public void save() {

@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.schedule.Event;
@@ -7,7 +8,6 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Future;
 
 /**
  * Decorates lambdas with calls to the monitoring service
@@ -30,7 +30,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Future<ExecutionReturnValue> executeAsync(final String params) {
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
 		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
 		return super.executeAsync(params);
 	}

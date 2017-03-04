@@ -40,7 +40,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
@@ -89,7 +88,7 @@ public class Lambda extends AbstractLambda {
 	}
 	
 	@Override
-	public Future<ExecutionReturnValue> executeAsync(final String params) {
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
 		final ListenableFuture<ExecutionReturnValue> future = execute(params);
 		Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
 			//TODO: CPUTime!

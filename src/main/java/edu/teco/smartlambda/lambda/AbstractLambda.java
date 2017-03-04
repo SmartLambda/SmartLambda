@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -8,7 +9,6 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Future;
 
 /**
  * An abstract superclass to a lambda representation, that defines the interface for lambdas and their decorators
@@ -17,7 +17,7 @@ public abstract class AbstractLambda {
 	
 	public abstract Optional<ExecutionReturnValue> executeSync(final String params);
 	
-	public abstract Future<ExecutionReturnValue> executeAsync(final String params);
+	public abstract ListenableFuture<ExecutionReturnValue> executeAsync(final String params);
 	
 	/**
 	 * Saves the lambda object into the database
