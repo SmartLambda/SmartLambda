@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.identity;
 
+import edu.teco.smartlambda.authentication.entities.User;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,12 +14,10 @@ public class NullIdentityProviderTest {
 	@Test
 	public void testReturnValue() {
 		IdentityProvider ip = IdentityProviderRegistry.getInstance().getIdentityProviderByName("NullIdentityProvider");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		String input = "testname123";
 		params.put("name", input);
-		ip.register(params);
-		assert ip.getName().isPresent();
-		String result = ip.getName().get();
-		Assert.assertEquals(input, result);
+		User   user   = ip.register(params);
+		Assert.assertEquals(input, user.getName());
 	}
 }

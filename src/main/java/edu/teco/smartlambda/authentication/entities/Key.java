@@ -8,6 +8,7 @@ import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
+import org.torpedoquery.jpa.Query;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,10 +18,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.torpedoquery.jpa.Torpedo.from;
+import static org.torpedoquery.jpa.Torpedo.select;
+import static org.torpedoquery.jpa.Torpedo.where;
+
 /**
- * Created by Matteo on 01.02.2017.
+ * Created on 01.02.2017.
  */
 @Entity
 @Table(name = "Key")
@@ -40,22 +48,15 @@ public class Key {
 
 	
 	
-	public Key() {
+	Key() {
 		
 	}
 	
-	public Key(String id, String name, User user) {
-		
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		
+	Key(String id, String name, User user) {
 		this.id = id;
 		this.name = name;
 		this.user = user;
-		
-		
-		session.save(this);
-		session.getTransaction().commit();
+		//persist();
 	}
 	
 	private void setId(final String id) {
@@ -67,7 +68,10 @@ public class Key {
 	}
 	
 	public Set<Permission> getPermissions() {
-		return null;//TODO
+		final Permission permission = from(Permission.class);
+		where(permission.getKey()).eq(this);
+				
+		return new HashSet<>(select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()));
 	}
 	
 	/**
@@ -77,14 +81,12 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
-		
-		/*if (lambda == null) throw new IllegalStateException("Input parameter lambda == null");
-		for (Permission perm : permissions) {//TODO torpedo
-			if (perm.getLambda().equals(lambda) && perm.getPermissionType().equals(type)) {
-				return true;
-			}
-		}*/
-		return false;
+		final Permission permission = from(Permission.class);
+		where(permission.getKey()).eq(this).and(permission.getLambda()).eq(lambda).and(permission.getPermissionType()).eq(type);
+		final Query<Permission> permissionQuery = select(permission);
+		//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
+		//return select(permission).get(Application.getInstance().getSessionFactory().getCurrentSession()).isPresent();
+		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
 	
@@ -95,13 +97,12 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(User user, PermissionType type) {
-		/*if (user == null) throw new IllegalStateException("Input parameter user == null");
-		for (Permission perm : permissions) {
-			if (perm.getUser().equals(user) && perm.getPermissionType().equals(type)) {
-				return true;
-			}
-		}*///TODO Hibernate
-		return false;
+		final Permission permission = from(Permission.class);
+		where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
+		final Query<Permission> permissionQuery = select(permission);
+		//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
+		//return select(permission).get(Application.getInstance().getSessionFactory().getCurrentSession()).isPresent();
+		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
 	
@@ -123,13 +124,10 @@ public class Key {
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
 	 */
 	public void delete() throws InsufficientPermissionsException {
-		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
-			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(user.getPrimaryKey())) {
-				
-				//user.getKeys().remove(this);
-				Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-				session.delete(this);
-			}
+		Key authenticatedKey = AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new);
+		if (authenticatedKey.equals(user.getPrimaryKey())) {
+			//TODO what to do when the primaryKey deletes itself: delete User too?
+			Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -144,13 +142,9 @@ public class Key {
 	 */
 	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
-			Permission permission = new Permission(lambda, type);
-			
-			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			session.beginTransaction();
-			/*permissions.add(permission);
-			session.save(permissions);*///TODO Hibernate
-			session.getTransaction().commit();
+			Permission permission = new Permission(lambda, type, this);
+			grantPermission(permission);
+			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -165,15 +159,15 @@ public class Key {
 	 */
 	public void grantPermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
-			Permission permission = new Permission(user, type);
-			
-			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			session.beginTransaction();
-			/*permissions.add(permission);
-			session.save(permissions);*///TODO Hibernate
-			session.getTransaction().commit();
+			Permission permission = new Permission(user, type, this);
+			grantPermission(permission);
+			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		}
 		throw new InsufficientPermissionsException();
+	}
+	
+	private void grantPermission(Permission permission) {
+		Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 	}
 	
 	
@@ -186,10 +180,14 @@ public class Key {
 	 */
 	public void revokePermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
-			Permission permission = new Permission(lambda, type);
-			//permissions.remove(permission); TODO Hibernate
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			session.delete(permission);
+			//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
+			final Permission permission = from(Permission.class);
+			where(permission.getKey()).eq(this).and(permission.getLambda()).eq(lambda).and(permission.getPermissionType()).eq(type);
+			List<Permission> permissions = select(permission).list(session);
+			for (Permission perm : permissions) {
+				session.delete(perm);
+			}
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -204,10 +202,14 @@ public class Key {
 	 */
 	public void revokePermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
-			Permission permission = new Permission(user, type);
-			//permissions.remove(permission);TODO Hibernate
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			session.delete(permission);
+			//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
+			final Permission permission = from(Permission.class);
+			where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
+			List<Permission> permissions = select(permission).list(session);
+			for (Permission perm : permissions) {
+				session.delete(perm);
+			}
 		}
 		throw new InsufficientPermissionsException();
 	}
@@ -237,5 +239,15 @@ public class Key {
 			}
 		}
 		return false;
+	}
+	
+	public static Optional<Key> getKeyById(String id) {
+		final Key query = from(Key.class);
+		where(query.getId()).eq(id);
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
+	}
+	
+	private void persist() {
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }

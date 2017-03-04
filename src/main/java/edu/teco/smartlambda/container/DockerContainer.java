@@ -12,7 +12,9 @@ import edu.teco.smartlambda.configuration.ConfigurationService;
  */
 public class DockerContainer implements Container {
 	
-	public static final String DEFAULT_SOCKET = "unix:///var/run/docker.sock";
+	public static final String                    DEFAULT_SOCKET = "unix:///var/run/docker.sock";
+	private static      ThreadLocal<DockerClient> dockerClient   = ThreadLocal.withInitial(() -> new DefaultDockerClient(
+			ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DEFAULT_SOCKET)));
 	
 	final String dockerImageId;
 	
@@ -22,8 +24,7 @@ public class DockerContainer implements Container {
 	
 	@Override
 	public String start() throws DockerException, InterruptedException {
-		final DockerClient client =
-				new DefaultDockerClient(ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DEFAULT_SOCKET));
+		final DockerClient      client    = dockerClient.get();
 		final ContainerCreation container = client.createContainer(ContainerConfig.builder().image(this.dockerImageId).build());
 		client.startContainer(container.id());
 		return client.inspectContainer(container.id()).networkSettings().ipAddress();
