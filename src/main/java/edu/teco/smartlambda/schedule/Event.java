@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.schedule;
 
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -55,6 +56,15 @@ public class Event {
 			throw new RuntimeException(e);
 		}
 		this.lock = Calendar.getInstance();
-		lambda.execute(parameters, lambda.isAsync());
+		lambda.execute(parameters, true);
+	}
+	
+	public void save() {
+		try {
+			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }

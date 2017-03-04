@@ -174,7 +174,8 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void schedule(final Event event) {
-		//// FIXME: 2/15/17 
+		event.setLambda(this);
+		event.save();
 	}
 	
 	@Override
@@ -188,14 +189,17 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
-		//// FIXME: 2/15/17 
-		return null;
+		Event query = from(Event.class);
+		where(query.getLambda()).eq(this);
+		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
-		//// FIXME: 2/15/17 
-		return null;
+		Event query = from(Event.class);
+		where(query.getLambda()).eq(this);
+		
+		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
 	@Override
