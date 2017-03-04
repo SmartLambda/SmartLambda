@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public class AuthenticationService {
 	
-	private static ThreadLocal<AuthenticationService> instance         = null;
+	private static ThreadLocal<AuthenticationService> instance         = ThreadLocal.withInitial(AuthenticationService::new);
 	private        Key                                authenticatedKey = null;
 	
 	/**
@@ -20,13 +20,6 @@ public class AuthenticationService {
 	 * @return AuthenticationService the current Threads AuthenticationService Instance
 	 */
 	public static AuthenticationService getInstance() {
-		if (instance == null) {
-			instance = new ThreadLocal<>();
-			instance.set(new AuthenticationService());
-		} else if (instance.get() == null) {
-			instance.set(new AuthenticationService());
-		}
-		
 		return instance.get();
 	}
 	
