@@ -1,6 +1,7 @@
 package edu.teco.smartlambda.identity;
 
 import edu.teco.smartlambda.authentication.entities.User;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class NullIdentityProvider implements IdentityProvider{
 	}
 	
 	@Override
-	public User register(final Map<String, String> parameters) throws IdentityException {
+	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
 		name = parameters.get("name");
 		if (name == null) {
 			throw new IdentitySyntaxException();
@@ -23,7 +24,7 @@ public class NullIdentityProvider implements IdentityProvider{
 		//User user = User.createUser(name).getLeft();
 		//Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		//return user;
-		return User.createUser(name).getLeft();
+		return User.createUser(name);
 	}
 	
 	@Override
