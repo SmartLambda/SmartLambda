@@ -17,6 +17,7 @@ import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
+import edu.teco.smartlambda.rest.filter.AuthenticationFilter;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
@@ -51,6 +52,7 @@ public class Application {
 		Spark.port(ConfigurationService.getInstance().getConfiguration().getInt("rest.port", 80));
 		
 		Spark.before(new SessionStartFilter());
+		Spark.before(new AuthenticationFilter());
 		Spark.after(new SessionEndFilter());
 		
 		Spark.get("/:user/permissions", PermissionController::readUserPermissions, gson::toJson);
