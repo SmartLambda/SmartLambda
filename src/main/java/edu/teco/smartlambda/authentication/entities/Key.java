@@ -8,7 +8,6 @@ import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
-import org.torpedoquery.jpa.Query;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,17 +35,15 @@ public class Key {
 	@Getter
 	@Id
 	@Column(name = "id", unique = true, nullable = false)
-	private String          id;
+	private String id;
 	@Getter
 	@Setter
 	@Column(name = "name", nullable = false)
-	private String          name;
+	private String name;
 	@Getter
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user")
-	private User            user;
-
-	
+	@JoinColumn(name = "user")
+	private User   user;
 	
 	Key() {
 		
@@ -70,44 +67,45 @@ public class Key {
 	public Set<Permission> getPermissions() {
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this);
-				
+		
 		return new HashSet<>(select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()));
 	}
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied Lambda
+	 *
 	 * @param lambda a Permission has to be a Permission for this Lambda
-	 * @param type a Permission has to be a Permission of this Type
+	 * @param type   a Permission has to be a Permission of this Type
+	 *
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(Lambda lambda, PermissionType type) {
+		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
+				.equals(lambda.getOwner().getPrimaryKey())) return true;
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getLambda()).eq(lambda).and(permission.getPermissionType()).eq(type);
-		final Query<Permission> permissionQuery = select(permission);
-		//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
-		//return select(permission).get(Application.getInstance().getSessionFactory().getCurrentSession()).isPresent();
 		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
-	
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied User
+	 *
 	 * @param user a Permission has to be a Permission for this User
 	 * @param type a Permission has to be a Permission of this Type
+	 *
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(User user, PermissionType type) {
+		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
+				.equals(user.getPrimaryKey())) return true;
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
-		final Query<Permission> permissionQuery = select(permission);
-		//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
-		//return select(permission).get(Application.getInstance().getSessionFactory().getCurrentSession()).isPresent();
 		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
-	
 	/**
 	 * Returns true if this key is a primaryKey, false otherwise
+	 *
 	 * @return
 	 */
 	@Transient
@@ -118,9 +116,9 @@ public class Key {
 		return false;
 	}
 	
-	
 	/**
 	 * Deletes this Key from the Database
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
 	 */
 	public void delete() throws InsufficientPermissionsException {
@@ -128,55 +126,61 @@ public class Key {
 		if (authenticatedKey.equals(user.getPrimaryKey())) {
 			//TODO what to do when the primaryKey deletes itself: delete User too?
 			Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
+		} else {
+			throw new InsufficientPermissionsException();
 		}
-		throw new InsufficientPermissionsException();
 	}
-	
 	
 	/**
 	 * Adds a Permission for the supplied Lambda of the supplied type to this Key Object
+	 *
 	 * @param lambda the supplied Lambda
-	 * @param type  the supplied Type
+	 * @param type   the supplied Type
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key has no Permission to Grant this kind of
-	 * Permissions
+	 *                                          Permissions
 	 */
 	public void grantPermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
 			Permission permission = new Permission(lambda, type, this);
 			grantPermission(permission);
 			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
+		} else {
+			throw new InsufficientPermissionsException();
 		}
-		throw new InsufficientPermissionsException();
 	}
-	
 	
 	/**
 	 * Adds a Permission for the supplied User of the supplied type to this Key Object
+	 *
 	 * @param user the supplied User
-	 * @param type  the supplied Type
+	 * @param type the supplied Type
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key has no Permission to Grant this kind of
-	 * Permissions
+	 *                                          Permissions
 	 */
 	public void grantPermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			Permission permission = new Permission(user, type, this);
 			grantPermission(permission);
 			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
+		} else {
+			throw new InsufficientPermissionsException();
 		}
-		throw new InsufficientPermissionsException();
 	}
 	
 	private void grantPermission(Permission permission) {
 		Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 	}
 	
-	
 	/**
 	 * Removes a Permission for the supplied Lambda of the supplied type to this Key Object
+	 *
 	 * @param lambda the supplied Lambda
-	 * @param type  the supplied Type
+	 * @param type   the supplied Type
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key has no Permission to Grant this kind of
-	 * Permissions
+	 *                                          Permissions
 	 */
 	public void revokePermission(Lambda lambda, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasLambdaPermissionToGrant(lambda, type)) {
@@ -188,17 +192,19 @@ public class Key {
 			for (Permission perm : permissions) {
 				session.delete(perm);
 			}
+		} else {
+			throw new InsufficientPermissionsException();
 		}
-		throw new InsufficientPermissionsException();
 	}
-	
 	
 	/**
 	 * Removes a Permission for the supplied User of the supplied type to this Key Object
+	 *
 	 * @param user the supplied User
-	 * @param type  the supplied Type
+	 * @param type the supplied Type
+	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key has no Permission to Grant this kind of
-	 * Permissions
+	 *                                          Permissions
 	 */
 	public void revokePermission(User user, PermissionType type) throws InsufficientPermissionsException {
 		if (currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
@@ -210,13 +216,14 @@ public class Key {
 			for (Permission perm : permissions) {
 				session.delete(perm);
 			}
+		} else {
+			throw new InsufficientPermissionsException();
 		}
-		throw new InsufficientPermissionsException();
 	}
 	
-	
 	private boolean currentAuthenticatedUserHasLambdaPermissionToGrant(Lambda lambda, PermissionType type) {
-		
+		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
+				.equals(lambda.getOwner().getPrimaryKey())) return true;
 		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
 				.hasPermission(lambda, PermissionType.GRANT)) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
@@ -228,9 +235,9 @@ public class Key {
 		return false;
 	}
 	
-	
 	private boolean currentAuthenticatedUserHasUserPermissionToGrant(User user, PermissionType type) {
-		
+		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
+				.equals(user.getPrimaryKey())) return true;
 		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
 				.hasPermission(user, PermissionType.GRANT)) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
