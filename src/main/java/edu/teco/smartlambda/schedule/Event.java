@@ -1,8 +1,10 @@
 package edu.teco.smartlambda.schedule;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.lambda.Lambda;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import lombok.Getter;
 import lombok.Setter;
 import org.quartz.CronExpression;
@@ -49,22 +51,20 @@ public class Event {
 	@JoinColumn(name = "lambda")
 	private Lambda   lambda;
 	
-	public void execute() {
-		try {
-			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-		this.lock = Calendar.getInstance();
-		lambda.executeAsync(parameters);
+	public ListenableFuture<ExecutionReturnValue> execute() {
+		return lambda.executeAsync(parameters);
 	}
 	
 	public void save() {
+		setNextExecutionTime();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
+	}
+	
+	public void setNextExecutionTime() {
 		try {
 			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
-		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }
