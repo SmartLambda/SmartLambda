@@ -15,6 +15,7 @@ import edu.teco.smartlambda.rest.controller.LambdaController;
 import edu.teco.smartlambda.rest.controller.PermissionController;
 import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
+import edu.teco.smartlambda.rest.exception.IdentityProviderNotFoundException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.rest.filter.AuthenticationFilter;
@@ -94,6 +95,11 @@ public class Application {
 		});
 		
 		Spark.exception(LambdaNotFoundException.class, (Exception exception, Request request, Response response) -> {
+			response.status(404);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(IdentityProviderNotFoundException.class, (Exception exception, Request request, Response response) -> {
 			response.status(404);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
