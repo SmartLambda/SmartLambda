@@ -78,7 +78,34 @@ public class Lambda extends AbstractLambda {
 	private static final int MAX_RETRIES = 4;
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		try {
+			return Optional.of(future.get());
+		} catch (InterruptedException | ExecutionException e) {
+			throw (new RuntimeException(e));
+		}
+	}
+	
+	@Override
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
+		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
+			//TODO: CPUTime!
+			@Override
+			public void onSuccess(final ExecutionReturnValue result) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
+			}
+			
+			@Override
+			public void onFailure(final Throwable t) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
+			}
+		});
+		return future;
+	}
+	
+	private ListenableFuture<ExecutionReturnValue> execute(final String params) {
 		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
 			final Container container = ContainerFactory.getContainerById(containerId);
 			final String    IP;
@@ -121,28 +148,7 @@ public class Lambda extends AbstractLambda {
 			
 			return gson.fromJson(returnValue, ExecutionReturnValue.class);
 		});
-		
-		if (async) {
-			Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
-				//TODO: CPUTime!
-				@Override
-				public void onSuccess(final ExecutionReturnValue result) {
-					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
-				}
-				
-				@Override
-				public void onFailure(final Throwable t) {
-					MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
-				}
-			});
-			return Optional.empty();
-		} else {
-			try {
-				return Optional.of(future.get());
-			} catch (InterruptedException | ExecutionException e) {
-				throw (new RuntimeException(e));
-			}
-		}
+		return future;
 	}
 	
 	@Override
@@ -178,7 +184,8 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void schedule(final Event event) {
-		//// FIXME: 2/15/17 
+		event.setLambda(this);
+		event.save();
 	}
 	
 	@Override
@@ -192,14 +199,17 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
-		//// FIXME: 2/15/17 
-		return null;
+		Event query = from(Event.class);
+		where(query.getLambda()).eq(this);
+		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
-		//// FIXME: 2/15/17 
-		return null;
+		Event query = from(Event.class);
+		where(query.getLambda()).eq(this);
+		
+		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
 	@Override

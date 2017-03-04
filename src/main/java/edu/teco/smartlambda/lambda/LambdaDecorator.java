@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -19,9 +20,12 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	protected final AbstractLambda lambda;
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		return this.lambda.execute(params, async);
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		return this.lambda.executeSync(params);
 	}
+	
+	@Override
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {return this.lambda.executeAsync(params);}
 	
 	@Override
 	public void save() {

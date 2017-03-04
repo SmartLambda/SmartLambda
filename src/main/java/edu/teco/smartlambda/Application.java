@@ -20,6 +20,7 @@ import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.schedule.ScheduleManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import spark.Request;
@@ -41,6 +42,7 @@ public class Application {
 	
 	private void start() {
 		initializeSpark();
+		ScheduleManager.getInstance().start();
 	}
 	
 	private void initializeSpark() {

@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -14,26 +15,9 @@ import java.util.Optional;
  */
 public abstract class AbstractLambda {
 	
-	/**
-	 * Executes the lambda with the default async setting
-	 *
-	 * @param params serialized lambda parameter
-	 *
-	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
-	 */
-	public final Optional<ExecutionReturnValue> execute(final String params) {
-		return this.execute(params, this.isAsync());
-	}
+	public abstract Optional<ExecutionReturnValue> executeSync(final String params);
 	
-	/**
-	 * Executes the lambda with the given async setting
-	 *
-	 * @param params serialized lambda parameter
-	 * @param async  whether the lambda gets executed asynchronously
-	 *
-	 * @return the lambda return value or error if the lambda was executed synchronously, empty otherwise
-	 */
-	public abstract Optional<ExecutionReturnValue> execute(final String params, final boolean async);
+	public abstract ListenableFuture<ExecutionReturnValue> executeAsync(final String params);
 	
 	/**
 	 * Saves the lambda object into the database

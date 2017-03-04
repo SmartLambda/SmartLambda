@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.schedule.Event;
@@ -19,18 +20,19 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionReturnValue> execute(final String params, final boolean async) {
-		if(!async) {
-			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
-			Optional<ExecutionReturnValue> returnVal = super.execute(params, async);
-				//TODO: get CPUTime
-			MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
-			
-			return returnVal;
-		} else {
-			MonitoringService.getInstance().onLambdaExecutionStart(lambda);
-			return super.execute(params, async);
-		}
+	public Optional<ExecutionReturnValue> executeSync(final String params) {
+		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+		Optional<ExecutionReturnValue> returnVal = super.executeSync(params);
+		//TODO: get CPUTime
+		MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
+		
+		return returnVal;
+	}
+	
+	@Override
+	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
+		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+		return super.executeAsync(params);
 	}
 	
 	@Override
