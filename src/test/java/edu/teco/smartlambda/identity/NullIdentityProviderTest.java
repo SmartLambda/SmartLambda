@@ -29,8 +29,7 @@ public class NullIdentityProviderTest {
 	
 	@Test
 	public void testReturnValue() {
-		IdentityProvider    ip     =
-				IdentityProviderRegistry.getInstance().getIdentityProviderByName(new NullIdentityProvider().getName());
+		IdentityProvider    ip     = new NullIdentityProvider();
 		Map<String, String> params = new HashMap<>();
 		String              input  = "testname123";
 		params.put("name", input);

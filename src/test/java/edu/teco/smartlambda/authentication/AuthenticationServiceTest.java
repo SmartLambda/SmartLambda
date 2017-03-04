@@ -3,7 +3,6 @@ package edu.teco.smartlambda.authentication;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Transaction;
@@ -67,7 +66,7 @@ public class AuthenticationServiceTest {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Map<String, String>         params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaPrimaryKey.User");
-		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+		final User user = new NullIdentityProvider().register
 				(params).getLeft();
 		authenticationService.authenticate(user.getPrimaryKey());
 		assert authenticationService.getAuthenticatedKey().isPresent();
@@ -79,7 +78,7 @@ public class AuthenticationServiceTest {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Map<String, String>         params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
-		final User user = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register
+		final User user = new NullIdentityProvider().register
 				(params).getLeft();
 		authenticationService.authenticate(user.getPrimaryKey());
 		assert authenticationService.getAuthenticatedKey().isPresent();
@@ -98,9 +97,8 @@ public class AuthenticationServiceTest {
 	public void authenticateViaString() throws Exception {
 		Map<String, String>         params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaString.User");
-		final Pair<User, String> pair = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName
-				()).register(params);
-		final User user = pair.getLeft();
+		final Pair<User, String>    pair                  = new NullIdentityProvider().register(params);
+		final User                  user                  = pair.getLeft();
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		Assert.assertFalse(authenticationService.getAuthenticatedKey().isPresent());
 		authenticationService.authenticate(pair.getRight());
