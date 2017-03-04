@@ -41,21 +41,21 @@ public class HttpHijackingWorkaround {
 		                                      "input", //$NON-NLS-1$
 		                                      "in", //$NON-NLS-1$
 		                                      "in", //$NON-NLS-1$
-		                                      "wrappedStream", //$NON-NLS-1$
+		                                      "in", "eofWatcher", "wrappedEntity", "content",
 		                                      "in", //$NON-NLS-1$
 		                                      "instream" //$NON-NLS-1$
 		};
-		final String[] declared = new String[] {LogStream.class.getName(), LogReader.class.getName(),
+		final String[] declared = new String[] {"com.spotify.docker.client.DefaultLogStream", LogReader.class.getName(),
 		                                        "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$UnCloseableInputStream",
 		                                        //$NON-NLS-1$
 		                                        "org.glassfish.jersey.message.internal.EntityInputStream", //$NON-NLS-1$
 		                                        FilterInputStream.class.getName(), FilterInputStream.class.getName(),
-		                                        "org.apache.http.conn.EofSensorInputStream", //$NON-NLS-1$
-		                                        "org.apache.http.impl.io.IdentityInputStream", //$NON-NLS-1$
-		                                        "org.apache.http.impl.io.SessionInputBufferImpl"}; //$NON-NLS-1$
-		final String[] bundles = new String[] {"org.glassfish.jersey.core.jersey-common", //$NON-NLS-1$
-		                                       "org.apache.httpcomponents.httpcore", //$NON-NLS-1$
-		                                       "org.apache.httpcomponents.httpclient" //$NON-NLS-1$
+		                                        FilterInputStream.class.getName(), "org.apache.http.conn.EofSensorInputStream",
+		                                        "org.apache.http.entity.HttpEntityWrapper", "org.apache.http.entity.BasicHttpEntity",
+		                                        "org.apache.http.impl.io.IdentityInputStream",
+		                                        "org.apache.http.impl.io.SessionInputBufferImpl"};
+		final String[] bundles = new String[] {"org.glassfish.jersey.core.jersey-common", "org.apache.httpcomponents.httpcore",
+		                                       "org.apache.httpcomponents.httpclient"
 		};
 		
 		List<String[]> list = new LinkedList<>();
