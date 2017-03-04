@@ -139,8 +139,8 @@ public class AuthenticationServiceTest {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		try {
 			authenticationService.authenticate("");//TODO use an existing Key
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
+		} catch (NotAuthenticatedException e) {
+			e.printStackTrace();//TODO
 		}
 		Optional<Key> keyOpt = authenticationService.getAuthenticatedKey();
 		Assert.assertTrue(keyOpt.isPresent());

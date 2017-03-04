@@ -3,7 +3,6 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
-import edu.teco.smartlambda.authentication.NameNotFoundException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -21,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.torpedoquery.jpa.Torpedo.from;
@@ -241,11 +241,10 @@ public class Key {
 		return false;
 	}
 	
-	public static Key getKeyById(String id) throws NameNotFoundException{
+	public static Optional<Key> getKeyById(String id) {
 		final Key query = from(Key.class);
 		where(query.getId()).eq(id);
-		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElseThrow
-				(NameNotFoundException::new);
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
 	private void persist() {

@@ -6,7 +6,6 @@ import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NameConflictException;
-import edu.teco.smartlambda.authentication.NameNotFoundException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -204,10 +203,9 @@ public class User {
 	 *
 	 * @return a User object
 	 */
-	public static User getByName(final String name) throws NameNotFoundException {
+	public static Optional<User> getByName(final String name) {
 		final User query = from(User.class);
 		where(query.getName()).eq(name);
-		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElseThrow
-				(NameNotFoundException::new);
+		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 }

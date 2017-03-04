@@ -38,7 +38,7 @@ public class AuthenticationService {
 	 * Finds the corresponding Key and sets it as the currently authenticated Key
 	 * @param key ID of the Key which is meant to authenticate
 	 */
-	public void authenticate(final String key) throws NameNotFoundException{
+	public void authenticate(final String key) {
 		String hash;
 		Argon2 argon2 = Argon2Factory.create();
 		
@@ -49,8 +49,7 @@ public class AuthenticationService {
 		if (!argon2.verify(hash, key)) {
 			throw new RuntimeException("hash doesn't match key");
 		}
-		
-		authenticatedKey = Key.getKeyById(hash);
+		authenticatedKey = Key.getKeyById(hash).orElseThrow(NotAuthenticatedException::new);
 	}
 	
 	/**
