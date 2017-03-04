@@ -34,8 +34,8 @@ public class KeyTest {
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 		Map<String, String> params = new HashMap<>();
 		params.put("name", "KeyTest.User");
-		user    = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register(params);
-		
+		user    = IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register(params).getLeft();
+
 		try {
 		key = user.createKey("KeyTest.buildUp").getLeft();
 

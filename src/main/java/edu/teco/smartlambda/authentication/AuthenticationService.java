@@ -1,10 +1,10 @@
 package edu.teco.smartlambda.authentication;
 
-import de.mkammerer.argon2.Argon2;
-import de.mkammerer.argon2.Argon2Factory;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 /**
@@ -33,16 +33,23 @@ public class AuthenticationService {
 	 */
 	public void authenticate(final String key) {
 		String hash;
-		Argon2 argon2 = Argon2Factory.create();
-		
-		// Hash key
-		hash = argon2.hash(2, 65536, 1, key);
-		
-		// Verify hash
-		if (!argon2.verify(hash, key)) {
-			throw new RuntimeException("hash doesn't match key");
+		try {
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			hash = arrayToString(sha256.digest(key.getBytes()));
+		} catch (NoSuchAlgorithmException a) {
+			throw new RuntimeException(a);
 		}
+
 		authenticatedKey = Key.getKeyById(hash).orElseThrow(NotAuthenticatedException::new);
+	}
+	
+	private String arrayToString(byte[] array)
+	{
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < array.length; ++i) {
+			sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+		}
+		return sb.toString();
 	}
 	
 	/**

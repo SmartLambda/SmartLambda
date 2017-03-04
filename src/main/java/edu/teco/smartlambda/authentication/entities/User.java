@@ -1,7 +1,5 @@
 package edu.teco.smartlambda.authentication.entities;
 
-import de.mkammerer.argon2.Argon2;
-import de.mkammerer.argon2.Argon2Factory;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
@@ -22,6 +20,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -120,27 +120,28 @@ public class User {
 		String id;
 		String hash;
 		String generatedNumber = "" + Math.random();
-		Argon2 argon2          = Argon2Factory.create();
-		
-		// Hash generatedNumber
-		hash = argon2.hash(2, 65536, 1, generatedNumber);
-		
-		// Verify generatedNumber
-		if (!argon2.verify(hash, generatedNumber)) {
-			throw new RuntimeException("hash doesn't match generatedNumber");
+		try {
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			
+			hash = arrayToString(sha256.digest(generatedNumber.getBytes()));
+			
+			id = arrayToString(sha256.digest(hash.getBytes()));
+		} catch (NoSuchAlgorithmException a) {
+			throw new RuntimeException(a);
 		}
-		
-		id = argon2.hash(2, 65536, 1, hash);
-		
-		// Verify hash
-		if (!argon2.verify(id, hash)) {
-			throw new RuntimeException("id doesn't match hash");
-		}
-		
 		Key key = new Key(id, name, this);
 		session.save(key);
-		
+
 		return Pair.of(key, hash);
+	}
+	
+	private String arrayToString(byte[] array)
+	{
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < array.length; ++i) {
+			sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+		}
+		return sb.toString();
 	}
 	
 	/**
