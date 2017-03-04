@@ -16,4 +16,6 @@ public interface Container {
 	 * @return a unique id that can be used to reference the container
 	 */
 	public String getContainerId();
+	
+	public void delete() throws Exception;
 }

@@ -56,7 +56,7 @@ public class LambdaController {
 	public static Object updateLambda(final Request request, final Response response) throws IOException {
 		final LambdaRequest lambdaRequest = new ObjectMapper().readValue(request.body(), LambdaRequest.class);
 		final String        name          = request.params(":name");
-		final User          user          = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
+		final User user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
@@ -70,10 +70,10 @@ public class LambdaController {
 		return null;
 	}
 	
-	public static Object readLambda(final Request request, final Response response) throws IOException{
+	public static Object readLambda(final Request request, final Response response) throws IOException {
 		final LambdaResponse lambdaResponse = new LambdaResponse();
 		final String         name           = request.params(":name");
-		final User           user           = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
+		final User user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
@@ -88,21 +88,21 @@ public class LambdaController {
 	
 	public static Object deleteLambda(final Request request, final Response response) {
 		final String name = request.params(":name");
-		final User   user = User.getByName(request.params(":user"));
+		final User   user = User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
 		lambda.delete();
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object executeLambda(final Request request, final Response response) throws IOException {
 		final String                 name                   = request.params(":name");
 		final LambdaExecutionRequest lambdaExecutionRequest = new ObjectMapper().readValue(request.body(), LambdaExecutionRequest.class);
-		final User                   user                   = User.getByName(request.params(":user")).orElseThrow
-				(() -> new UserNotFoundException(request.params(":user")));
+		final User                   user                   =
+				User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		

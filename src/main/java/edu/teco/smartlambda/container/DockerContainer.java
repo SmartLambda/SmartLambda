@@ -16,7 +16,7 @@ public class DockerContainer implements Container {
 	private static      ThreadLocal<DockerClient> dockerClient   = ThreadLocal.withInitial(() -> new DefaultDockerClient(
 			ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DEFAULT_SOCKET)));
 	
-	final String dockerImageId;
+	private final String dockerImageId;
 	
 	public DockerContainer(final String containerId) {
 		this.dockerImageId = containerId;
@@ -33,5 +33,10 @@ public class DockerContainer implements Container {
 	@Override
 	public String getContainerId() {
 		return this.dockerImageId;
+	}
+	
+	@Override
+	public void delete() throws DockerException, InterruptedException {
+		dockerClient.get().removeImage(dockerImageId, true, false);
 	}
 }
