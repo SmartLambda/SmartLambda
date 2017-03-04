@@ -9,7 +9,7 @@ import java.util.Map;
  * Created on 28.02.17.
  */
 public class NullIdentityProvider implements IdentityProvider{
-	private String name = NullIdentityProvider.class.getName();
+	private static final String NAME = "null";
 	
 	NullIdentityProvider() {
 		
@@ -21,7 +21,7 @@ public class NullIdentityProvider implements IdentityProvider{
 		if (name == null) {
 			throw new IdentitySyntaxException();
 		}
-		//User user = User.createUser(name).getLeft();
+		//User user = User.createUser(NAME).getLeft();
 		//Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		//return user;
 		return User.createUser(name);
@@ -29,6 +29,6 @@ public class NullIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public String getName() {
-		return name;
+		return NAME;
 	}
 }
