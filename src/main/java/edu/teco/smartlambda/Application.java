@@ -15,6 +15,7 @@ import edu.teco.smartlambda.rest.controller.PermissionController;
 import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
@@ -51,36 +52,41 @@ public class Application {
 		Spark.after(new SessionEndFilter());
 		
 		Spark.get("/:user/permissions", PermissionController::readUserPermissions, gson::toJson);
-		Spark.put("/:user/permissions", PermissionController::grantUserPermissions);
-		Spark.delete("/:user/permissions", PermissionController::revokeUserPermissions);
+		Spark.put("/:user/permissions", PermissionController::grantUserPermissions, gson::toJson);
+		Spark.delete("/:user/permissions", PermissionController::revokeUserPermissions, gson::toJson);
 		Spark.get("/:key/permissions", PermissionController::readKeyPermissions, gson::toJson);
-		Spark.put("/:key/permissions", PermissionController::grantKeyPermissions);
-		Spark.delete("/:key/permissions", PermissionController::revokeKeyPermissions);
+		Spark.put("/:key/permissions", PermissionController::grantKeyPermissions, gson::toJson);
+		Spark.delete("/:key/permissions", PermissionController::revokeKeyPermissions, gson::toJson);
 		
-		Spark.put("/:user/lambda/:name", LambdaController::createLambda);
-		Spark.patch("/:user/lambda/:name", LambdaController::updateLambda);
+		Spark.put("/:user/lambda/:name", LambdaController::createLambda, gson::toJson);
+		Spark.patch("/:user/lambda/:name", LambdaController::updateLambda, gson::toJson);
 		Spark.get("/:user/lambda/:name", LambdaController::readLambda, gson::toJson);
-		Spark.delete("/:user/lambda/:name", LambdaController::deleteLambda);
-		Spark.post("/:user/lambda/:name", LambdaController::executeLambda);
+		Spark.delete("/:user/lambda/:name", LambdaController::deleteLambda, gson::toJson);
+		Spark.post("/:user/lambda/:name", LambdaController::executeLambda, gson::toJson);
 		Spark.get("/:user/lambdas", LambdaController::getLambdaList, gson::toJson);
 		Spark.get("/:user/lambda/:name/statistics", LambdaController::getStatistics, gson::toJson);
 		
-		Spark.put("/:user/lambda/:name/schedule/:event-name", ScheduleController::createSchedule);
-		Spark.patch("/:user/lambda/:name/schedule/:event-name", ScheduleController::updateSchedule);
+		Spark.put("/:user/lambda/:name/schedule/:event-name", ScheduleController::createSchedule, gson::toJson);
+		Spark.patch("/:user/lambda/:name/schedule/:event-name", ScheduleController::updateSchedule, gson::toJson);
 		Spark.get("/:user/lambda/:name/schedule/:event-name", ScheduleController::readSchedule, gson::toJson);
-		Spark.delete("/:user/lambda/:name/schedule/:event-name", ScheduleController::deleteSchedule);
+		Spark.delete("/:user/lambda/:name/schedule/:event-name", ScheduleController::deleteSchedule, gson::toJson);
 		Spark.get("/:user/lambda/:name/schedules", ScheduleController::getScheduledEvents, gson::toJson);
 		
-		Spark.put("/key/:name", KeyController::createKey);
-		Spark.delete("/key/:name", KeyController::deleteKey);
+		Spark.put("/key/:name", KeyController::createKey, gson::toJson);
+		Spark.delete("/key/:name", KeyController::deleteKey, gson::toJson);
 		
 		Spark.get("/users", UserController::getUserList, gson::toJson);
-		Spark.put("/:user", UserController::register);
+		Spark.put("/:user", UserController::register, gson::toJson);
 		
 		Spark.exception(Exception.class, (Exception exception, Request request, Response response) -> {
 			response.status(500);
 			response.body("");
 			exception.printStackTrace();
+		});
+		
+		Spark.exception(UserNotFoundException.class, (Exception exception, Request request, Response response) -> {
+			response.status(404);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		
 		Spark.exception(LambdaNotFoundException.class, (Exception exception, Request request, Response response) -> {
