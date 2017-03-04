@@ -17,7 +17,7 @@ public class NullIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
-		name = parameters.get("name");
+		String name = parameters.get("name");
 		if (name == null) {
 			throw new IdentitySyntaxException();
 		}
