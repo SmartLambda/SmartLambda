@@ -32,7 +32,7 @@ import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
- * Created by Matteo on 01.02.2017.
+ *
  */
 @Entity
 @Table(name = "User")
