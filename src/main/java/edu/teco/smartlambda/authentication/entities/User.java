@@ -198,6 +198,19 @@ public class User {
 	}
 	
 	/**
+	 * Returns Keys of this User with the supplied Name
+	 *
+	 * @return Set of Keys
+	 */
+	@Transient
+	public Set<Key> getKeyByName(String name) {
+		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		final Key query = from(Key.class);
+		where(query.getUser()).eq(this).and(query.getName()).eq(name);
+		return new HashSet<>(select(query).list(session));
+	}
+	
+	/**
 	 * Retrieve a single User by its name
 	 *
 	 * @param name User name
