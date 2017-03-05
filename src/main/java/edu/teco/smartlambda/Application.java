@@ -6,6 +6,7 @@ import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.Permission;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.configuration.ConfigurationService;
+import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
@@ -14,8 +15,10 @@ import edu.teco.smartlambda.rest.controller.LambdaController;
 import edu.teco.smartlambda.rest.controller.PermissionController;
 import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
+import edu.teco.smartlambda.rest.exception.IdentityProviderNotFoundException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
+import edu.teco.smartlambda.rest.filter.AuthenticationFilter;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
@@ -34,13 +37,12 @@ public class Application {
 	private SessionFactory sessionFactory;
 	
 	private Application() {
-		// Load runtimes
-		RuntimeRegistry.getInstance();
-		
 		initializeHibernate();
 	}
 	
 	private void start() {
+		RuntimeRegistry.getInstance();
+		IdentityProviderRegistry.getInstance();
 		initializeSpark();
 		ScheduleManager.getInstance().start();
 	}
@@ -51,6 +53,7 @@ public class Application {
 		Spark.port(ConfigurationService.getInstance().getConfiguration().getInt("rest.port", 80));
 		
 		Spark.before(new SessionStartFilter());
+		Spark.before(new AuthenticationFilter());
 		Spark.after(new SessionEndFilter());
 		
 		Spark.get("/:user/permissions", PermissionController::readUserPermissions, gson::toJson);
@@ -78,7 +81,7 @@ public class Application {
 		Spark.delete("/key/:name", KeyController::deleteKey, gson::toJson);
 		
 		Spark.get("/users", UserController::getUserList, gson::toJson);
-		Spark.put("/:user", UserController::register, gson::toJson);
+		Spark.post("/register", UserController::register, gson::toJson);
 		
 		Spark.exception(Exception.class, (Exception exception, Request request, Response response) -> {
 			response.status(500);
@@ -92,6 +95,11 @@ public class Application {
 		});
 		
 		Spark.exception(LambdaNotFoundException.class, (Exception exception, Request request, Response response) -> {
+			response.status(404);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(IdentityProviderNotFoundException.class, (Exception exception, Request request, Response response) -> {
 			response.status(404);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});

@@ -1,51 +1,52 @@
 package edu.teco.smartlambda.identity;
 
+import edu.teco.smartlambda.configuration.ConfigurationService;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created on 28.02.17.
  */
 public class IdentityProviderRegistry {
-	private Map<String, Class<? extends IdentityProvider>> providers;
-	private static IdentityProviderRegistry instance = null;
+	private final  Map<String, IdentityProvider> providers = new HashMap<>();
+	private static IdentityProviderRegistry      instance  = null;
 	
 	public static IdentityProviderRegistry getInstance() {
 		if (instance == null) {
 			instance = new IdentityProviderRegistry();
 		}
-		return  instance;
+		return instance;
 	}
 	
 	private IdentityProviderRegistry() {
-		providers = new HashMap<>();
+		final List<String> providers =
+				ConfigurationService.getInstance().getConfiguration().getList(String.class, "identityProviders.identityProvider");
 		
-		initialize();
-	}
-	
-	private void initialize() {
-		//Initialized the NullIdentityProvider
-		initializeIdentityProviderWithStandardName(NullIdentityProvider.class);
-	}
-	
-	private void initializeIdentityProviderWithStandardName(Class<? extends IdentityProvider> ipClass) {
-		providers.put(ipClass.getName(), ipClass);
-		System.out.println(ipClass.getName());
-	}
-	
-	public IdentityProvider getIdentityProviderByName(String name) {
-		IdentityProvider identityProvider = null;
-		if (providers.get(name) == null) {
-			throw new IdentityProviderNotFoundException();
+		if (providers == null) {
+			LoggerFactory.getLogger(IdentityProviderRegistry.class).error("No identity providers defined");
+			return;
 		}
-		try {
-			identityProvider = providers.get(name).newInstance();
-		} catch (InstantiationException e) {
-			throw new IdentityException(e.getLocalizedMessage());
-		} catch (IllegalAccessException e) {
-			throw new IdentityException(e.getLocalizedMessage());
+		
+		for (String provider : providers) {
+			try {
+				final IdentityProvider providerInstance = (IdentityProvider) Class.forName(provider).getConstructor().newInstance();
+				this.providers.put(providerInstance.getName(), providerInstance);
+				LoggerFactory.getLogger(IdentityProviderRegistry.class).info("Loaded identity provider " + provider);
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				LoggerFactory.getLogger(IdentityProviderRegistry.class).error("Exception while loading identity provider");
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				LoggerFactory.getLogger(IdentityProviderRegistry.class).error("Identity provider " + provider + " not found");
+			}
 		}
-		return identityProvider;
 	}
 	
+	public Optional<IdentityProvider> getIdentityProviderByName(final String name) {
+		return Optional.ofNullable(providers.get(name));
+	}
 }

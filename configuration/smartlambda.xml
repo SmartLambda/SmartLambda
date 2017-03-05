@@ -8,5 +8,6 @@
         <runtime>edu.teco.smartlambda.runtime.JRE8</runtime>
     </runtimes>
     <identityProviders>
+        <identityProvider>edu.teco.smartlambda.identity.NullIdentityProvider</identityProvider>
     </identityProviders>
 </smartlambda>
