@@ -106,4 +106,12 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	public void setRuntime(final Runtime runtime) {
 		this.lambda.setRuntime(runtime);
 	}
+	
+	public static Lambda unwrap(final AbstractLambda abstractLambda) {
+		if (abstractLambda instanceof Lambda) return (Lambda) abstractLambda;
+		
+		if (abstractLambda instanceof LambdaDecorator) return unwrap(((LambdaDecorator) abstractLambda).lambda);
+		
+		throw new IllegalArgumentException("Can't unwrap object of type " + abstractLambda.getClass().getName());
+	}
 }
