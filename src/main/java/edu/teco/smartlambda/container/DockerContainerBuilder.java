@@ -95,7 +95,7 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		
 		//noinspection ResultOfMethodCallIgnored
 		file.setExecutable(executable);
-		assert file.canExecute();
+		assert file.canExecute() == executable;
 		
 		return this;
 	}
