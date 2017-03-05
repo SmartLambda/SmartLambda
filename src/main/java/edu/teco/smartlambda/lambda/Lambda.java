@@ -3,7 +3,6 @@ package edu.teco.smartlambda.lambda;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
@@ -18,9 +17,9 @@ import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
-import edu.teco.smartlambda.shared.GlobalOptions;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.output.NullOutputStream;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,12 +30,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.io.DataInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -106,49 +104,29 @@ public class Lambda extends AbstractLambda {
 	}
 	
 	private ListenableFuture<ExecutionReturnValue> execute(final String params) {
-		final ListenableFuture<ExecutionReturnValue> future = ThreadManager.getExecutorService().submit(() -> {
-			final Container container = ContainerFactory.getContainerById(containerId);
-			final String    IP;
+		return ThreadManager.getExecutorService().submit(() -> {
+			final Container           container = ContainerFactory.getContainerById(containerId);
+			final WritableByteChannel stdIn;
+			
 			try {
-				IP = container.start();
+				stdIn = container.start();
 			} catch (Exception e) {
 				throw (new RuntimeException(e));
 			}
-			final Gson gson              = new GsonBuilder().create();
-			Socket     socket;
-			int        connectionRetries = 0;
 			
-			while (true) {
-				try {
-					socket = new Socket(IP, GlobalOptions.PORT);
-					break;
-				} catch (ConnectException e) {
-					Thread.sleep(200);
-					connectionRetries++;
-					
-					if (connectionRetries > MAX_RETRIES) throw e;
-				}
-			}
+			final ByteArrayOutputStream byteBufferStream       = new ByteArrayOutputStream(params.length() + 4);
+			final DataOutputStream      byteBufferStreamFiller = new DataOutputStream(byteBufferStream);
+			byteBufferStreamFiller.writeInt(params.length());
+			byteBufferStreamFiller.write(params.getBytes());
+			byteBufferStreamFiller.flush();
+			byteBufferStreamFiller.close();
+			stdIn.write(ByteBuffer.wrap(byteBufferStream.toByteArray()));
 			
-			final DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-			outputStream.writeUTF(params);
-			outputStream.flush();
+			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			container.attach(outputStream, new NullOutputStream());
 			
-			final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-			
-			String returnValue = "";
-			
-			while (!socket.isClosed()) {
-				try {
-					returnValue += inputStream.readUTF();
-				} catch (EOFException e) {
-					break;
-				}
-			}
-			
-			return gson.fromJson(returnValue, ExecutionReturnValue.class);
+			return new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
 		});
-		return future;
 	}
 	
 	@Override

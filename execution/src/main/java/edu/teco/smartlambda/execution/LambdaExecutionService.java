@@ -1,6 +1,5 @@
 package edu.teco.smartlambda.execution;
 
-import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.processor.LambdaMetaData;
@@ -15,8 +14,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -36,29 +33,14 @@ public class LambdaExecutionService {
 	 *
 	 * @param args ignored command line parameters
 	 */
-	public static void main(final String... args) {
-		
-		final ServerSocket     socket;
-		final Socket           clientSocket;
-		final DataInputStream  input;
-		final DataOutputStream output;
-		
+	public static void main(final String... args) throws InterruptedException {
 		final Gson gson = new GsonBuilder().create();
 		
 		// the reported return value
 		ExecutionReturnValue executionReturnValue = new ExecutionReturnValue(null, null);
 		
-		// initialize socket
-		try {
-			socket = new ServerSocket(GlobalOptions.PORT);
-			clientSocket = socket.accept();
-			input = new DataInputStream(clientSocket.getInputStream());
-			output = new DataOutputStream(clientSocket.getOutputStream());
-		} catch (IOException e) {
-			// fatal. Cannot be reported
-			e.printStackTrace();
-			return;
-		}
+		final DataInputStream  systemInputStream  = new DataInputStream(System.in);
+		final DataOutputStream systemOutputStream = new DataOutputStream(System.out);
 		
 		try {
 			// initialize class loader
@@ -72,7 +54,14 @@ public class LambdaExecutionService {
 			}
 			
 			// receive serialized parameter
-			final String         jsonParameter = input.readUTF();
+			final int    length = systemInputStream.readInt();
+			final byte[] buffer = new byte[length];
+			
+			//noinspection ResultOfMethodCallIgnored
+			systemInputStream.read(buffer);
+			systemInputStream.close();
+			
+			final String         jsonParameter = new String(buffer);
 			final LambdaMetaData metaData;
 			
 			// acquire meta data object
@@ -117,18 +106,13 @@ public class LambdaExecutionService {
 			e.printStackTrace();
 			executionReturnValue = new ExecutionReturnValue(null, new Exception("Internal Server Error"));
 		} finally {
+			final String returnValue = new GsonBuilder().create().toJson(executionReturnValue);
 			try {
-				for (String split : Splitter.fixedLength(65535).split(new GsonBuilder().create().toJson(executionReturnValue))) {
-					output.writeUTF(split);
-					output.flush();
-				}
-				
-				output.close();
-				input.close();
-				clientSocket.close();
-				socket.close();
+				systemOutputStream.write(returnValue.getBytes());
+				systemOutputStream.flush();
+				systemOutputStream.close();
 			} catch (IOException e) {
-				// fatal. cannot be reported
+				// fatal unfixable and unreportable
 				e.printStackTrace();
 			}
 		}
