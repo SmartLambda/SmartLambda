@@ -3,6 +3,8 @@ package edu.teco.smartlambda.schedule;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Session;
 
 import javax.persistence.LockModeType;
@@ -20,6 +22,9 @@ import static org.torpedoquery.jpa.Torpedo.where;
  */
 public class ScheduleManager {
 	private static ScheduleManager instance;
+	@Getter
+	@Setter
+	private boolean notEnd = true;
 	
 	public static ScheduleManager getInstance() {
 		if (instance == null) {
@@ -34,7 +39,7 @@ public class ScheduleManager {
 		Event                                                                        event;
 		List<AbstractMap.SimpleEntry<Event, ListenableFuture<ExecutionReturnValue>>> futures = new LinkedList<>();
 		
-		while (true) {
+		while (notEnd) {
 			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			
@@ -71,5 +76,6 @@ public class ScheduleManager {
 				
 			}
 		}
+		return null;
 	}
 }

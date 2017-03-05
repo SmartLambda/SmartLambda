@@ -37,6 +37,7 @@ public class ScheduleManagerTest {
 			e.save();
 		}
 		someEvent = Mockito.mock(Event.class);
+		ScheduleManager.getInstance().setNotEnd(false);
 	}
 	
 	@Test
@@ -60,5 +61,8 @@ public class ScheduleManagerTest {
 	@After
 	public void tearDown() {
 		future.cancel(true);
+		for (Event e : events) {
+			Application.getInstance().getSessionFactory().getCurrentSession().delete(e);
+		}
 	}
 }
