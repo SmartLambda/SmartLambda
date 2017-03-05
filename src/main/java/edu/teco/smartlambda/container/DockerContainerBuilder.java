@@ -5,7 +5,6 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
-import edu.teco.smartlambda.shared.GlobalOptions;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
@@ -55,7 +54,6 @@ public class DockerContainerBuilder implements ContainerBuilder {
 		writer.write("FROM " + template + "\n");
 		writer.write("COPY . ~\n");
 		writer.write("WORKDIR ~\n");
-		writer.write("EXPOSE " + GlobalOptions.PORT + "\n");
 		writer.write("CMD " + this.command + "\n");
 		writer.flush();
 		writer.close();
