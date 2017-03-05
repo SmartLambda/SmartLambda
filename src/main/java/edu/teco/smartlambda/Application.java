@@ -67,7 +67,7 @@ public class Application {
 		Spark.patch("/:user/lambda/:name", LambdaController::updateLambda, gson::toJson);
 		Spark.get("/:user/lambda/:name", LambdaController::readLambda, gson::toJson);
 		Spark.delete("/:user/lambda/:name", LambdaController::deleteLambda, gson::toJson);
-		Spark.post("/:user/lambda/:name", LambdaController::executeLambda, gson::toJson);
+		Spark.post("/:user/lambda/:name", LambdaController::executeLambda);
 		Spark.get("/:user/lambdas", LambdaController::getLambdaList, gson::toJson);
 		Spark.get("/:user/lambda/:name/statistics", LambdaController::getStatistics, gson::toJson);
 		
