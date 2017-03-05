@@ -14,7 +14,6 @@ import com.spotify.docker.client.LogReader;
 import com.spotify.docker.client.LogStream;
 
 import java.io.FilterInputStream;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.nio.channels.Channels;
@@ -31,51 +30,45 @@ import java.util.List;
  * References :
  * https://docs.docker.com/reference/api/docker_remote_api_v1.16/#32-hijacking
  * https://github.com/docker/docker/issues/5933
+ * <p>
+ * This document was altered to work with the latest versions of spotify.docker, apache.httpclient and all their dependencies
  */
 public class HttpHijackingWorkaround {
 	
 	public static WritableByteChannel getOutputStream(LogStream stream, String uri) throws Exception {
-		final String[] fields = new String[] {"reader", //$NON-NLS-1$
-		                                      "stream", //$NON-NLS-1$
-		                                      "original", //$NON-NLS-1$
-		                                      "input", //$NON-NLS-1$
-		                                      "in", //$NON-NLS-1$
-		                                      "in", //$NON-NLS-1$
-		                                      "in", "eofWatcher", "wrappedEntity", "content",
-		                                      "in", //$NON-NLS-1$
-		                                      "instream" //$NON-NLS-1$
-		};
+		final String[] fields =
+				new String[] {"reader", "stream", "original", "input", "in", "in", "in", "eofWatcher", "wrappedEntity", "content", "in",
+				              "instream"};
 		final String[] declared = new String[] {"com.spotify.docker.client.DefaultLogStream", LogReader.class.getName(),
 		                                        "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$UnCloseableInputStream",
-		                                        //$NON-NLS-1$
-		                                        "org.glassfish.jersey.message.internal.EntityInputStream", //$NON-NLS-1$
+		
+		                                        "org.glassfish.jersey.message.internal.EntityInputStream",
 		                                        FilterInputStream.class.getName(), FilterInputStream.class.getName(),
 		                                        FilterInputStream.class.getName(), "org.apache.http.conn.EofSensorInputStream",
 		                                        "org.apache.http.entity.HttpEntityWrapper", "org.apache.http.entity.BasicHttpEntity",
 		                                        "org.apache.http.impl.io.IdentityInputStream",
 		                                        "org.apache.http.impl.io.SessionInputBufferImpl"};
 		final String[] bundles = new String[] {"org.glassfish.jersey.core.jersey-common", "org.apache.httpcomponents.httpcore",
-		                                       "org.apache.httpcomponents.httpclient"
-		};
+		                                       "org.apache.httpcomponents.httpclient"};
 		
 		List<String[]> list = new LinkedList<>();
 		for (int i = 0; i < fields.length; i++) {
 			list.add(new String[] {declared[i], fields[i]});
 		}
 		
-		if (uri.startsWith("unix:")) { //$NON-NLS-1$
-			list.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"}); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (uri.startsWith("https:")) { //$NON-NLS-1$
-			float  jvmVersion = Float.parseFloat(System.getProperty("java.specification.version")); //$NON-NLS-1$
+		if (uri.startsWith("unix:")) {
+			list.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});  //$NON-NLS-2$
+		} else if (uri.startsWith("https:")) {
+			float  jvmVersion = Float.parseFloat(System.getProperty("java.specification.version"));
 			String fName;
 			if (jvmVersion < 1.9f) {
-				fName = "c"; //$NON-NLS-1$
+				fName = "c";
 			} else {
-				fName = "socket"; //$NON-NLS-1$
+				fName = "socket";
 			}
-			list.add(new String[] {"sun.security.ssl.AppInputStream", fName}); //$NON-NLS-1$
+			list.add(new String[] {"sun.security.ssl.AppInputStream", fName});
 		} else {
-			list.add(new String[] {"java.net.SocketInputStream", "socket"}); //$NON-NLS-1$ //$NON-NLS-2$
+			list.add(new String[] {"java.net.SocketInputStream", "socket"});  //$NON-NLS-2$
 		}
 		
 		Object res = getInternalField(stream, list, bundles);
@@ -84,25 +77,10 @@ public class HttpHijackingWorkaround {
 		} else if (res instanceof Socket) {
 			return Channels.newChannel(((Socket) res).getOutputStream());
 		} else {
-			// TODO: throw an exception and let callers handle it.
-			return null;
+			throw new AssertionError(
+					"Expected " + WritableByteChannel.class.getName() + " or " + Socket.class.getName() + " but found: " + "" +
+							res.getClass().getName());
 		}
-	}
-	
-	/*
-	 * We could add API for this in com.spotify.docker.client since there is
-	 * access to the underlying InputStream but better wait and see what
-	 * happens with the HTTP Hijacking situation.
-	 */
-	public static InputStream getInputStream(LogStream stream) {
-		final String[] fields   = new String[] {"reader", "stream"}; //$NON-NLS-1$ //$NON-NLS-2$
-		final String[] declared = new String[] {"com.spotify.docker.client.DefaultLogStream", LogReader.class.getName()};
-		
-		List<String[]> list = new LinkedList<>();
-		for (int i = 0; i < fields.length; i++) {
-			list.add(new String[] {declared[i], fields[i]});
-		}
-		return (InputStream) getInternalField(stream, list, new String[0]);
 	}
 	
 	/*

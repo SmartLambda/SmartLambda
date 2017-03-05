@@ -2,7 +2,6 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
-import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
 import org.hibernate.Transaction;
 import org.junit.After;
@@ -27,7 +26,7 @@ public class UserTest {
 		service = AuthenticationService.getInstance();
 		params     = new HashMap<String, String>();
 		params.put("name", "UserTest.User");
-		user    = (User) IdentityProviderRegistry.getInstance().getIdentityProviderByName(NullIdentityProvider.class.getName()).register(params)
+		user = (User) new NullIdentityProvider().register(params)
 				.getLeft();//TODO WTF!?
 		service.authenticate(user.getPrimaryKey());
 	}

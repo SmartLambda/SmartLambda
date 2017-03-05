@@ -2,10 +2,14 @@ package edu.teco.smartlambda.container;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import edu.teco.smartlambda.configuration.ConfigurationService;
+
+import java.io.OutputStream;
+import java.nio.channels.WritableByteChannel;
 
 /**
  *
@@ -16,18 +20,34 @@ public class DockerContainer implements Container {
 	private static      ThreadLocal<DockerClient> dockerClient   = ThreadLocal.withInitial(() -> new DefaultDockerClient(
 			ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DEFAULT_SOCKET)));
 	
-	private final String dockerImageId;
+	private final String    dockerImageId;
+	private       LogStream stream;
 	
 	public DockerContainer(final String containerId) {
 		this.dockerImageId = containerId;
 	}
 	
 	@Override
-	public String start() throws DockerException, InterruptedException {
+	public WritableByteChannel start() throws Exception {
 		final DockerClient      client    = dockerClient.get();
-		final ContainerCreation container = client.createContainer(ContainerConfig.builder().image(this.dockerImageId).build());
+		final ContainerCreation container =
+				client.createContainer(ContainerConfig.builder().image(this.dockerImageId).attachStdin(true).openStdin(true).build());
 		client.startContainer(container.id());
-		return client.inspectContainer(container.id()).networkSettings().ipAddress();
+		
+		stream = client.attachContainer(container.id(), DockerClient.AttachParameter.STREAM, DockerClient.AttachParameter.STDIN,
+				DockerClient.AttachParameter.STDOUT, DockerClient.AttachParameter.STDERR);
+		
+		return HttpHijackingWorkaround.getOutputStream(stream, DEFAULT_SOCKET);
+	}
+	
+	@Override
+	public void attach(final OutputStream stdOut, final OutputStream stdErr) throws Exception {
+		stream.attach(stdOut, stdErr, true);
+	}
+	
+	@Override
+	public String getOutput() {
+		return stream.readFully();
 	}
 	
 	@Override

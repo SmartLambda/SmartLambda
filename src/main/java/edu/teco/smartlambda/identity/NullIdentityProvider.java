@@ -9,19 +9,15 @@ import java.util.Map;
  * Created on 28.02.17.
  */
 public class NullIdentityProvider implements IdentityProvider{
-	private String name = NullIdentityProvider.class.getName();
-	
-	NullIdentityProvider() {
-		
-	}
+	private static final String NAME = "null";
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
-		name = parameters.get("name");
+		String name = parameters.get("name");
 		if (name == null) {
 			throw new IdentitySyntaxException();
 		}
-		//User user = User.createUser(name).getLeft();
+		//User user = User.createUser(NAME).getLeft();
 		//Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		//return user;
 		return User.createUser(name);
@@ -29,6 +25,6 @@ public class NullIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public String getName() {
-		return name;
+		return NAME;
 	}
 }
