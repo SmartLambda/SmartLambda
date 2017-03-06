@@ -86,11 +86,10 @@ public class LambdaExecutionService {
 			assert (lambdaParameterClass != null) == metaData.isHasParameter();
 			final Object lambdaParameter = lambdaParameterClass != null ? gson.fromJson(jsonParameter, lambdaParameterClass) : null;
 			
-			final String serializedReturnValue;
 			try {
-				Object returnValue = lambdaFunction.invoke(lambdaMainClass.getConstructor().newInstance(), lambdaParameter);
+				final Object returnValue = lambdaFunction.invoke(lambdaMainClass.getConstructor().newInstance(), lambdaParameter);
 				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), null);
-			} catch (NoSuchMethodException e) {
+			} catch (final NoSuchMethodException e) {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null,
 						new InvalidLambdaDefinitionException("No accessible default " + "constructor in lambda class"));
@@ -98,7 +97,7 @@ public class LambdaExecutionService {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null,
 						new InvalidLambdaDefinitionException("Could not invoke lambda " + "function: " + e.getMessage()));
-			} catch (InvocationTargetException e) {
+			} catch (final InvocationTargetException e) {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null, e.getCause());
 			}

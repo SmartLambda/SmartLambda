@@ -17,8 +17,6 @@ import java.util.Optional;
  */
 public class PermissionDecorator extends LambdaDecorator {
 	
-	private Lambda unwrappedLambda = LambdaDecorator.unwrap(this.lambda);
-	
 	public PermissionDecorator(final AbstractLambda lambda) {
 		super(lambda);
 	}
@@ -30,7 +28,7 @@ public class PermissionDecorator extends LambdaDecorator {
 	 */
 	private void ensureActionIsPermitted(final PermissionType type) {
 		if (!AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
-				.hasPermission(this.unwrappedLambda, type)) throw new InsufficientPermissionsException();
+				.hasPermission(LambdaDecorator.unwrap(this.lambda), type)) throw new InsufficientPermissionsException();
 	}
 	
 	@Override
@@ -65,25 +63,32 @@ public class PermissionDecorator extends LambdaDecorator {
 	
 	@Override
 	public void schedule(final Event event) {
+		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
 		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		super.schedule(event);
 	}
 	
 	@Override
 	public void deployBinary(final byte[] content) {
-		this.ensureActionIsPermitted(this.unwrappedLambda.getId() == 0 ? PermissionType.CREATE : PermissionType.PATCH);
+		this.ensureActionIsPermitted(LambdaDecorator.unwrap(this.lambda).getId() == 0 ? PermissionType.CREATE : PermissionType.PATCH);
 		super.deployBinary(content);
 	}
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
 		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
-		return super.getScheduledEvent(name);
+		final Event event = super.getScheduledEvent(name);
+		
+		if (AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new) !=
+				event.getKey().getUser() || !event.getKey().isPrimaryKey()) this.ensureActionIsPermitted(PermissionType.READ);
+		
+		return event;
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
 		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
+		this.ensureActionIsPermitted(PermissionType.READ);
 		return super.getScheduledEvents();
 	}
 	
