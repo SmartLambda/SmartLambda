@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * Created on 07.02.2017.
  */
 public class KeyTest {
 	
@@ -88,6 +88,7 @@ public class KeyTest {
 		final Set<PermissionType> expected = new HashSet<>();
 		expected.add(PermissionType.DELETE);
 		expected.add(PermissionType.GRANT);
+		expected.add(PermissionType.EXECUTE);
 		
 		final Set<PermissionType> got = new HashSet<>();
 		for (final Permission perm : this.key.getPermissions()) {
@@ -106,22 +107,27 @@ public class KeyTest {
 	
 	@Test
 	public void delete() throws Exception {
-		//TODO
+		final String id = new String(this.key.getId());
+		this.key.delete();
+		Assert.assertFalse(Key.getKeyById(id).isPresent());
 	}
 	
 	@Test
 	public void revokePermission() throws Exception {
+		Assert.assertTrue(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
+		System.out.println(this.key.getPermissions().toString());
 		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
+		System.out.println(this.key.getPermissions().toString());
 		Assert.assertFalse(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
 	}
 	
 	@Test
 	public void revokePermissionUser() throws Exception {
-		this.key.revokePermission(this.user, PermissionType.DELETE);
+		this.key.revokePermission(this.user, PermissionType.GRANT);
 		final Set<PermissionType> got = new HashSet<>();
 		for (final Permission perm : this.key.getPermissions()) {
 			got.add(perm.getPermissionType());
 		}
-		Assert.assertFalse(got.contains(PermissionType.DELETE));
+		Assert.assertFalse(got.contains(PermissionType.GRANT));
 	}
 }
