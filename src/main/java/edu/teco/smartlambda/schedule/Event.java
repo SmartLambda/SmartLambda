@@ -52,12 +52,17 @@ public class Event {
 	private Lambda   lambda;
 	
 	public ListenableFuture<ExecutionReturnValue> execute() {
-		return lambda.executeAsync(parameters);
+		return getLambda().executeAsync(getParameters());
 	}
 	
 	public void save() {
 		setNextExecutionTime();
-		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
+		this.setLock(null);
+		Application.getInstance().getSessionFactory().getCurrentSession().saveOrUpdate(this);
+	}
+	
+	public void delete() {
+		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 	}
 	
 	private void setNextExecutionTime() {
