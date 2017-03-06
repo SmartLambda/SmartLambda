@@ -13,85 +13,83 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Decorates lambdas with authenticagtion and aborts the lambda call, if authentication fails
+ * Decorates lambdas with authentication and aborts the lambda call, if authentication fails
  */
-//// FIXME: 2/15/17 
 public class PermissionDecorator extends LambdaDecorator {
 	
-	private Lambda unwrappedLambda = LambdaDecorator.unwrap(lambda);
+	private Lambda unwrappedLambda = LambdaDecorator.unwrap(this.lambda);
 	
 	public PermissionDecorator(final AbstractLambda lambda) {
 		super(lambda);
 	}
 	
-	private boolean authenticatedKeyHasPermissionOnThisLambda(PermissionType type) {
-		return AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new).hasPermission
-				(unwrappedLambda, type);
+	/**
+	 * Ensure the requester has the permission to perform the action and throw an exception if not
+	 *
+	 * @param type required permission type
+	 */
+	private void ensureActionIsPermitted(final PermissionType type) {
+		if (!AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
+				.hasPermission(this.unwrappedLambda, type)) throw new InsufficientPermissionsException();
 	}
 	
 	@Override
 	public Optional<ExecutionReturnValue> executeSync(final String params) {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.EXECUTE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		return super.executeSync(params);
 	}
 	
 	@Override
 	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.EXECUTE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		return super.executeAsync(params);
 	}
 	
 	@Override
 	public void save() {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.CREATE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.CREATE);
 		super.save();
 	}
 	
 	@Override
 	public void update() {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.PATCH)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.PATCH);
 		super.update();
 	}
 	
 	@Override
 	public void delete() {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.DELETE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.DELETE);
 		super.delete();
 	}
 	
 	@Override
 	public void schedule(final Event event) {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.SCHEDULE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		super.schedule(event);
 	}
 	
 	@Override
 	public void deployBinary(final byte[] content) {
-		if (!((unwrappedLambda.getId()==0 &&
-			   authenticatedKeyHasPermissionOnThisLambda(PermissionType.CREATE)
-		      ) ||
-			  (unwrappedLambda.getId()!=0 &&
-			   authenticatedKeyHasPermissionOnThisLambda(PermissionType.PATCH)
-			  )
-		     )) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(this.unwrappedLambda.getId() == 0 ? PermissionType.CREATE : PermissionType.PATCH);
 		super.deployBinary(content);
 	}
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.SCHEDULE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
 		return super.getScheduledEvent(name);
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.SCHEDULE)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
 		return super.getScheduledEvents();
 	}
 	
 	@Override
 	public List<MonitoringEvent> getMonitoringEvents() {
-		if (!authenticatedKeyHasPermissionOnThisLambda(PermissionType.STATUS)) throw new InsufficientPermissionsException();
+		this.ensureActionIsPermitted(PermissionType.STATUS);
 		return super.getMonitoringEvents();
 	}
 }

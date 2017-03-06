@@ -17,7 +17,6 @@ public class LambdaFacade {
 	 */
 	private LambdaFacade() {
 		// this can be interchanged when other factories shall be supported
-		// TODO configurable?
 		factory = new PrivilegedMonitoredLambdaFactory();
 	}
 	
