@@ -51,16 +51,27 @@ public class Event {
 	@JoinColumn(name = "lambda")
 	private Lambda   lambda;
 	
+	/**
+	 * Executes the lambda
+	 *
+	 * @return future of {@link ExecutionReturnValue}
+	 */
 	public ListenableFuture<ExecutionReturnValue> execute() {
 		return getLambda().executeAsync(getParameters());
 	}
 	
+	/**
+	 * Saves and updates the event in the database
+	 */
 	public void save() {
 		setNextExecutionTime();
 		this.setLock(null);
 		Application.getInstance().getSessionFactory().getCurrentSession().saveOrUpdate(this);
 	}
 	
+	/**
+	 * Deletes the event in the database
+	 */
 	public void delete() {
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 	}
