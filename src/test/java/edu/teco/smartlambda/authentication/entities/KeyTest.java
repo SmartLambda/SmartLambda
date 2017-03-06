@@ -3,7 +3,12 @@ package edu.teco.smartlambda.authentication.entities;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
+import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
+import edu.teco.smartlambda.lambda.LambdaDecorator;
+import edu.teco.smartlambda.lambda.LambdaFacade;
+import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,26 +25,40 @@ import java.util.Set;
  */
 public class KeyTest {
 	
-	Key    key;
-	Lambda lambda;
-	User   user;
+	private Key    key;
+	private Lambda lambda;
+	private User   user;
 	
 	@Before
 	public void buildUp() throws Exception{
-		//lambda = LambdaFacade.getInstance().getFactory().createLambda(); TODO
+		final AbstractLambda abstractLambda = LambdaFacade.getInstance().getFactory().createLambda();
+		
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		Map<String, String> params = new HashMap<>();
+		
+		final Map<String, String> params = new HashMap<>();
 		params.put("name", "KeyTest.User");
-		user = new NullIdentityProvider().register(params).getLeft();
-		AuthenticationService.getInstance().authenticate(user.getPrimaryKey());
-	
-		key = user.createKey("KeyTest.buildUp").getLeft();
+		this.user = new NullIdentityProvider().register(params).getLeft();
 		
-		//key.grantPermission(lambda, PermissionType.DELETE);
-		//key.grantPermission(lambda, PermissionType.EXECUTE);
+		this.lambda = LambdaDecorator.unwrap(abstractLambda);
+		this.lambda.setOwner(this.user);
+		this.lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName("jre8"));
+		try {
+			this.lambda.deployBinary(IOUtils.toByteArray(KeyTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
+		} catch (final AssertionError a) {
+			//assert file.canExecute(); in edu.teco.smartlambda.container.DockerContainerBuilder.storeFile can be ignored for this testcase.
+		}
+		this.lambda.save();
+		//Application.getInstance().getSessionFactory().getCurrentSession().save(lambda);
 		
-		key.grantPermission(user, PermissionType.DELETE);
-		key.grantPermission(user, PermissionType.GRANT);
+		AuthenticationService.getInstance().authenticate(this.user.getPrimaryKey());
+		
+		this.key = this.user.createKey("KeyTest.buildUp").getLeft();
+		
+		this.key.grantPermission(this.lambda, PermissionType.DELETE);
+		this.key.grantPermission(this.lambda, PermissionType.EXECUTE);
+		
+		this.key.grantPermission(this.user, PermissionType.DELETE);
+		this.key.grantPermission(this.user, PermissionType.GRANT);
 
 		/*
 			TODO Interesting test case: grant permission to create on behalf of another user
@@ -49,66 +68,58 @@ public class KeyTest {
 	
 	@After
 	public void tearDown() throws Exception {
-		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
 	}
 	
-	/*@Test
+	@Test
 	public void hasPermission() throws Exception {
-		
-		Assert.assertTrue(key.hasPermission(lambda, PermissionType.DELETE));
-		
-	}*/
+		Assert.assertTrue(this.key.hasPermission(this.lambda, PermissionType.DELETE));
+	}
 	
 	@Test
 	public void hasPermission1() throws Exception {
-		Assert.assertTrue(key.hasPermission(user, PermissionType.GRANT));
+		Assert.assertTrue(this.key.hasPermission(this.user, PermissionType.GRANT));
 	}
 	
 	@Test
 	public void getPermissions() throws Exception {
 		
-		Set<PermissionType> expected = new HashSet<>();
-		/*list.add(new Permission(lambda, PermissionType.DELETE, key));
-		if (!revokedFirst) {
-			list.add(new Permission(lambda, PermissionType.EXECUTE, key));
-			
-		}*/
+		final Set<PermissionType> expected = new HashSet<>();
 		expected.add(PermissionType.DELETE);
 		expected.add(PermissionType.GRANT);
-		Set<PermissionType> got = new HashSet<>();
-		for (Permission perm : key.getPermissions()) {
+		
+		final Set<PermissionType> got = new HashSet<>();
+		for (final Permission perm : this.key.getPermissions()) {
 			got.add(perm.getPermissionType());
 		}
 		Assert.assertTrue(got.containsAll(expected));
 		Assert.assertTrue(expected.containsAll(got));
 	}
 	
-	/*@Test
+	@Test
 	public void grantPermissions() throws Exception {
 		
-		key.grantPermission(lambda, PermissionType.DELETE);
-		Assert.assertTrue(key.hasPermission(lambda, PermissionType.DELETE));
-	}*/
+		this.key.grantPermission(this.lambda, PermissionType.DELETE);
+		Assert.assertTrue(this.key.hasPermission(this.lambda, PermissionType.DELETE));
+	}
 	
 	@Test
 	public void delete() throws Exception {
 		//TODO
 	}
 	
-	/*@Test
+	@Test
 	public void revokePermission() throws Exception {
-		
-		key.revokePermission(lambda, PermissionType.EXECUTE);
-		Assert.assertFalse(key.hasPermission(lambda, PermissionType.EXECUTE));
-		revokedFirst = true;
-	}*/
+		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
+		Assert.assertFalse(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
+	}
 	
 	@Test
 	public void revokePermissionUser() throws Exception {
-		key.revokePermission(user, PermissionType.DELETE);
-		Set<PermissionType> got = new HashSet<>();
-		for (Permission perm : key.getPermissions()) {
+		this.key.revokePermission(this.user, PermissionType.DELETE);
+		final Set<PermissionType> got = new HashSet<>();
+		for (final Permission perm : this.key.getPermissions()) {
 			got.add(perm.getPermissionType());
 		}
 		Assert.assertFalse(got.contains(PermissionType.DELETE));

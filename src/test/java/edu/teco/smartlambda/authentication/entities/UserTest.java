@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public class UserTest {
 	
-	static AuthenticationService service;
-	static Map                   params;
-	static User                  user;
+	private static AuthenticationService service;
+	private static Map                   params;
+	private static User                  user;
 
 	@Before
 	public void buildUp() {
@@ -33,14 +33,14 @@ public class UserTest {
 	
 	@After
 	public void tearDown() throws Exception {
-		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
 	}
 	
 	@Test
 	public void createKey() throws Exception {
 		
-		Key key = user.createKey("UserTest.createKey").getLeft();
+		final Key key = user.createKey("UserTest.createKey").getLeft();
 		/*
 			TODO: insert key in the database and check if it's there
 		 */

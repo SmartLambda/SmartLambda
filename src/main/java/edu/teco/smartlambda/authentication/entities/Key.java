@@ -54,7 +54,6 @@ public class Key {
 		this.id = id;
 		this.name = name;
 		this.user = user;
-		//persist();
 	}
 	
 	private void setId(final String id) {
@@ -108,7 +107,7 @@ public class Key {
 	/**
 	 * Returns true if this key is a primaryKey, false otherwise
 	 *
-	 * @return
+	 * @return value
 	 */
 	@Transient
 	public boolean isPrimaryKey() {
