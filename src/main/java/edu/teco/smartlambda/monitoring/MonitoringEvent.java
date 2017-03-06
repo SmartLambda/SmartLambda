@@ -31,15 +31,15 @@ public class MonitoringEvent {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambdaOwner")
 	@Getter
-	private  User                lambdaOwner;
+	private User                lambdaOwner;
 	@Getter
-	private  String              lambdaName;
+	private String              lambdaName;
 	@Setter
-	private       long                duration;
+	private long                duration;
 	@Setter
-	private       int                 CPUTime;
+	private int                 CPUTime;
 	@Setter
-	private       String              error;
+	private String              error;
 	@Getter
 	@Enumerated(EnumType.STRING)
 	private MonitoringEventType type;
@@ -49,8 +49,9 @@ public class MonitoringEvent {
 	private Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int                       id;
-
+	private int                 id;
+	
+	public MonitoringEvent() {}
 	
 	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
 		
@@ -61,7 +62,9 @@ public class MonitoringEvent {
 		this.key=key;
 	}
 	
-		
+	/**
+	 * Saves the event to the database
+	 */
 	public void save() {
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
