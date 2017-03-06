@@ -22,7 +22,7 @@ public class ScheduleManager {
 	private static ScheduleManager instance;
 	@Getter
 	@Setter
-	private boolean notEnd = true;
+	private boolean running = true;
 	
 	public static ScheduleManager getInstance() {
 		if (instance == null) {
@@ -33,11 +33,16 @@ public class ScheduleManager {
 	
 	private ScheduleManager() {}
 	
+	/**
+	 * Waits until events are due, acquires them and repeatedly updates their lock state while executing them
+	 *
+	 * @return nothing
+	 */
 	public Void run() {
 		
 		final HashMap<Event, ListenableFuture<ExecutionReturnValue>> futures = new HashMap<>(0);
 		
-		while (notEnd) {
+		while (this.running) {
 			final Event   event;
 			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
@@ -58,8 +63,7 @@ public class ScheduleManager {
 			lockTolerance.add(Calendar.MINUTE, -5);
 			
 			//Gets next scheduled event from the database
-			where(query.getNextExecution()).lte(Calendar.getInstance()).and(query.getLock()).isNull().or(query.getLock())
-					.lte(lockTolerance);
+			where(query.getNextExecution()).lte(Calendar.getInstance()).and(query.getLock()).isNull().or(query.getLock()).lte(lockTolerance);
 			event = select(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).setMaxResults(1).get(session).orElse(null);
 			
 			if (event != null) {
@@ -71,7 +75,7 @@ public class ScheduleManager {
 			
 			try {
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				
 			}
 		}

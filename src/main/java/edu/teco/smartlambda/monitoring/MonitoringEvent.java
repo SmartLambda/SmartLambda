@@ -25,13 +25,13 @@ public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
 	@Getter
-	private Calendar            time;
+	private final Calendar            time;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambdaOwner")
 	@Getter
-	private  User                lambdaOwner;
+	private final User                lambdaOwner;
 	@Getter
-	private  String              lambdaName;
+	private final String              lambdaName;
 	@Setter
 	private       long                duration;
 	@Setter
@@ -39,15 +39,14 @@ public class MonitoringEvent {
 	@Setter
 	private       String              error;
 	@Getter
-	private MonitoringEventType type;
+	private final MonitoringEventType type;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "key")
 	@Getter
-	private Key                 key;
+	private final Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int                       id;
-
+	private       int                 id;
 	
 	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
 		
@@ -58,7 +57,9 @@ public class MonitoringEvent {
 		this.key=key;
 	}
 	
-		
+	/**
+	 * Saves the event to the database
+	 */
 	public void save() {
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
