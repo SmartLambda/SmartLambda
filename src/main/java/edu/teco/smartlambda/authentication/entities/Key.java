@@ -80,12 +80,11 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(final AbstractLambda lambda, final PermissionType type) {
-		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
-				.equals(lambda.getOwner().getPrimaryKey())) return true;
+		if (this.equals(lambda.getOwner().getPrimaryKey())) return true;
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getLambda()).eq(LambdaDecorator.unwrap(lambda))
 				.and(permission.getPermissionType()).eq(type);
-		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
+		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
 	/**
@@ -97,11 +96,10 @@ public class Key {
 	 * @return returns if the queried Permission exists
 	 */
 	public boolean hasPermission(final User user, final PermissionType type) {
-		if (AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new)
-				.equals(user.getPrimaryKey())) return true;
+		if (this.equals(user.getPrimaryKey())) return true;
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
-		return select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
+		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
 	/**
@@ -122,8 +120,9 @@ public class Key {
 	public void delete() throws InsufficientPermissionsException {
 		final Key authenticatedKey = AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new);
 		if (authenticatedKey.equals(this.user.getPrimaryKey())) {
-			//TODO what to do when the primaryKey deletes itself: delete User too?
-			Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
+			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			session.delete(this);
+			session.delete(this.getUser());
 		} else {
 			throw new InsufficientPermissionsException();
 		}
@@ -139,6 +138,7 @@ public class Key {
 	 *                                          Permissions
 	 */
 	public void grantPermission(final AbstractLambda lambda, final PermissionType type) throws InsufficientPermissionsException {
+		if (this.hasPermission(lambda, type)) return;
 		if (this.currentAuthenticatedUserHasLambdaPermissionToGrant(LambdaDecorator.unwrap(lambda), type)) {
 			final Permission permission = new Permission(lambda, type, this);
 			this.grantPermission(permission);
@@ -158,6 +158,7 @@ public class Key {
 	 *                                          Permissions
 	 */
 	public void grantPermission(final User user, final PermissionType type) throws InsufficientPermissionsException {
+		if (this.hasPermission(user, type)) return;
 		if (this.currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			final Permission permission = new Permission(user, type, this);
 			this.grantPermission(permission);
@@ -183,7 +184,6 @@ public class Key {
 	public void revokePermission(final AbstractLambda lambda, final PermissionType type) throws InsufficientPermissionsException {
 		if (this.currentAuthenticatedUserHasLambdaPermissionToGrant(LambdaDecorator.unwrap(lambda), type)) {
 			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).eq(this).and(permission.getLambda()).eq(LambdaDecorator.unwrap(lambda))
 					.and(permission.getPermissionType()).eq(type);
@@ -208,7 +208,6 @@ public class Key {
 	public void revokePermission(final User user, final PermissionType type) throws InsufficientPermissionsException {
 		if (this.currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			//TODO-ASK Sicherstellung, dass nur eine Permission der selben Art vorhanden ist.
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
 			final List<Permission> permissions = select(permission).list(session);
@@ -251,9 +250,5 @@ public class Key {
 		final Key query = from(Key.class);
 		where(query.getId()).eq(id);
 		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
-	}
-	
-	private void persist() {
-		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }
