@@ -14,6 +14,7 @@ public class JRE8 implements Runtime {
 	
 	@Override
 	public void setupContainerImage(final ContainerBuilder builder) {
+		builder.setRuntimeLibrary(EXECUTION_SERVICE_NAME);
 		builder.setCommand("java -jar " + EXECUTION_SERVICE_NAME).setTemplate("openjdk:8");
 	}
 	

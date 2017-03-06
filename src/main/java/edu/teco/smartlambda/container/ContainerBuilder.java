@@ -56,4 +56,6 @@ public interface ContainerBuilder {
 	 * @return this builder instance
 	 */
 	public ContainerBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException;
+	
+	public void setRuntimeLibrary(final String runtimeLibrary);
 }

@@ -5,6 +5,7 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
+import lombok.Setter;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
@@ -26,6 +27,9 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	private final File   tmpDirectory;
 	private       String template;
 	
+	@Setter
+	private String runtimeLibrary;
+	
 	public DockerContainerBuilder() {
 		containerId = generateContainerId();
 		
@@ -39,10 +43,8 @@ public class DockerContainerBuilder implements ContainerBuilder {
 	@Override
 	public DockerContainer build()
 			throws DockerCertificateException, IOException, DockerException, InterruptedException, URISyntaxException {
-		// copy execution service into tmp directory
-		//// FIXME: 2/28/17
-		final InputStream      inputStream  = DockerContainerBuilder.class.getClassLoader().getResourceAsStream("executionservice.jar");
-		final FileOutputStream outputStream = new FileOutputStream(new File(tmpDirectory, "executionservice.jar"));
+		final InputStream      inputStream  = DockerContainerBuilder.class.getClassLoader().getResourceAsStream(this.runtimeLibrary);
+		final FileOutputStream outputStream = new FileOutputStream(new File(tmpDirectory, this.runtimeLibrary));
 		outputStream.write(IOUtils.toByteArray(inputStream));
 		outputStream.flush();
 		outputStream.close();
