@@ -6,7 +6,6 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -48,10 +47,7 @@ public class MonitoringEvent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int                       id;
-	
-	public MonitoringEvent() {
-		
-	}
+
 	
 	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
 		
@@ -64,13 +60,11 @@ public class MonitoringEvent {
 	
 		
 	public void save() {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		session.save(this);
-		session.getTransaction().commit();
+		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
 	enum MonitoringEventType {
-		EXECUTION, DELETION, DEPLOYMENT;
+		EXECUTION, DELETION, DEPLOYMENT
 	}
 }
 
