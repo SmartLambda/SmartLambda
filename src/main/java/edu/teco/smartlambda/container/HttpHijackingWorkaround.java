@@ -19,6 +19,7 @@ import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.glassfish.jersey.message.internal.EntityInputStream;
 import org.slf4j.LoggerFactory;
+import sun.nio.ch.ChannelInputStream;
 
 import java.io.FilterInputStream;
 import java.lang.reflect.Field;
@@ -96,7 +97,7 @@ class HttpHijackingWorkaround {
 		}
 		
 		if (uri.startsWith("unix:")) {
-			fieldClassTuples.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});
+			fieldClassTuples.add(new String[] {ChannelInputStream.class.getName(), "ch"});
 		} else if (uri.startsWith("https:")) {
 			final float jvmVersion = Float.parseFloat(System.getProperty("java.specification.version"));
 			fieldClassTuples.add(new String[] {"sun.security.ssl.AppInputStream", jvmVersion < 1.9f ? "c" : "socket"});
@@ -133,7 +134,7 @@ class HttpHijackingWorkaround {
 				curr = field.get(curr);
 			}
 		} catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
-			LoggerFactory.getLogger(HttpHijackingWorkaround.class).error("assertion violation in reflection access", e);
+			LoggerFactory.getLogger(HttpHijackingWorkaround.class).error("violation of class hierarchy in reflection access", e);
 		}
 		return curr;
 	}

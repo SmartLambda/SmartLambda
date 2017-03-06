@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Matteo on 07.02.2017.
+ *
  */
 public class UserTest {
 	
