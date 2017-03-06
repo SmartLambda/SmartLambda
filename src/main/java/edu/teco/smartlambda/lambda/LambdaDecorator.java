@@ -108,6 +108,8 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	}
 	
 	public static Lambda unwrap(final AbstractLambda abstractLambda) {
+		if (abstractLambda == null) return null;
+		
 		if (abstractLambda instanceof Lambda) return (Lambda) abstractLambda;
 		
 		if (abstractLambda instanceof LambdaDecorator) return unwrap(((LambdaDecorator) abstractLambda).lambda);

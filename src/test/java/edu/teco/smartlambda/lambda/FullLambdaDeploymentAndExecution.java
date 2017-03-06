@@ -1,6 +1,6 @@
 package edu.teco.smartlambda.lambda;
 
-import edu.teco.smartlambda.container.DockerContainerBuilder;
+import edu.teco.smartlambda.container.docker.DockerImageBuilder;
 import edu.teco.smartlambda.runtime.JRE8;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
@@ -42,7 +42,7 @@ public class FullLambdaDeploymentAndExecution {
 	}
 	
 	public void _b_executeLambda() throws Exception {
-		final DockerContainerBuilder builder = new DockerContainerBuilder();
+		final DockerImageBuilder builder = new DockerImageBuilder();
 		builder.setCommand("ls");
 		builder.setTemplate("openjdk:8");
 		builder.build();

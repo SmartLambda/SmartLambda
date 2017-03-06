@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat - Initial Contribution
  *******************************************************************************/
-package edu.teco.smartlambda.container;
+package edu.teco.smartlambda.container.docker;
 
 import com.spotify.docker.client.LogReader;
 import com.spotify.docker.client.LogStream;

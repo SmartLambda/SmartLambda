@@ -2,6 +2,7 @@ package edu.teco.smartlambda.lambda;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
@@ -18,5 +19,7 @@ public class LambdaDecoratorTest {
 		final LambdaDecorator decoratedTwice = new LambdaDecorator(decorated) {
 		};
 		assertSame(lambda, LambdaDecorator.unwrap(decoratedTwice));
+		
+		assertNull(LambdaDecorator.unwrap(null));
 	}
 }
