@@ -38,13 +38,13 @@ public class Application {
 	private SessionFactory sessionFactory;
 	
 	private Application() {
-		initializeHibernate();
+		this.initializeHibernate();
 	}
 	
 	private void start() {
 		RuntimeRegistry.getInstance();
 		IdentityProviderRegistry.getInstance();
-		initializeSpark();
+		this.initializeSpark();
 		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
 	}
 	
@@ -127,14 +127,14 @@ public class Application {
 		configuration.addAnnotatedClass(MonitoringEvent.class);
 		configuration.configure(new File(BuildConfig.HIBERNATE_CONFIGURATION_PATH));
 		
-		sessionFactory = configuration.buildSessionFactory();
+		this.sessionFactory = configuration.buildSessionFactory();
 	}
 	
 	/**
 	 * @return a session factory initialized with the user-provided Hibernate configuration
 	 */
 	public SessionFactory getSessionFactory() {
-		return sessionFactory;
+		return this.sessionFactory;
 	}
 	
 	public static void main(final String... args) {

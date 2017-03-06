@@ -8,7 +8,7 @@ public class IdentityException extends RuntimeException{
 		super();
 	}
 	
-	public IdentityException(String message) {
+	public IdentityException(final String message) {
 		super(message);
 	}
 }

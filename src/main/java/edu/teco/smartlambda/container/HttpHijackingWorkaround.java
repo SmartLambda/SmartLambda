@@ -12,6 +12,13 @@ package edu.teco.smartlambda.container;
 
 import com.spotify.docker.client.LogReader;
 import com.spotify.docker.client.LogStream;
+import org.apache.http.conn.EofSensorInputStream;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.impl.io.IdentityInputStream;
+import org.apache.http.impl.io.SessionInputBufferImpl;
+import org.glassfish.jersey.message.internal.EntityInputStream;
+import org.slf4j.LoggerFactory;
 
 import java.io.FilterInputStream;
 import java.lang.reflect.Field;
@@ -33,81 +40,101 @@ import java.util.List;
  * <p>
  * This document was altered to work with the latest versions of spotify.docker, apache.httpclient and all their dependencies
  */
-public class HttpHijackingWorkaround {
+class HttpHijackingWorkaround {
 	
-	public static WritableByteChannel getOutputStream(LogStream stream, String uri) throws Exception {
+	/**
+	 * This is a utility class and shall not be instantiated
+	 */
+	private HttpHijackingWorkaround() {
+		
+	}
+	
+	/**
+	 * Get a output stream that can be used to write into the standard input stream of  docker container's running process
+	 *
+	 * @param stream the docker container's log stream
+	 * @param uri    the URI to the docker socket
+	 *
+	 * @return a writable byte channel that can be used to write into the http web-socket output stream
+	 *
+	 * @throws Exception on any docker or reflection exception
+	 */
+	static WritableByteChannel getOutputStream(final LogStream stream, final String uri) throws Exception {
+		// @formatter:off
 		final String[] fields =
-				new String[] {"reader", "stream", "original", "input", "in", "in", "in", "eofWatcher", "wrappedEntity", "content", "in",
+				new String[] {"reader",
+				              "stream",
+				              "original",
+				              "input",
+				              "in",
+				              "in",
+				              "in",
+				              "eofWatcher",
+				              "wrappedEntity",
+				              "content",
+				              "in",
 				              "instream"};
-		final String[] declared = new String[] {"com.spotify.docker.client.DefaultLogStream", LogReader.class.getName(),
-		                                        "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$UnCloseableInputStream",
 		
-		                                        "org.glassfish.jersey.message.internal.EntityInputStream",
-		                                        FilterInputStream.class.getName(), FilterInputStream.class.getName(),
-		                                        FilterInputStream.class.getName(), "org.apache.http.conn.EofSensorInputStream",
-		                                        "org.apache.http.entity.HttpEntityWrapper", "org.apache.http.entity.BasicHttpEntity",
-		                                        "org.apache.http.impl.io.IdentityInputStream",
-		                                        "org.apache.http.impl.io.SessionInputBufferImpl"};
+		final String[] containingClasses =
+				new String[] {"com.spotify.docker.client.DefaultLogStream",
+				              LogReader.class.getName(),
+				              "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$UnCloseableInputStream",
+				              EntityInputStream.class.getName(),
+				              FilterInputStream.class.getName(),
+		                      FilterInputStream.class.getName(),
+		                      FilterInputStream.class.getName(),
+		                      EofSensorInputStream.class.getName(),
+		                      HttpEntityWrapper.class.getName(),
+		                      BasicHttpEntity.class.getName(),
+		                      IdentityInputStream.class.getName(),
+		                      SessionInputBufferImpl.class.getName()};
+		// @formatter:on
 		
-		List<String[]> list = new LinkedList<>();
+		final List<String[]> fieldClassTuples = new LinkedList<>();
 		for (int i = 0; i < fields.length; i++) {
-			list.add(new String[] {declared[i], fields[i]});
+			fieldClassTuples.add(new String[] {containingClasses[i], fields[i]});
 		}
 		
 		if (uri.startsWith("unix:")) {
-			list.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});  
+			fieldClassTuples.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});
 		} else if (uri.startsWith("https:")) {
-			float  jvmVersion = Float.parseFloat(System.getProperty("java.specification.version"));
-			String fName;
-			if (jvmVersion < 1.9f) {
-				fName = "c";
-			} else {
-				fName = "socket";
-			}
-			list.add(new String[] {"sun.security.ssl.AppInputStream", fName});
+			final float jvmVersion = Float.parseFloat(System.getProperty("java.specification.version"));
+			fieldClassTuples.add(new String[] {"sun.security.ssl.AppInputStream", jvmVersion < 1.9f ? "c" : "socket"});
 		} else {
-			list.add(new String[] {"java.net.SocketInputStream", "socket"});  
+			fieldClassTuples.add(new String[] {"java.net.SocketInputStream", "socket"});
 		}
 		
-		Object res = getInternalField(stream, list);
+		final Object res = getInternalField(stream, fieldClassTuples);
 		if (res instanceof WritableByteChannel) {
 			return (WritableByteChannel) res;
 		} else if (res instanceof Socket) {
 			return Channels.newChannel(((Socket) res).getOutputStream());
 		} else {
-			throw new AssertionError(
-					"Expected " + WritableByteChannel.class.getName() + " or " + Socket.class.getName() + " but found: " + "" +
-							res.getClass().getName());
+			throw new AssertionError("Expected " + WritableByteChannel.class.getName() + " or " + Socket.class.getName() + " but found: " +
+					res.getClass().getName());
 		}
 	}
 	
-	/*
-	 * Access arbitrarily nested internal fields.
+	/**
+	 * Recursively traverse a hierarchy of fields in classes, obtain their value and continue the traversing on the optained object
+	 *
+	 * @param fieldContent     current object to operate on
+	 * @param classFieldTupels the class/field hierarchy
+	 *
+	 * @return the content of the leaf in the traversed hierarchy path
 	 */
-	private static Object getInternalField(Object input, List<String[]> set) {
-		Object curr = input;
+	private static Object getInternalField(final Object fieldContent, final List<String[]> classFieldTupels) {
+		Object curr = fieldContent;
 		try {
-			for (String[] e : set) {
-				Field f = loadClass(e[0]).getDeclaredField(e[1]);
-				f.setAccessible(true);
-				curr = f.get(curr);
+			for (final String[] classFieldTuple : classFieldTupels) {
+				//noinspection ConstantConditions
+				final Field field = Class.forName(classFieldTuple[0]).getDeclaredField(classFieldTuple[1]);
+				field.setAccessible(true);
+				curr = field.get(curr);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+			LoggerFactory.getLogger(HttpHijackingWorkaround.class).error("assertion violation in reflection access", e);
 		}
 		return curr;
-	}
-	
-	/*
-	 * Avoid explicitly depending on certain classes that are requirements
-	 * of the docker-client library (com.spotify.docker.client).
-	 */
-	private static Class<?> loadClass(String key) {
-		try {
-			return Class.forName(key);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 }

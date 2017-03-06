@@ -34,7 +34,7 @@ public class UserController {
 		final User         user  = AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new);
 		final List<String> users = new LinkedList<>();
 		
-		for (User visible : user.getVisibleUsers())
+		for (final User visible : user.getVisibleUsers())
 			users.add(visible.getName());
 		
 		return users;

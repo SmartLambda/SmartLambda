@@ -7,7 +7,8 @@ public class InvalidCredentialsException extends IdentityException{
 	public InvalidCredentialsException() {
 		super();
 	}
-	public InvalidCredentialsException(String message) {
+	
+	public InvalidCredentialsException(final String message) {
 		super(message);
 	}
 }

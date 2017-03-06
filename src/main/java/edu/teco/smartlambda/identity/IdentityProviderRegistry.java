@@ -32,7 +32,7 @@ public class IdentityProviderRegistry {
 			return;
 		}
 		
-		for (String provider : providers) {
+		for (final String provider : providers) {
 			try {
 				final IdentityProvider providerInstance = (IdentityProvider) Class.forName(provider).getConstructor().newInstance();
 				this.providers.put(providerInstance.getName(), providerInstance);

@@ -21,23 +21,23 @@ public class MonitoringDecorator extends LambdaDecorator {
 	
 	@Override
 	public Optional<ExecutionReturnValue> executeSync(final String params) {
-		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
-		Optional<ExecutionReturnValue> returnVal = super.executeSync(params);
+		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
+		final Optional<ExecutionReturnValue> returnVal = super.executeSync(params);
 		//TODO: get CPUTime
-		MonitoringService.getInstance().onLambdaExecutionEnd(lambda, 0, returnVal.get());
+		MonitoringService.getInstance().onLambdaExecutionEnd(this.lambda, 0, returnVal.get());
 		
 		return returnVal;
 	}
 	
 	@Override
 	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
-		MonitoringService.getInstance().onLambdaExecutionStart(lambda);
+		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
 		return super.executeAsync(params);
 	}
 	
 	@Override
 	public void save() {
-		MonitoringService.getInstance().onLambdaDeployment(lambda);
+		MonitoringService.getInstance().onLambdaDeployment(this.lambda);
 		super.save();
 	}
 	
@@ -48,7 +48,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	
 	@Override
 	public void delete() {
-		MonitoringService.getInstance().onLambdaDeletion(lambda);
+		MonitoringService.getInstance().onLambdaDeletion(this.lambda);
 		super.delete();
 	}
 	

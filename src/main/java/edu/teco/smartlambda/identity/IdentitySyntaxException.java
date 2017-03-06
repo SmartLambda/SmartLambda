@@ -7,7 +7,8 @@ public class IdentitySyntaxException extends IdentityException{
 	public  IdentitySyntaxException() {
 		super();
 	}
-	public IdentitySyntaxException(String messsage) {
+	
+	public IdentitySyntaxException(final String messsage) {
 		super(messsage);
 	}
 }

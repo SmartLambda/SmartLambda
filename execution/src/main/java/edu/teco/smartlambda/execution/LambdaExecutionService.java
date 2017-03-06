@@ -48,7 +48,7 @@ public class LambdaExecutionService {
 			try {
 				classLoader = new URLClassLoader(new URL[] {new File(GlobalOptions.JRE_8_BINARY_NAME).toURI().toURL()},
 						LambdaExecutionService.class.getClassLoader());
-			} catch (MalformedURLException e) {
+			} catch (final MalformedURLException e) {
 				assert false;
 				return;
 			}
@@ -101,7 +101,9 @@ public class LambdaExecutionService {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null, e.getCause());
 			}
-		} catch (IOException e) {
+			
+			classLoader.close();
+		} catch (final IOException e) {
 			e.printStackTrace();
 			executionReturnValue = new ExecutionReturnValue(null, new Exception("Internal Server Error"));
 		} finally {
@@ -110,7 +112,7 @@ public class LambdaExecutionService {
 				systemOutputStream.write(returnValue.getBytes());
 				systemOutputStream.flush();
 				systemOutputStream.close();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				// fatal unfixable and unreportable
 				e.printStackTrace();
 			}

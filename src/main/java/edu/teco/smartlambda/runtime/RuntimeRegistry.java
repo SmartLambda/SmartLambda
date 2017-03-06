@@ -25,7 +25,7 @@ public class RuntimeRegistry {
 			return;
 		}
 		
-		for (String runtime : runtimes) {
+		for (final String runtime : runtimes) {
 			try {
 				final Runtime runtimeInstance = (Runtime) Class.forName(runtime).getConstructor().newInstance();
 				this.runtimes.put(runtimeInstance.getName(), runtimeInstance);

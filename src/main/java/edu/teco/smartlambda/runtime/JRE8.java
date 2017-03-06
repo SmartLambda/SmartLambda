@@ -8,7 +8,7 @@ import edu.teco.smartlambda.container.ContainerBuilder;
 public class JRE8 implements Runtime {
 	
 	private static final String NAME        = "jre8";
-	public static final  String BINARY_NAME = "lambda.jar";
+	private static final String BINARY_NAME = "lambda.jar";
 	
 	private static final String EXECUTION_SERVICE_NAME = "executionservice.jar";
 	

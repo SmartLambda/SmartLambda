@@ -13,7 +13,7 @@ public class NullIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
-		String name = parameters.get("name");
+		final String name = parameters.get("name");
 		if (name == null) {
 			throw new IdentitySyntaxException();
 		}
