@@ -57,14 +57,14 @@ public class Event {
 	 * @return future of {@link ExecutionReturnValue}
 	 */
 	public ListenableFuture<ExecutionReturnValue> execute() {
-		return getLambda().executeAsync(getParameters());
+		return this.getLambda().executeAsync(this.getParameters());
 	}
 	
 	/**
 	 * Saves and updates the event in the database
 	 */
 	public void save() {
-		setNextExecutionTime();
+		this.setNextExecutionTime();
 		this.setLock(null);
 		Application.getInstance().getSessionFactory().getCurrentSession().saveOrUpdate(this);
 	}
@@ -79,7 +79,7 @@ public class Event {
 	private void setNextExecutionTime() {
 		try {
 			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
-		} catch (ParseException e) {
+		} catch (final ParseException e) {
 			throw new RuntimeException(e);
 		}
 	}

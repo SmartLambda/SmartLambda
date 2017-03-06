@@ -42,7 +42,7 @@ public class ScheduleManager {
 		
 		final HashMap<Event, ListenableFuture<ExecutionReturnValue>> futures = new HashMap<>(0);
 		
-		while (running) {
+		while (this.running) {
 			final Event   event;
 			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 			session.beginTransaction();
@@ -75,7 +75,7 @@ public class ScheduleManager {
 			
 			try {
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				
 			}
 		}
