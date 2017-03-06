@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import static javax.persistence.GenerationType.IDENTITY;
 
 /**
- * Created by Matteo on 01.02.2017.
+ *
  */
 @Entity
 @Table(name = "Permission")

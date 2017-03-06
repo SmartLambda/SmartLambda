@@ -18,7 +18,7 @@ import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
- * Created by Melanie on 01.03.2017.
+ *
  */
 public class ScheduleManager {
 	private static ScheduleManager instance;

@@ -48,8 +48,6 @@ public class HttpHijackingWorkaround {
 		                                        "org.apache.http.entity.HttpEntityWrapper", "org.apache.http.entity.BasicHttpEntity",
 		                                        "org.apache.http.impl.io.IdentityInputStream",
 		                                        "org.apache.http.impl.io.SessionInputBufferImpl"};
-		final String[] bundles = new String[] {"org.glassfish.jersey.core.jersey-common", "org.apache.httpcomponents.httpcore",
-		                                       "org.apache.httpcomponents.httpclient"};
 		
 		List<String[]> list = new LinkedList<>();
 		for (int i = 0; i < fields.length; i++) {
@@ -57,7 +55,7 @@ public class HttpHijackingWorkaround {
 		}
 		
 		if (uri.startsWith("unix:")) {
-			list.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});  //$NON-NLS-2$
+			list.add(new String[] {"sun.nio.ch.ChannelInputStream", "ch"});  
 		} else if (uri.startsWith("https:")) {
 			float  jvmVersion = Float.parseFloat(System.getProperty("java.specification.version"));
 			String fName;
@@ -68,10 +66,10 @@ public class HttpHijackingWorkaround {
 			}
 			list.add(new String[] {"sun.security.ssl.AppInputStream", fName});
 		} else {
-			list.add(new String[] {"java.net.SocketInputStream", "socket"});  //$NON-NLS-2$
+			list.add(new String[] {"java.net.SocketInputStream", "socket"});  
 		}
 		
-		Object res = getInternalField(stream, list, bundles);
+		Object res = getInternalField(stream, list);
 		if (res instanceof WritableByteChannel) {
 			return (WritableByteChannel) res;
 		} else if (res instanceof Socket) {
@@ -86,11 +84,11 @@ public class HttpHijackingWorkaround {
 	/*
 	 * Access arbitrarily nested internal fields.
 	 */
-	private static Object getInternalField(Object input, List<String[]> set, String[] bundles) {
+	private static Object getInternalField(Object input, List<String[]> set) {
 		Object curr = input;
 		try {
 			for (String[] e : set) {
-				Field f = loadClass(e[0], bundles).getDeclaredField(e[1]);
+				Field f = loadClass(e[0]).getDeclaredField(e[1]);
 				f.setAccessible(true);
 				curr = f.get(curr);
 			}
@@ -104,7 +102,7 @@ public class HttpHijackingWorkaround {
 	 * Avoid explicitly depending on certain classes that are requirements
 	 * of the docker-client library (com.spotify.docker.client).
 	 */
-	private static Class<?> loadClass(String key, String[] bundles) {
+	private static Class<?> loadClass(String key) {
 		try {
 			return Class.forName(key);
 		} catch (ClassNotFoundException e) {

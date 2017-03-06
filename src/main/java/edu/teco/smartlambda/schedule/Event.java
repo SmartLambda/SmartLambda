@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by Melanie on 01.02.2017.
+ *
  */
 @Entity
 @Table(name = "ScheduleEvent")
