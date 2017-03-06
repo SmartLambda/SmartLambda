@@ -5,6 +5,6 @@ package edu.teco.smartlambda.authentication;
  */
 public class NotAuthenticatedException extends RuntimeException {
 	public NotAuthenticatedException() {
-		super();
+		super("Invalid credentials provided");
 	}
 }
