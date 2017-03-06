@@ -5,6 +5,7 @@ import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.Permission;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
@@ -44,7 +45,7 @@ public class Application {
 		RuntimeRegistry.getInstance();
 		IdentityProviderRegistry.getInstance();
 		initializeSpark();
-		ScheduleManager.getInstance().start();
+		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
 	}
 	
 	private void initializeSpark() {
