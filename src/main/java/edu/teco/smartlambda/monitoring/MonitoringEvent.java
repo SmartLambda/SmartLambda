@@ -25,28 +25,30 @@ public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
 	@Getter
-	private final Calendar            time;
+	private Calendar            time;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambdaOwner")
 	@Getter
-	private final User                lambdaOwner;
+	private User                lambdaOwner;
 	@Getter
-	private final String              lambdaName;
+	private String              lambdaName;
 	@Setter
-	private       long                duration;
+	private long                duration;
 	@Setter
-	private       int                 CPUTime;
+	private int                 CPUTime;
 	@Setter
-	private       String              error;
+	private String              error;
 	@Getter
-	private final MonitoringEventType type;
+	private MonitoringEventType type;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "key")
 	@Getter
-	private final Key                 key;
+	private Key                 key;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private       int                 id;
+	private int                 id;
+	
+	public MonitoringEvent() {}
 	
 	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
 		
