@@ -10,5 +10,6 @@ public class DockerContainerBuilderTest {
 	@Test
 	public void simpleBuildTest() throws Exception {
 		Container container = new DockerContainerBuilder().setCommand("example command").setTemplate("openjdk:8").build();
+		assert container.start() != null;
 	}
 }
