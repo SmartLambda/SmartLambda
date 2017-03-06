@@ -1,7 +1,9 @@
 package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
+import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
+import edu.teco.smartlambda.lambda.LambdaDecorator;
 import lombok.Getter;
 
 import javax.persistence.Column;
@@ -26,48 +28,39 @@ public class Permission {
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
 	@Getter
-	private int            id;
+	private int id;
 	@Getter
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user")
-	private User           user = null;
+	@JoinColumn(name = "user")
+	private User user = null;
 	@Getter
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="key")
-	private Key            key;
+	@JoinColumn(name = "key")
+	private Key key;
 	@Getter
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="lambda")
-	private Lambda         lambda = null;
+	@JoinColumn(name = "lambda")
+	private Lambda lambda = null;
 	private PermissionType permissionType;
 	
 	public Permission() {
 		
 	}
 	
-	/**
-	 * Creates a Permission for the supplied Lambda and PermissionType
-	 * @param lambda
-	 * @param type
-	 */
-	public Permission(Lambda lambda, PermissionType type, Key key) {
-		this.lambda = lambda;
+	public Permission(final AbstractLambda lambda, final User user, final PermissionType type, final Key key) {
+		this.lambda = LambdaDecorator.unwrap(lambda);
+		this.user = user;
 		this.permissionType = type;
 		this.key = key;
 		//persist();
 	}
 	
+	public Permission(final User user, final PermissionType type, final Key key) {
+		this(null, user, type, key);
+	}
 	
-	/**
-	 * Creates a Permission for the supplied User and PermissionType
-	 * @param user
-	 * @param type
-	 */
-	public  Permission (User user, PermissionType type, Key key) {
-		this.user = user;
-		this.permissionType = type;
-		this.key = key;
-		//persist();
+	public Permission(final AbstractLambda lambda, final PermissionType type, final Key key) {
+		this(lambda, null, type, key);
 	}
 	
 	private void setId(final int id) {
@@ -82,26 +75,25 @@ public class Permission {
 		this.key = key;
 	}
 	
-	private void setLambda(final Lambda lambda) {
-		this.lambda = lambda;
+	private void setLambda(final AbstractLambda lambda) {
+		this.lambda = LambdaDecorator.unwrap(lambda);
 	}
-	
 	
 	/**
 	 * Returns the PermissionType of this Permission
+	 *
 	 * @return permissionType
 	 */
 	@Column(name = "PermissionType")
 	public PermissionType getPermissionType() {
-		return permissionType;
+		return this.permissionType;
 	}
 	
-	private void setPermissionType(PermissionType permissionType) {
+	private void setPermissionType(final PermissionType permissionType) {
 		this.permissionType = permissionType;
 	}
 	
 	private void persist() {
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
-	
 }

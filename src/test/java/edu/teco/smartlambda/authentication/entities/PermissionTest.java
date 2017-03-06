@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * Created by Matteo on 07.02.2017.
+ *
  */
 public class PermissionTest {
 	@Before
