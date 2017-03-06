@@ -1,6 +1,6 @@
 package edu.teco.smartlambda.runtime;
 
-import edu.teco.smartlambda.container.ContainerBuilder;
+import edu.teco.smartlambda.container.ImageBuilder;
 
 /**
  * The runtime environment of a lambda
@@ -12,7 +12,7 @@ public interface Runtime {
 	 *
 	 * @param builder the builder instance that builds the new container
 	 */
-	public void setupContainerImage(final ContainerBuilder builder);
+	public void setupContainerImage(final ImageBuilder builder);
 	
 	/**
 	 * @return the name of the runtime

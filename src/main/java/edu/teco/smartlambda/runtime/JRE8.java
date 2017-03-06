@@ -1,6 +1,6 @@
 package edu.teco.smartlambda.runtime;
 
-import edu.teco.smartlambda.container.ContainerBuilder;
+import edu.teco.smartlambda.container.ImageBuilder;
 
 /**
  * A {@link Runtime} implementation for Java 8
@@ -13,7 +13,7 @@ public class JRE8 implements Runtime {
 	private static final String EXECUTION_SERVICE_NAME = "executionservice.jar";
 	
 	@Override
-	public void setupContainerImage(final ContainerBuilder builder) {
+	public void setupContainerImage(final ImageBuilder builder) {
 		builder.setRuntimeLibrary(EXECUTION_SERVICE_NAME);
 		builder.setCommand("java -jar " + EXECUTION_SERVICE_NAME).setTemplate("openjdk:8");
 	}

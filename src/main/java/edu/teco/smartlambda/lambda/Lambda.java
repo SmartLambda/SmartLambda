@@ -9,8 +9,9 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.container.BuilderFactory;
 import edu.teco.smartlambda.container.Container;
-import edu.teco.smartlambda.container.ContainerBuilder;
-import edu.teco.smartlambda.container.ContainerFactory;
+import edu.teco.smartlambda.container.Image;
+import edu.teco.smartlambda.container.ImageBuilder;
+import edu.teco.smartlambda.container.ImageFactory;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -71,7 +72,7 @@ public class Lambda extends AbstractLambda {
 	private String containerId;
 	
 	@Transient
-	private ContainerBuilder builder = BuilderFactory.getContainerBuilder();
+	private ImageBuilder builder = BuilderFactory.getContainerBuilder();
 	
 	private static final int MAX_RETRIES = 4;
 	
@@ -105,15 +106,15 @@ public class Lambda extends AbstractLambda {
 	
 	private ListenableFuture<ExecutionReturnValue> execute(final String params) {
 		return ThreadManager.getExecutorService().submit(() -> {
-			final Container           container = ContainerFactory.getContainerById(containerId);
-			final WritableByteChannel stdIn;
+			final Container container;
 			
 			try {
-				stdIn = container.start();
-			} catch (Exception e) {
+				container = ImageFactory.getImageById(this.containerId).start();
+			} catch (final Exception e) {
 				throw (new RuntimeException(e));
 			}
 			
+			final WritableByteChannel   stdIn                  = container.getStdIn();
 			final ByteArrayOutputStream byteBufferStream       = new ByteArrayOutputStream(params.length() + 4);
 			final DataOutputStream      byteBufferStreamFiller = new DataOutputStream(byteBufferStream);
 			byteBufferStreamFiller.writeInt(params.length());
@@ -125,7 +126,10 @@ public class Lambda extends AbstractLambda {
 			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			container.attach(outputStream, new NullOutputStream());
 			
-			return new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
+			final ExecutionReturnValue returnValue =
+					new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
+			
+			return returnValue;
 		});
 	}
 	
@@ -136,8 +140,8 @@ public class Lambda extends AbstractLambda {
 		
 		try {
 			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
-			final Container container = builder.build();
-			containerId = container.getContainerId();
+			final Image image = builder.build();
+			containerId = image.getId();
 		} catch (Exception e) {
 			throw (new RuntimeException(e));
 		}
@@ -154,7 +158,7 @@ public class Lambda extends AbstractLambda {
 	public void delete() {
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		try {
-			ContainerFactory.getContainerById(this.containerId).delete();
+			ImageFactory.getImageById(this.containerId).delete();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
