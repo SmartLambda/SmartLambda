@@ -5,12 +5,16 @@ import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.processor.LambdaMetaData;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import edu.teco.smartlambda.shared.GlobalOptions;
+import org.apache.commons.io.input.NullInputStream;
+import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -87,7 +91,17 @@ public class LambdaExecutionService {
 			final Object lambdaParameter = lambdaParameterClass != null ? gson.fromJson(jsonParameter, lambdaParameterClass) : null;
 			
 			try {
+				final InputStream prevSysIn  = System.in;
+				final PrintStream prevSysOut = System.out;
+				
+				System.setIn(new NullInputStream(0));
+				System.setOut(new PrintStream(new NullOutputStream()));
+				
 				final Object returnValue = lambdaFunction.invoke(lambdaMainClass.getConstructor().newInstance(), lambdaParameter);
+				
+				System.setIn(prevSysIn);
+				System.setOut(prevSysOut);
+				
 				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), null);
 			} catch (final NoSuchMethodException e) {
 				e.printStackTrace();
