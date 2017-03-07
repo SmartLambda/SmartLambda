@@ -1,10 +1,13 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 
@@ -31,7 +34,22 @@ public class MonitoringDecorator extends LambdaDecorator {
 	@Override
 	public ListenableFuture<ExecutionResult> executeAsync(final String params) {
 		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
-		return super.executeAsync(params);
+		final ListenableFuture<ExecutionResult> future = super.executeAsync(params);
+		Futures.addCallback(future, new FutureCallback<ExecutionResult>() {
+			@Override
+			public void onSuccess(final ExecutionResult result) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, result.getConsumedCPUTime(),
+						result.getExecutionReturnValue());
+			}
+			
+			@Override
+			public void onFailure(final Throwable t) {
+				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, 0, new ExecutionReturnValue(null,
+						t));
+			}
+		});
+		
+		return future;
 	}
 	
 	@Override

@@ -1,7 +1,5 @@
 package edu.teco.smartlambda.lambda;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.GsonBuilder;
 import edu.teco.smartlambda.Application;
@@ -13,7 +11,6 @@ import edu.teco.smartlambda.container.Image;
 import edu.teco.smartlambda.container.ImageBuilder;
 import edu.teco.smartlambda.container.ImageFactory;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
-import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
@@ -86,20 +83,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public ListenableFuture<ExecutionResult> executeAsync(final String params) {
-		final ListenableFuture<ExecutionResult> future = this.execute(params);
-		Futures.addCallback(future, new FutureCallback<ExecutionResult>() {
-			@Override
-			public void onSuccess(final ExecutionResult result) {
-				MonitoringService.getInstance()
-						.onLambdaExecutionEnd(Lambda.this, result.getConsumedCPUTime(), result.getExecutionReturnValue());
-			}
-			
-			@Override
-			public void onFailure(final Throwable t) {
-				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, new ExecutionReturnValue(null, t));
-			}
-		});
-		return future;
+		return this.execute(params);
 	}
 	
 	private ListenableFuture<ExecutionResult> execute(final String params) {
