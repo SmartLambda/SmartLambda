@@ -51,7 +51,7 @@ public class Event {
 	private Calendar lock;
 	@Getter
 	@Setter
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "key")
 	private Key      key;
 	@Getter
