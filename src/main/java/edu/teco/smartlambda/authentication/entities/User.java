@@ -2,8 +2,9 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.DuplicateKeyException;
+import edu.teco.smartlambda.authentication.DuplicateUserException;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
-import edu.teco.smartlambda.authentication.NameConflictException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -62,13 +63,14 @@ public class User {
 	 * @param name System wide unique name of the new User
 	 * @return Pair of the new User object and the unhashed id of the created primaryKey
 	 */
-	public static Pair<User, String> createUser(final String name) {
+	public static Pair<User, String> createUser(final String name) throws DuplicateUserException {
+		if (User.getByName(name).isPresent()) throw new DuplicateUserException("Username is already used");
 		final User user = new User(name);
 		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		Pair<Key, String> pair = null; //This will not stay null in any case
 		try {
 			pair = user.addKey(user.name);
-		} catch (final NameConflictException e) {
+		} catch (final DuplicateKeyException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
 			assert false;
 		}
@@ -98,9 +100,9 @@ public class User {
 	 * @return Pair of the Key object and the Keys unhashed ID as a String
 	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
-	 * @throws NameConflictException            If the Name is already used for a key of this User
+	 * @throws DuplicateKeyException            If the Name is already used for a key of this User
 	 */
-	public Pair<Key, String> createKey(final String name) throws InsufficientPermissionsException, NameConflictException {
+	public Pair<Key, String> createKey(final String name) throws InsufficientPermissionsException, DuplicateKeyException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
 				
@@ -110,13 +112,13 @@ public class User {
 		throw new InsufficientPermissionsException();
 	}
 	
-	private Pair<Key, String> addKey(final String name) throws NameConflictException {
+	private Pair<Key, String> addKey(final String name) throws DuplicateKeyException {
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		final Key     query   = from(Key.class);
 		where(query.getName()).eq(name);
 		final Optional<Key> keyOptional = select(query).get(session);
 		if (keyOptional.isPresent()) {
-			throw new NameConflictException();
+			throw new DuplicateKeyException("Key name already used");
 		}
 		
 		final String id;
