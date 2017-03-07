@@ -78,6 +78,8 @@ public class Event {
 	
 	private void setNextExecutionTime() {
 		try {
+			if (this.nextExecution == null) this.nextExecution = Calendar.getInstance();
+			
 			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
 		} catch (final ParseException e) {
 			throw new RuntimeException(e);
