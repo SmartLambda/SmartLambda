@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class ExecutionResult {
-	private ExecutionReturnValue returnValue;
+	private ExecutionReturnValue executionReturnValue;
 	private long                 consumedCPUTime;
 }

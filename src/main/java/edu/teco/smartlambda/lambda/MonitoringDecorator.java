@@ -24,7 +24,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
 		final Optional<ExecutionResult> returnVal = super.executeSync(params);
 		MonitoringService.getInstance()
-				.onLambdaExecutionEnd(this.lambda, returnVal.get().getConsumedCPUTime(), returnVal.get().getReturnValue());
+				.onLambdaExecutionEnd(this.lambda, returnVal.get().getConsumedCPUTime(), returnVal.get().getExecutionReturnValue());
 		
 		return returnVal;
 	}

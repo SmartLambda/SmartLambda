@@ -111,7 +111,7 @@ public class LambdaController {
 			return null;
 		} else {
 			final ExecutionReturnValue executionReturnValue =
-					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).orElse(null).getReturnValue();
+					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).orElse(null).getExecutionReturnValue();
 			return executionReturnValue.getReturnValue().orElse(null);
 		}
 	}

@@ -91,7 +91,8 @@ public class Lambda extends AbstractLambda {
 		Futures.addCallback(future, new FutureCallback<ExecutionResult>() {
 			@Override
 			public void onSuccess(final ExecutionResult result) {
-				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, result.getConsumedCPUTime(), result.getReturnValue());
+				MonitoringService.getInstance()
+						.onLambdaExecutionEnd(Lambda.this, result.getConsumedCPUTime(), result.getExecutionReturnValue());
 			}
 			
 			@Override
@@ -125,7 +126,8 @@ public class Lambda extends AbstractLambda {
 			container.attach(outputStream, new NullOutputStream());
 			
 			final ExecutionResult result = new ExecutionResult();
-			result.setReturnValue(new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class));
+			result.setExecutionReturnValue(
+					new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class));
 			result.setConsumedCPUTime(container.getConsumedCPUTime());
 			
 			return result;

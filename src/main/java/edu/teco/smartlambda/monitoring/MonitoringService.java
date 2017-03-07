@@ -45,7 +45,7 @@ public class MonitoringService {
 	 *
 	 * @param lambda               monitored lambda
 	 * @param CPUTime              the lambda used
-	 * @param executionReturnValue returnValue or exception of lambda
+	 * @param executionReturnValue executionReturnValue or exception of lambda
 	 */
 	public void onLambdaExecutionEnd(final AbstractLambda lambda, final long CPUTime, final ExecutionReturnValue executionReturnValue) {
 		this.monitoringEvent.setCPUTime(CPUTime);
