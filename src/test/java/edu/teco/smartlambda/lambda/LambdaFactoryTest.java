@@ -2,7 +2,6 @@ package edu.teco.smartlambda.lambda;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -28,7 +27,6 @@ public class LambdaFactoryTest {
 		// not a prototype
 		assertNotNull(emptyLambda);
 		assertNotSame(LambdaFacade.getInstance().getFactory().createLambda(), emptyLambda);
-		assertEquals(LambdaFacade.getInstance().getFactory().createLambda(), emptyLambda);
 		
 		// is it empty
 		assertNull(emptyLambda.getOwner());
