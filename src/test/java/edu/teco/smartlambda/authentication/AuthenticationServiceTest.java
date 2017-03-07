@@ -100,7 +100,6 @@ public class AuthenticationServiceTest {
 		final Pair<User, String>    pair                  = new NullIdentityProvider().register(params);
 		final User                  user                  = pair.getLeft();
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		Assert.assertFalse(authenticationService.getAuthenticatedKey().isPresent());
 		authenticationService.authenticate(pair.getRight());
 		assert authenticationService.getAuthenticatedKey().isPresent();
 		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
