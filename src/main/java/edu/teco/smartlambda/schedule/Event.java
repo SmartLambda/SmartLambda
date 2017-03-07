@@ -16,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -50,7 +49,7 @@ public class Event {
 	private Calendar lock;
 	@Getter
 	@Setter
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "key")
 	private Key      key;
 	@Getter
