@@ -27,6 +27,7 @@ public class ScheduleController {
 	
 	@Data
 	private static class ScheduleResponse {
+		private String name;
 		private String calendar;
 		private String parameters;
 	}
@@ -73,6 +74,7 @@ public class ScheduleController {
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		final Event            event            = lambda.getScheduledEvent(request.params(":event-name"));
 		final ScheduleResponse scheduleResponse = new ScheduleResponse();
+		scheduleResponse.setName(event.getName());
 		scheduleResponse.setParameters(event.getParameters());
 		scheduleResponse.setCalendar(event.getCronExpression());
 		
@@ -103,6 +105,7 @@ public class ScheduleController {
 		
 		for (final Event event : events) {
 			final ScheduleResponse scheduleResponse = new ScheduleResponse();
+			scheduleResponse.setName(event.getName());
 			scheduleResponse.setCalendar(event.getCronExpression());
 			scheduleResponse.setParameters(event.getParameters());
 			
