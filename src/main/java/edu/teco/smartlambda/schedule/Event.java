@@ -2,8 +2,10 @@ package edu.teco.smartlambda.schedule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
+import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.lambda.Lambda;
+import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.runtime.ExecutionResult;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,7 +66,8 @@ public class Event {
 	 * @return future of {@link ExecutionResult}
 	 */
 	ListenableFuture<ExecutionResult> execute() {
-		return this.getLambda().executeAsync(this.getParameters());
+		AuthenticationService.getInstance().authenticate(this.getKey());
+		return LambdaFacade.getInstance().getFactory().decorate(this.getLambda()).executeAsync(this.getParameters());
 	}
 	
 	/**

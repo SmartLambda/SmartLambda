@@ -25,4 +25,11 @@ public abstract class LambdaFactory {
 	 * @return a decorated lambda instance
 	 */
 	public abstract AbstractLambda createLambda();
+	
+	/**
+	 * Decorates a lambda
+	 *
+	 * @return a decorated lambda instance
+	 */
+	public abstract AbstractLambda decorate(final Lambda lambda);
 }

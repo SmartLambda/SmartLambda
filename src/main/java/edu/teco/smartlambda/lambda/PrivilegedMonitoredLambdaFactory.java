@@ -15,8 +15,9 @@ public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 		final AbstractLambda query = from(Lambda.class);
 		where(query.getOwner()).eq(owner).and(query.getName()).eq(name);
 		
-		return select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
-		// TODO decorate
+		final Optional<AbstractLambda> lambda = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
+		
+		return lambda.map(abstractLambda -> new PermissionDecorator(new MonitoringDecorator(abstractLambda)));
 	}
 	
 	/**
@@ -26,8 +27,11 @@ public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	 */
 	@Override
 	public AbstractLambda createLambda() {
-		return new Lambda();
-		// TODO decorate
-		//return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
+		return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
+	}
+	
+	@Override
+	public AbstractLambda decorate(final Lambda lambda) {
+		return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
 	}
 }
