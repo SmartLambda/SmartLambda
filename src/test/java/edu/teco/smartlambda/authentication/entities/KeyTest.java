@@ -59,17 +59,20 @@ public class KeyTest {
 		
 		this.key.grantPermission(this.user, PermissionType.DELETE);
 		this.key.grantPermission(this.user, PermissionType.GRANT);
-
-		/*
-			TODO Interesting test case: grant permission to create on behalf of another user
-			and check if it works
-		 */
 	}
 	
 	@After
 	public void tearDown() throws Exception {
 		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
+	}
+	
+	@Test
+	public void grantToAndUseGrant() throws Exception {
+		Key key2 = this.user.createKey("KeyTest.grantToAndUseGrant").getLeft();
+		AuthenticationService.getInstance().authenticate(this.key);
+		key2.grantPermission(this.user, PermissionType.DELETE);
+		Assert.assertTrue(key2.hasPermission(this.user, PermissionType.DELETE));
 	}
 	
 	@Test
@@ -107,7 +110,7 @@ public class KeyTest {
 	
 	@Test
 	public void delete() throws Exception {
-		final String id = new String(this.key.getId());
+		final String id = this.key.getId();
 		this.key.delete();
 		Assert.assertFalse(Key.getKeyById(id).isPresent());
 	}

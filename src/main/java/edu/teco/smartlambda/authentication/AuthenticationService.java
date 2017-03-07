@@ -12,8 +12,8 @@ import java.util.Optional;
  */
 public class AuthenticationService {
 	
-	private static ThreadLocal<AuthenticationService> instance         = ThreadLocal.withInitial(AuthenticationService::new);
-	private        Key                                authenticatedKey = null;
+	private static final ThreadLocal<AuthenticationService> instance         = ThreadLocal.withInitial(AuthenticationService::new);
+	private              Key                                authenticatedKey = null;
 	
 	/**
 	 * The AuthenticationService is managed as a ThreadLocal Singleton.
@@ -29,25 +29,25 @@ public class AuthenticationService {
 	
 	/**
 	 * Finds the corresponding Key and sets it as the currently authenticated Key
-	 * @param key ID of the Key which is meant to authenticate
+	 * @param key unhashed ID of the Key which is meant to be authenticated
 	 */
 	public void authenticate(final String key) {
-		String hash;
+		final String hash;
 		try {
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			hash = arrayToString(sha256.digest(key.getBytes()));
-		} catch (NoSuchAlgorithmException a) {
+			final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			hash = this.arrayToString(sha256.digest(key.getBytes()));
+		} catch (final NoSuchAlgorithmException a) {
 			throw new RuntimeException(a);
 		}
-
-		authenticatedKey = Key.getKeyById(hash).orElseThrow(NotAuthenticatedException::new);
+		
+		this.authenticatedKey = Key.getKeyById(hash).orElseThrow(NotAuthenticatedException::new);
 	}
 	
-	private String arrayToString(byte[] array)
+	private String arrayToString(final byte[] array)
 	{
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < array.length; ++i) {
-			sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+		final StringBuilder sb = new StringBuilder();
+		for (final byte anArray : array) {
+			sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
 		}
 		return sb.toString();
 	}
@@ -57,24 +57,24 @@ public class AuthenticationService {
 	 * @param key Key which is meant to authenticate
 	 */
 	public void authenticate(final Key key) {
-		authenticatedKey = key;
+		this.authenticatedKey = key;
 	}
 	
 	/**
 	 * Returns an Optional, which contains the authenticated Key Object
-	 * @return Optional
+	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<Key> getAuthenticatedKey() {
-		return Optional.ofNullable(authenticatedKey);
+		return Optional.ofNullable(this.authenticatedKey);
 	}
 	
 	/**
 	 * Returns an Optional, which contains the authenticated Keys User Object
-	 * @return Optional
+	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<User> getAuthenticatedUser() {
-		if (authenticatedKey != null) {
-			return Optional.of(authenticatedKey.getUser());
+		if (this.authenticatedKey != null) {
+			return Optional.of(this.authenticatedKey.getUser());
 		}
 		return Optional.empty();
 	}
