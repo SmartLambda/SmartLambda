@@ -1,6 +1,5 @@
 package edu.teco.smartlambda.authentication.entities;
 
-import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaDecorator;
@@ -43,40 +42,38 @@ public class Permission {
 	private Lambda lambda = null;
 	private PermissionType permissionType;
 	
+	/**
+	 * Empty constructor, used by Hibernate
+	 */
 	public Permission() {
 		
 	}
 	
-	public Permission(final AbstractLambda lambda, final User user, final PermissionType type, final Key key) {
+	private Permission(final AbstractLambda lambda, final User user, final PermissionType type, final Key key) {
 		this.lambda = LambdaDecorator.unwrap(lambda);
 		this.user = user;
 		this.permissionType = type;
 		this.key = key;
-		//persist();
 	}
 	
+	/**
+	 * Creates a new Permission object with the supplied parameters for the supplied key
+	 * @param user the Permission will have a coverage for all lambdas of this user
+	 * @param type the Type of the new Permission
+	 * @param key the supplied key
+	 */
 	public Permission(final User user, final PermissionType type, final Key key) {
 		this(null, user, type, key);
 	}
 	
+	/**
+	 * Creates a new Permission object with the supplied parameters for the supplied key
+	 * @param lambda the Permission will be set for this lambda
+	 * @param type the Type of the new Permission
+	 * @param key the supplied key
+	 */
 	public Permission(final AbstractLambda lambda, final PermissionType type, final Key key) {
 		this(lambda, null, type, key);
-	}
-	
-	private void setId(final int id) {
-		this.id = id;
-	}
-	
-	private void setUser(final User user) {
-		this.user = user;
-	}
-	
-	private void setKey(final Key key) {
-		this.key = key;
-	}
-	
-	private void setLambda(final AbstractLambda lambda) {
-		this.lambda = LambdaDecorator.unwrap(lambda);
 	}
 	
 	/**
@@ -87,13 +84,5 @@ public class Permission {
 	@Column(name = "PermissionType")
 	public PermissionType getPermissionType() {
 		return this.permissionType;
-	}
-	
-	private void setPermissionType(final PermissionType permissionType) {
-		this.permissionType = permissionType;
-	}
-	
-	private void persist() {
-		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 }
