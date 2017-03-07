@@ -14,6 +14,8 @@ public class KeyController {
 	public static Object createKey(final Request request, final Response response)
 			throws InsufficientPermissionsException, DuplicateKeyException {
 		final User user = AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new);
+		
+		response.status(201);
 		return user.createKey(request.params(":name")).getRight();
 	}
 	
