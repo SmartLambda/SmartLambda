@@ -65,6 +65,7 @@ public class User {
 			pair = user.addKey(user.name);
 		} catch (final NameConflictException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
+			assert false;
 		}
 		user.primaryKey = pair.getLeft();
 		Application.getInstance().getSessionFactory().getCurrentSession().save(user);

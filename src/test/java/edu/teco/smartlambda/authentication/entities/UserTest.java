@@ -21,17 +21,16 @@ import java.util.Map;
 public class UserTest {
 	
 	private static AuthenticationService service;
-	private static Map                   params;
+	private static Map<String, String>                   params;
 	private static User                  user;
 
 	@Before
 	public void buildUp() {
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 		service = AuthenticationService.getInstance();
-		params     = new HashMap<String, String>();
+		params     = new HashMap<>();
 		params.put("name", "UserTest.User");
-		user = (User) new NullIdentityProvider().register(params)
-				.getLeft();//TODO WTF!?
+		user = new NullIdentityProvider().register(params).getLeft();
 		service.authenticate(user.getPrimaryKey());
 	}
 	
