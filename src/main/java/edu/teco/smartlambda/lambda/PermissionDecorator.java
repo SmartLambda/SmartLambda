@@ -10,7 +10,6 @@ import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Decorates lambdas with authentication and aborts the lambda call, if authentication fails
@@ -32,7 +31,7 @@ public class PermissionDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionResult> executeSync(final String params) {
+	public ExecutionResult executeSync(final String params) {
 		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		return super.executeSync(params);
 	}

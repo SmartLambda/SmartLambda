@@ -9,7 +9,6 @@ import edu.teco.smartlambda.schedule.Event;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A decorator for lambdas that can be extended and partially overridden to add behaviour to existing lambda calls. By calling the super
@@ -20,7 +19,7 @@ public abstract class LambdaDecorator extends AbstractLambda {
 	protected final AbstractLambda lambda;
 	
 	@Override
-	public Optional<ExecutionResult> executeSync(final String params) {
+	public ExecutionResult executeSync(final String params) {
 		return this.lambda.executeSync(params);
 	}
 	

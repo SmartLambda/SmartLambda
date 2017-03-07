@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static org.torpedoquery.jpa.Torpedo.from;
@@ -76,10 +75,10 @@ public class Lambda extends AbstractLambda {
 	private ImageBuilder builder = null;
 	
 	@Override
-	public Optional<ExecutionResult> executeSync(final String params) {
+	public ExecutionResult executeSync(final String params) {
 		final ListenableFuture<ExecutionResult> future = this.execute(params);
 		try {
-			return Optional.of(future.get());
+			return future.get();
 		} catch (final InterruptedException | ExecutionException e) {
 			throw (new RuntimeException(e));
 		}

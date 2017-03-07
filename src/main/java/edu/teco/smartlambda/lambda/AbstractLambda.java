@@ -8,14 +8,13 @@ import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * An abstract superclass to a lambda representation, that defines the interface for lambdas and their decorators
  */
 public abstract class AbstractLambda {
 	
-	public abstract Optional<ExecutionResult> executeSync(final String params);
+	public abstract ExecutionResult executeSync(final String params);
 	
 	public abstract ListenableFuture<ExecutionResult> executeAsync(final String params);
 	

@@ -7,7 +7,6 @@ import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Decorates lambdas with calls to the monitoring service
@@ -20,11 +19,11 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionResult> executeSync(final String params) {
+	public ExecutionResult executeSync(final String params) {
 		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
-		final Optional<ExecutionResult> returnVal = super.executeSync(params);
+		final ExecutionResult returnVal = super.executeSync(params);
 		MonitoringService.getInstance()
-				.onLambdaExecutionEnd(this.lambda, returnVal.get().getConsumedCPUTime(), returnVal.get().getExecutionReturnValue());
+				.onLambdaExecutionEnd(this.lambda, returnVal.getConsumedCPUTime(), returnVal.getExecutionReturnValue());
 		
 		return returnVal;
 	}
