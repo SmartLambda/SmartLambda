@@ -157,7 +157,6 @@ public class Application {
 		Spark.stop();
 		ScheduleManager.getInstance().setRunning(false);
 		getInstance().getSessionFactory().close();
-		System.out.println("Good Bye");
 	}
 	
 	/**
