@@ -207,11 +207,11 @@ public class User {
 	 * @return Set of Keys
 	 */
 	@Transient
-	public Set<Key> getKeyByName(final String name) {
+	public Optional<Key> getKeyByName(final String name) {
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		final Key     query   = from(Key.class);
 		where(query.getUser()).eq(this).and(query.getName()).eq(name);
-		return new HashSet<>(select(query).list(session));
+		return select(query).get(session);
 	}
 	
 	/**
