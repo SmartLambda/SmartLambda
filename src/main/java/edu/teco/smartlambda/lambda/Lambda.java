@@ -69,7 +69,7 @@ public class Lambda extends AbstractLambda {
 	
 	private String runtime;
 	
-	private String imageId;
+	private String containerId;
 	
 	@Transient
 	private ImageBuilder builder = null;
@@ -79,7 +79,7 @@ public class Lambda extends AbstractLambda {
 		final ListenableFuture<ExecutionReturnValue> future = this.execute(params);
 		try {
 			return Optional.of(future.get());
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (final InterruptedException | ExecutionException e) {
 			throw (new RuntimeException(e));
 		}
 	}
@@ -107,7 +107,7 @@ public class Lambda extends AbstractLambda {
 			final Container container;
 			
 			try {
-				container = ImageFactory.getImageById(this.imageId).start();
+				container = ImageFactory.getImageById(this.containerId).start();
 			} catch (final Exception e) {
 				throw (new RuntimeException(e));
 			}
@@ -136,7 +136,7 @@ public class Lambda extends AbstractLambda {
 		try {
 			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
 			final Image image = this.builder.build();
-			this.imageId = image.getId();
+			this.containerId = image.getId();
 		} catch (final Exception e) {
 			throw (new RuntimeException(e));
 		}
@@ -148,12 +148,12 @@ public class Lambda extends AbstractLambda {
 	public void update() {
 		if (this.builder != null) { // if a new binary exists
 			try {
-				ImageFactory.getImageById(this.imageId).delete(); // delete old image
+				ImageFactory.getImageById(this.containerId).delete(); // delete old image
 				
 				// deploy new image
 				RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
 				final Image image = this.builder.build();
-				this.imageId = image.getId();
+				this.containerId = image.getId();
 			} catch (final Exception e) {
 				throw (new RuntimeException(e));
 			}
@@ -166,7 +166,7 @@ public class Lambda extends AbstractLambda {
 	public void delete() {
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		try {
-			ImageFactory.getImageById(this.imageId).delete();
+			ImageFactory.getImageById(this.containerId).delete();
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
