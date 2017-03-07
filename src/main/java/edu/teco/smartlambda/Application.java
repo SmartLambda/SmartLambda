@@ -25,6 +25,7 @@ import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.schedule.ScheduleManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -133,6 +134,7 @@ public class Application {
 		configuration.addAnnotatedClass(Permission.class);
 		configuration.addAnnotatedClass(Lambda.class);
 		configuration.addAnnotatedClass(MonitoringEvent.class);
+		configuration.addAnnotatedClass(Event.class);
 		configuration.configure(new File(BuildConfig.HIBERNATE_CONFIGURATION_PATH));
 		
 		this.sessionFactory = configuration.buildSessionFactory();
