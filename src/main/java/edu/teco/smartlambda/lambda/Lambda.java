@@ -69,16 +69,14 @@ public class Lambda extends AbstractLambda {
 	
 	private String runtime;
 	
-	private String containerId;
+	private String imageId;
 	
 	@Transient
-	private ImageBuilder builder = BuilderFactory.getContainerBuilder();
-	
-	private static final int MAX_RETRIES = 4;
+	private ImageBuilder builder = null;
 	
 	@Override
 	public Optional<ExecutionReturnValue> executeSync(final String params) {
-		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		final ListenableFuture<ExecutionReturnValue> future = this.execute(params);
 		try {
 			return Optional.of(future.get());
 		} catch (InterruptedException | ExecutionException e) {
@@ -88,7 +86,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
-		final ListenableFuture<ExecutionReturnValue> future = execute(params);
+		final ListenableFuture<ExecutionReturnValue> future = this.execute(params);
 		Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
 			//TODO: CPUTime!
 			@Override
@@ -109,7 +107,7 @@ public class Lambda extends AbstractLambda {
 			final Container container;
 			
 			try {
-				container = ImageFactory.getImageById(this.containerId).start();
+				container = ImageFactory.getImageById(this.imageId).start();
 			} catch (final Exception e) {
 				throw (new RuntimeException(e));
 			}
@@ -126,23 +124,20 @@ public class Lambda extends AbstractLambda {
 			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			container.attach(outputStream, new NullOutputStream());
 			
-			final ExecutionReturnValue returnValue =
-					new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
-			
-			return returnValue;
+			return new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
 		});
 	}
 	
 	@Override
 	public void save() {
-		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(owner, name).isPresent())
-			throw new DuplicateLambdaException(owner, name);
+		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(this.owner, this.name).isPresent())
+			throw new DuplicateLambdaException(this.owner, this.name);
 		
 		try {
-			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
-			final Image image = builder.build();
-			containerId = image.getId();
-		} catch (Exception e) {
+			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
+			final Image image = this.builder.build();
+			this.imageId = image.getId();
+		} catch (final Exception e) {
 			throw (new RuntimeException(e));
 		}
 		
@@ -151,15 +146,28 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void update() {
-		//// FIXME: 2/15/17 
+		if (this.builder != null) { // if a new binary exists
+			try {
+				ImageFactory.getImageById(this.imageId).delete(); // delete old image
+				
+				// deploy new image
+				RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
+				final Image image = this.builder.build();
+				this.imageId = image.getId();
+			} catch (final Exception e) {
+				throw (new RuntimeException(e));
+			}
+		}
+		
+		Application.getInstance().getSessionFactory().getCurrentSession().update(this);
 	}
 	
 	@Override
 	public void delete() {
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		try {
-			ImageFactory.getImageById(this.containerId).delete();
-		} catch (Exception e) {
+			ImageFactory.getImageById(this.imageId).delete();
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -173,22 +181,23 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public void deployBinary(final byte[] content) {
 		try {
-			builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
-		} catch (IOException e) {
+			this.builder = BuilderFactory.getContainerBuilder();
+			this.builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
+		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
-		Event query = from(Event.class);
+		final Event query = from(Event.class);
 		where(query.getLambda()).eq(this);
 		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
-		Event query = from(Event.class);
+		final Event query = from(Event.class);
 		where(query.getLambda()).eq(this);
 		
 		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
@@ -196,8 +205,8 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public List<MonitoringEvent> getMonitoringEvents() {
-		MonitoringEvent query = from(MonitoringEvent.class);
-		where(query.getLambdaName()).eq(name).and(query.getLambdaOwner()).eq(owner);
+		final MonitoringEvent query = from(MonitoringEvent.class);
+		where(query.getLambdaName()).eq(this.name).and(query.getLambdaOwner()).eq(this.owner);
 		
 		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
