@@ -11,6 +11,9 @@ import org.quartz.CronExpression;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -25,6 +28,11 @@ import java.util.Date;
 @Entity
 @Table(name = "ScheduleEvent")
 public class Event {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Getter
+	private int id;
+	
 	@Getter
 	@Setter
 	private String   cronExpression;
