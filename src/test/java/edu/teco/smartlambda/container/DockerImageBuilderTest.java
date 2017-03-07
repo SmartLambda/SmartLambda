@@ -10,7 +10,10 @@ public class DockerImageBuilderTest {
 	
 	@Test
 	public void simpleBuildTest() throws Exception {
-		Image image = new DockerImageBuilder().setCommand("example command").setTemplate("openjdk:8").build();
+		final Image image =
+				new DockerImageBuilder().setCommand("example command").setTemplate("openjdk:8").setRuntimeLibrary("executionservice.jar")
+						.build();
 		assert image.start() != null;
+		image.delete();
 	}
 }

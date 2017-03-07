@@ -6,7 +6,6 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.container.ImageBuilder;
-import lombok.Setter;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
@@ -28,7 +27,6 @@ public class DockerImageBuilder implements ImageBuilder {
 	private final File   tmpDirectory;
 	private       String template;
 	
-	@Setter
 	private String runtimeLibrary;
 	
 	public DockerImageBuilder() {
@@ -100,6 +98,12 @@ public class DockerImageBuilder implements ImageBuilder {
 		file.setExecutable(executable);
 		assert file.canExecute() == executable;
 		
+		return this;
+	}
+	
+	@Override
+	public ImageBuilder setRuntimeLibrary(final String runtimeLibrary) {
+		this.runtimeLibrary = runtimeLibrary;
 		return this;
 	}
 	
