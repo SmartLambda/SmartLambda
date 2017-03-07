@@ -12,4 +12,6 @@ public interface Container {
 	public void attach(final OutputStream stdOut, final OutputStream stdErr) throws Exception;
 	
 	public String getId();
+	
+	public long getConsumedCPUTime() throws Exception;
 }

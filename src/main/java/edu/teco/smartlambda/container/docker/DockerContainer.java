@@ -42,4 +42,9 @@ public class DockerContainer implements Container {
 	public String getId() {
 		return this.id;
 	}
+	
+	@Override
+	public long getConsumedCPUTime() throws /*DockerException, */InterruptedException {
+		return 0;
+	}
 }

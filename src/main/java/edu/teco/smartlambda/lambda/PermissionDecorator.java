@@ -6,8 +6,8 @@ import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.PermissionType;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
-import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +32,13 @@ public class PermissionDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Optional<ExecutionReturnValue> executeSync(final String params) {
+	public Optional<ExecutionResult> executeSync(final String params) {
 		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		return super.executeSync(params);
 	}
 	
 	@Override
-	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
+	public ListenableFuture<ExecutionResult> executeAsync(final String params) {
 		this.ensureActionIsPermitted(PermissionType.EXECUTE);
 		return super.executeAsync(params);
 	}

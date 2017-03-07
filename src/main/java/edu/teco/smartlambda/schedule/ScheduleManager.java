@@ -2,7 +2,7 @@ package edu.teco.smartlambda.schedule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
-import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
@@ -40,7 +40,7 @@ public class ScheduleManager {
 	 */
 	public Void run() {
 		
-		final HashMap<Event, ListenableFuture<ExecutionReturnValue>> futures = new HashMap<>(0);
+		final HashMap<Event, ListenableFuture<ExecutionResult>> futures = new HashMap<>(0);
 		
 		while (this.running) {
 			final Event   event;
@@ -48,7 +48,7 @@ public class ScheduleManager {
 			session.beginTransaction();
 			
 			//Checks all started futures, if they're still running -> update lock, else -> update nextExecutionTime
-			futures.forEach((Event e, ListenableFuture<ExecutionReturnValue> future) -> {
+			futures.forEach((Event e, ListenableFuture<ExecutionResult> future) -> {
 				if (!future.isDone()) {
 					e.setLock(Calendar.getInstance());
 					session.update(e);

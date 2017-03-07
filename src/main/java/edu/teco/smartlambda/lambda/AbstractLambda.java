@@ -3,9 +3,9 @@ package edu.teco.smartlambda.lambda;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
-import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +15,9 @@ import java.util.Optional;
  */
 public abstract class AbstractLambda {
 	
-	public abstract Optional<ExecutionReturnValue> executeSync(final String params);
+	public abstract Optional<ExecutionResult> executeSync(final String params);
 	
-	public abstract ListenableFuture<ExecutionReturnValue> executeAsync(final String params);
+	public abstract ListenableFuture<ExecutionResult> executeAsync(final String params);
 	
 	/**
 	 * Saves the lambda object into the database

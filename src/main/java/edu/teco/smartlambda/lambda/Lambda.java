@@ -14,6 +14,7 @@ import edu.teco.smartlambda.container.ImageBuilder;
 import edu.teco.smartlambda.container.ImageFactory;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
@@ -75,8 +76,8 @@ public class Lambda extends AbstractLambda {
 	private ImageBuilder builder = null;
 	
 	@Override
-	public Optional<ExecutionReturnValue> executeSync(final String params) {
-		final ListenableFuture<ExecutionReturnValue> future = this.execute(params);
+	public Optional<ExecutionResult> executeSync(final String params) {
+		final ListenableFuture<ExecutionResult> future = this.execute(params);
 		try {
 			return Optional.of(future.get());
 		} catch (final InterruptedException | ExecutionException e) {
@@ -85,13 +86,13 @@ public class Lambda extends AbstractLambda {
 	}
 	
 	@Override
-	public ListenableFuture<ExecutionReturnValue> executeAsync(final String params) {
-		final ListenableFuture<ExecutionReturnValue> future = this.execute(params);
-		Futures.addCallback(future, new FutureCallback<ExecutionReturnValue>() {
-			//TODO: CPUTime!
+	public ListenableFuture<ExecutionResult> executeAsync(final String params) {
+		final ListenableFuture<ExecutionResult> future = this.execute(params);
+		Futures.addCallback(future, new FutureCallback<ExecutionResult>() {
 			@Override
-			public void onSuccess(final ExecutionReturnValue result) {
-				MonitoringService.getInstance().onLambdaExecutionEnd(Lambda.this, 0, result);
+			public void onSuccess(final ExecutionResult result) {
+				MonitoringService.getInstance()
+						.onLambdaExecutionEnd(Lambda.this, result.getConsumedCPUTime(), result.getExecutionReturnValue());
 			}
 			
 			@Override
@@ -102,7 +103,7 @@ public class Lambda extends AbstractLambda {
 		return future;
 	}
 	
-	private ListenableFuture<ExecutionReturnValue> execute(final String params) {
+	private ListenableFuture<ExecutionResult> execute(final String params) {
 		return ThreadManager.getExecutorService().submit(() -> {
 			final Container container;
 			
@@ -124,7 +125,12 @@ public class Lambda extends AbstractLambda {
 			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			container.attach(outputStream, new NullOutputStream());
 			
-			return new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class);
+			final ExecutionResult result = new ExecutionResult();
+			result.setExecutionReturnValue(
+					new GsonBuilder().create().fromJson(new String(outputStream.toByteArray()), ExecutionReturnValue.class));
+			result.setConsumedCPUTime(container.getConsumedCPUTime());
+			
+			return result;
 		});
 	}
 	

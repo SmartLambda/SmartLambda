@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.lambda.Lambda;
-import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import lombok.Getter;
 import lombok.Setter;
 import org.quartz.CronExpression;
@@ -54,9 +54,9 @@ public class Event {
 	/**
 	 * Executes the lambda
 	 *
-	 * @return future of {@link ExecutionReturnValue}
+	 * @return future of {@link ExecutionResult}
 	 */
-	public ListenableFuture<ExecutionReturnValue> execute() {
+	public ListenableFuture<ExecutionResult> execute() {
 		return this.getLambda().executeAsync(this.getParameters());
 	}
 	

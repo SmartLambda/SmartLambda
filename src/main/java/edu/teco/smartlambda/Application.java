@@ -1,6 +1,7 @@
 package edu.teco.smartlambda;
 
 import com.google.gson.Gson;
+import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.Permission;
@@ -116,6 +117,11 @@ public class Application {
 			response.status(409);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
+		
+		Spark.exception(InsufficientPermissionsException.class, (Exception exception, Request request, Response response) -> {
+			response.status(403);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
 	}
 	
 	private void initializeHibernate() {
@@ -157,7 +163,6 @@ public class Application {
 		Spark.stop();
 		ScheduleManager.getInstance().setRunning(false);
 		getInstance().getSessionFactory().close();
-		System.out.println("Good Bye");
 	}
 	
 	/**
