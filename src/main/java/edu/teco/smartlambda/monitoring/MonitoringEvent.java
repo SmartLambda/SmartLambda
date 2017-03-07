@@ -37,7 +37,7 @@ public class MonitoringEvent {
 	@Setter
 	private long                duration;
 	@Setter
-	private int                 CPUTime;
+	private long                CPUTime;
 	@Setter
 	private String              error;
 	@Getter
@@ -55,11 +55,11 @@ public class MonitoringEvent {
 	
 	public MonitoringEvent(final AbstractLambda lambda, final MonitoringEventType type, final Key key) {
 		
-		this.time =Calendar.getInstance();
-		this.lambdaOwner= lambda.getOwner();
-		this.lambdaName=lambda.getName();
+		this.time = Calendar.getInstance();
+		this.lambdaOwner = lambda.getOwner();
+		this.lambdaName = lambda.getName();
 		this.type = type;
-		this.key=key;
+		this.key = key;
 	}
 	
 	/**
