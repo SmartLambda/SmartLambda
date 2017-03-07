@@ -46,24 +46,29 @@ public class Key {
 	@JoinColumn(name = "user")
 	private User   user;
 	
+	/**
+	 * Empty constructor, used by Hibernate
+	 */
 	Key() {
 		
 	}
 	
+	/**
+	 * Creates a new Key
+	 * @param id The id, the key can be found in the database with
+	 * @param name Human readable identifier, unique per User
+	 * @param user This key is assigned to that user
+	 */
 	Key(final String id, final String name, final User user) {
 		this.id = id;
 		this.name = name;
 		this.user = user;
 	}
 	
-	private void setId(final String id) {
-		this.id = id;
-	}
-	
-	private void setUser(final User user) {
-		this.user = user;
-	}
-	
+	/**
+	 * Returns all permissions of the key
+	 * @return Set of Permissions
+	 */
 	public Set<Permission> getPermissions() {
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this);
@@ -73,6 +78,7 @@ public class Key {
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied Lambda
+	 * Returns always true, if the key is the primaryKey of the supplied Lambdas User
 	 *
 	 * @param lambda a Permission has to be a Permission for this Lambda
 	 * @param type   a Permission has to be a Permission of this Type
@@ -89,6 +95,7 @@ public class Key {
 	
 	/**
 	 * Checks if the Key has the Permission of the supplied PermissionType for the supplied User
+	 * Returns always true, if the key is the primaryKey of the supplied User
 	 *
 	 * @param user a Permission has to be a Permission for this User
 	 * @param type a Permission has to be a Permission of this Type
@@ -130,7 +137,7 @@ public class Key {
 	
 	/**
 	 * Adds a Permission for the supplied lambda of the supplied type to this Key Object
-	 *
+	 * Adding an already existing Permission doesn't change anything
 	 * @param lambda the supplied Lambda
 	 * @param type   the supplied Type
 	 *
@@ -150,7 +157,7 @@ public class Key {
 	
 	/**
 	 * Adds a Permission for the supplied User of the supplied type to this Key Object
-	 *
+	 * Adding an already existing Permission doesn't change anything
 	 * @param user the supplied User
 	 * @param type the supplied Type
 	 *
@@ -174,7 +181,7 @@ public class Key {
 	
 	/**
 	 * Removes a Permission for the supplied lambda of the supplied type to this Key Object
-	 *
+	 * If the Permission doesn't exist, nothing changes
 	 * @param lambda the supplied Lambda
 	 * @param type   the supplied Type
 	 *
@@ -198,7 +205,7 @@ public class Key {
 	
 	/**
 	 * Removes a Permission for the supplied User of the supplied type to this Key Object
-	 *
+	 * If the Permission doesn't exist, nothing changes
 	 * @param user the supplied User
 	 * @param type the supplied Type
 	 *
@@ -246,6 +253,11 @@ public class Key {
 		return false;
 	}
 	
+	/**
+	 * Searches in the database for a Key object with the supplied id
+	 * @param id id parameter of the key
+	 * @return an optional with the found key or an empty Optional if such a key doesn't exist
+	 */
 	public static Optional<Key> getKeyById(final String id) {
 		final Key query = from(Key.class);
 		where(query.getId()).eq(id);

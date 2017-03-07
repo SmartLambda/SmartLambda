@@ -29,7 +29,7 @@ public class AuthenticationService {
 	
 	/**
 	 * Finds the corresponding Key and sets it as the currently authenticated Key
-	 * @param key ID of the Key which is meant to authenticate
+	 * @param key unhashed ID of the Key which is meant to be authenticated
 	 */
 	public void authenticate(final String key) {
 		final String hash;
@@ -62,7 +62,7 @@ public class AuthenticationService {
 	
 	/**
 	 * Returns an Optional, which contains the authenticated Key Object
-	 * @return Optional
+	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<Key> getAuthenticatedKey() {
 		return Optional.ofNullable(this.authenticatedKey);
@@ -70,7 +70,7 @@ public class AuthenticationService {
 	
 	/**
 	 * Returns an Optional, which contains the authenticated Keys User Object
-	 * @return Optional
+	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<User> getAuthenticatedUser() {
 		if (this.authenticatedKey != null) {

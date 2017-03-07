@@ -57,6 +57,11 @@ public class User {
 		
 	}
 	
+	/**
+	 * Creates a new User object and new Key Object and adds it to the Database as it's primaryKey
+	 * @param name System wide unique name of the new User
+	 * @return Pair of the new User object and the unhashed id of the created primaryKey
+	 */
 	public static Pair<User, String> createUser(final String name) {
 		final User user = new User(name);
 		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
@@ -76,14 +81,10 @@ public class User {
 		this.name = name;
 	}
 	
-	private void setName(final String name) {
-		this.name = name;
-	}
-	
-	private void setPrimaryKey(final Key primaryKey) {
-		this.primaryKey = primaryKey;
-	}
-	
+	/**
+	 * Sets the flag for this User to be an Admin
+	 * @param admin true, if this user shall be an Admin
+	 */
 	void setAdmin(final boolean admin) {
 		this.isAdmin = admin;
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
@@ -94,7 +95,7 @@ public class User {
 	 *
 	 * @param name Name for the Key
 	 *
-	 * @return Pair of the Key object and the Keys ID as a String
+	 * @return Pair of the Key object and the Keys unhashed ID as a String
 	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
 	 * @throws NameConflictException            If the Name is already used for a key of this User
