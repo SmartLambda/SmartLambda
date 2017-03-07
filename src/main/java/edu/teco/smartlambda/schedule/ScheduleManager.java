@@ -71,6 +71,8 @@ public class ScheduleManager {
 				session.update(event);
 				session.getTransaction().commit();
 				futures.put(event, event.execute());
+			} else {
+				session.getTransaction().rollback();
 			}
 			
 			try {
