@@ -63,7 +63,7 @@ public class Event {
 	 *
 	 * @return future of {@link ExecutionResult}
 	 */
-	public ListenableFuture<ExecutionResult> execute() {
+	ListenableFuture<ExecutionResult> execute() {
 		return this.getLambda().executeAsync(this.getParameters());
 	}
 	
