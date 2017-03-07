@@ -23,29 +23,30 @@ public class MonitoringDecorator extends LambdaDecorator {
 	
 	@Override
 	public ExecutionResult executeSync(final String params) {
-		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
+		final MonitoringEvent event     = MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
 		final ExecutionResult returnVal = super.executeSync(params);
 		MonitoringService.getInstance()
-				.onLambdaExecutionEnd(this.lambda, returnVal.getConsumedCPUTime(), returnVal.getExecutionReturnValue());
+				.onLambdaExecutionEnd(this.lambda, returnVal.getConsumedCPUTime(), returnVal.getExecutionReturnValue(), event);
 		
 		return returnVal;
 	}
 	
 	@Override
 	public ListenableFuture<ExecutionResult> executeAsync(final String params) {
-		MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
+		final MonitoringEvent                   event  = MonitoringService.getInstance().onLambdaExecutionStart(this.lambda);
 		final ListenableFuture<ExecutionResult> future = super.executeAsync(params);
 		Futures.addCallback(future, new FutureCallback<ExecutionResult>() {
+			
 			@Override
 			public void onSuccess(final ExecutionResult result) {
 				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, result.getConsumedCPUTime(),
-						result.getExecutionReturnValue());
+						result.getExecutionReturnValue(), event);
 			}
 			
 			@Override
 			public void onFailure(final Throwable t) {
-				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, 0, new ExecutionReturnValue(null,
-						t));
+				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, 0, new ExecutionReturnValue(null, t),
+						event);
 			}
 		});
 		
