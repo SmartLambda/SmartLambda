@@ -31,6 +31,5 @@ public class LambdaFactoryTest {
 		// is it empty
 		assertNull(emptyLambda.getOwner());
 		assertNull(emptyLambda.getRuntime());
-		assert emptyLambda.getMonitoringEvents() == null || emptyLambda.getMonitoringEvents().size() == 0;
 	}
 }
