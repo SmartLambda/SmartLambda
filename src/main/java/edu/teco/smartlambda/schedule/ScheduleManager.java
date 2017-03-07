@@ -69,8 +69,8 @@ public class ScheduleManager {
 			if (event != null) {
 				event.setLock(Calendar.getInstance());
 				session.update(event);
-				session.getTransaction().commit();
 				futures.put(event, event.execute());
+				session.getTransaction().commit();
 			} else {
 				session.getTransaction().rollback();
 			}
