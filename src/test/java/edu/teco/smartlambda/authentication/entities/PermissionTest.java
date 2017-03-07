@@ -17,7 +17,7 @@ public class PermissionTest {
 	
 	@After
 	public void tearDown() throws Exception {
-		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
 	}
 }

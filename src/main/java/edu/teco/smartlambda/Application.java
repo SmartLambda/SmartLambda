@@ -32,8 +32,10 @@ import spark.Response;
 import spark.Spark;
 
 import java.io.File;
+import java.util.concurrent.Future;
 
 public class Application {
+	private static Future<Void> scheduleManagerFuture;
 	private static Application instance = null;
 	private SessionFactory sessionFactory;
 	
@@ -45,7 +47,7 @@ public class Application {
 		RuntimeRegistry.getInstance();
 		IdentityProviderRegistry.getInstance();
 		this.initializeSpark();
-		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
+		scheduleManagerFuture = ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
 	}
 	
 	private void initializeSpark() {
@@ -137,8 +139,25 @@ public class Application {
 		return this.sessionFactory;
 	}
 	
+	/**
+	 * Application main entry point
+	 *
+	 * @param args ignored terminal arguments
+	 */
 	public static void main(final String... args) {
 		getInstance().start();
+		
+		java.lang.Runtime.getRuntime().addShutdownHook(new Thread(Application::shutdown));
+	}
+	
+	/**
+	 * Called upon shutdown of the application
+	 */
+	private static void shutdown() {
+		Spark.stop();
+		ScheduleManager.getInstance().setRunning(false);
+		getInstance().getSessionFactory().close();
+		System.out.println("Good Bye");
 	}
 	
 	/**

@@ -57,34 +57,36 @@ public class User {
 		
 	}
 	
-	public static Pair<User, String> createUser(String name) {
-		User user = new User(name);
+	/**
+	 * Creates a new User object and new Key Object and adds it to the Database as it's primaryKey
+	 * @param name System wide unique name of the new User
+	 * @return Pair of the new User object and the unhashed id of the created primaryKey
+	 */
+	public static Pair<User, String> createUser(final String name) {
+		final User user = new User(name);
 		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		Pair<Key, String> pair = null; //This will not stay null in any case
 		try {
 			pair = user.addKey(user.name);
-		} catch (NameConflictException e) {
+		} catch (final NameConflictException e) {
 			// This is the first Key of this User, there cannot be another Key with the same name
+			assert false;
 		}
 		user.primaryKey = pair.getLeft();
 		Application.getInstance().getSessionFactory().getCurrentSession().save(user);
 		return Pair.of(user, pair.getRight());
 	}
 	
-	private User(String name) {
+	private User(final String name) {
 		this.name = name;
 	}
 	
-	private void setName(final String name) {
-		this.name = name;
-	}
-	
-	private void setPrimaryKey(final Key primaryKey) {
-		this.primaryKey = primaryKey;
-	}
-	
+	/**
+	 * Sets the flag for this User to be an Admin
+	 * @param admin true, if this user shall be an Admin
+	 */
 	void setAdmin(final boolean admin) {
-		isAdmin = admin;
+		this.isAdmin = admin;
 		Application.getInstance().getSessionFactory().getCurrentSession().save(this);
 	}
 	
@@ -93,53 +95,53 @@ public class User {
 	 *
 	 * @param name Name for the Key
 	 *
-	 * @return Pair of the Key object and the Keys ID as a String
+	 * @return Pair of the Key object and the Keys unhashed ID as a String
 	 *
 	 * @throws InsufficientPermissionsException if the current Threads authenticated Key is no PrimaryKey
 	 * @throws NameConflictException            If the Name is already used for a key of this User
 	 */
-	public Pair<Key, String> createKey(String name) throws InsufficientPermissionsException, NameConflictException {
+	public Pair<Key, String> createKey(final String name) throws InsufficientPermissionsException, NameConflictException {
 		if (AuthenticationService.getInstance().getAuthenticatedKey().isPresent()) {
 			if (AuthenticationService.getInstance().getAuthenticatedKey().get().equals(this.getPrimaryKey())) {
 				
-				return addKey(name);
+				return this.addKey(name);
 			}
 		}
 		throw new InsufficientPermissionsException();
 	}
 	
-	private Pair<Key, String> addKey(String name) throws NameConflictException {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		final Key query = from(Key.class);
+	private Pair<Key, String> addKey(final String name) throws NameConflictException {
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		final Key     query   = from(Key.class);
 		where(query.getName()).eq(name);
 		final Optional<Key> keyOptional = select(query).get(session);
 		if (keyOptional.isPresent()) {
 			throw new NameConflictException();
 		}
 		
-		String id;
-		String hash;
-		String generatedNumber = "" + Math.random();
+		final String id;
+		final String hash;
+		final String generatedNumber = "" + Math.random();
 		try {
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 			
-			hash = arrayToString(sha256.digest(generatedNumber.getBytes()));
+			hash = this.arrayToString(sha256.digest(generatedNumber.getBytes()));
 			
-			id = arrayToString(sha256.digest(hash.getBytes()));
-		} catch (NoSuchAlgorithmException a) {
+			id = this.arrayToString(sha256.digest(hash.getBytes()));
+		} catch (final NoSuchAlgorithmException a) {
 			throw new RuntimeException(a);
 		}
-		Key key = new Key(id, name, this);
+		final Key key = new Key(id, name, this);
 		session.save(key);
 
 		return Pair.of(key, hash);
 	}
 	
-	private String arrayToString(byte[] array)
+	private String arrayToString(final byte[] array)
 	{
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < array.length; ++i) {
-			sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+		final StringBuilder sb = new StringBuilder();
+		for (final byte anArray : array) {
+			sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
 		}
 		return sb.toString();
 	}
@@ -151,7 +153,7 @@ public class User {
 	 */
 	@Transient
 	public Set<User> getVisibleUsers() {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		if (this.isAdmin) {
 			final User query = from(User.class);
 			return new HashSet<>(select(query).list(session));
@@ -165,9 +167,9 @@ public class User {
 			final Set<Permission> permissionSet =
 					new HashSet<>(select(permission).list(session));
 			
-			Set<User> userSet = new HashSet<>();
+			final Set<User> userSet = new HashSet<>();
 			
-			for (Permission perm : permissionSet) {
+			for (final Permission perm : permissionSet) {
 				if (perm.getUser()!= null) {
 					userSet.add(perm.getUser());
 				} else if (perm.getLambda() != null) {
@@ -186,7 +188,7 @@ public class User {
 	 */
 	@Transient
 	public Set<AbstractLambda> getVisibleLambdas() {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		if (this.isAdmin) {
 			final Lambda query = from(Lambda.class);
 			return new HashSet<>(select(query).list(session));
@@ -203,9 +205,9 @@ public class User {
 	 * @return Set of Keys
 	 */
 	@Transient
-	public Set<Key> getKeyByName(String name) {
-		Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		final Key query = from(Key.class);
+	public Set<Key> getKeyByName(final String name) {
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		final Key     query   = from(Key.class);
 		where(query.getUser()).eq(this).and(query.getName()).eq(name);
 		return new HashSet<>(select(query).list(session));
 	}

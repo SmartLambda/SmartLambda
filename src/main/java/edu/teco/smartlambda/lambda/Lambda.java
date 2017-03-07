@@ -73,16 +73,14 @@ public class Lambda extends AbstractLambda {
 	private String containerId;
 	
 	@Transient
-	private ImageBuilder builder = BuilderFactory.getContainerBuilder();
-	
-	private static final int MAX_RETRIES = 4;
+	private ImageBuilder builder = null;
 	
 	@Override
 	public Optional<ExecutionResult> executeSync(final String params) {
 		final ListenableFuture<ExecutionResult> future = this.execute(params);
 		try {
 			return Optional.of(future.get());
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (final InterruptedException | ExecutionException e) {
 			throw (new RuntimeException(e));
 		}
 	}
@@ -136,14 +134,14 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void save() {
-		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(owner, name).isPresent())
-			throw new DuplicateLambdaException(owner, name);
+		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(this.owner, this.name).isPresent())
+			throw new DuplicateLambdaException(this.owner, this.name);
 		
 		try {
-			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(builder);
-			final Image image = builder.build();
-			containerId = image.getId();
-		} catch (Exception e) {
+			RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
+			final Image image = this.builder.build();
+			this.containerId = image.getId();
+		} catch (final Exception e) {
 			throw (new RuntimeException(e));
 		}
 		
@@ -152,7 +150,20 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void update() {
-		//// FIXME: 2/15/17 
+		if (this.builder != null) { // if a new binary exists
+			try {
+				ImageFactory.getImageById(this.containerId).delete(); // delete old image
+				
+				// deploy new image
+				RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).setupContainerImage(this.builder);
+				final Image image = this.builder.build();
+				this.containerId = image.getId();
+			} catch (final Exception e) {
+				throw (new RuntimeException(e));
+			}
+		}
+		
+		Application.getInstance().getSessionFactory().getCurrentSession().update(this);
 	}
 	
 	@Override
@@ -160,7 +171,7 @@ public class Lambda extends AbstractLambda {
 		Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
 		try {
 			ImageFactory.getImageById(this.containerId).delete();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -174,22 +185,23 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public void deployBinary(final byte[] content) {
 		try {
-			builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
-		} catch (IOException e) {
+			this.builder = BuilderFactory.getContainerBuilder();
+			this.builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
+		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
 	public Event getScheduledEvent(final String name) {
-		Event query = from(Event.class);
+		final Event query = from(Event.class);
 		where(query.getLambda()).eq(this);
 		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 	}
 	
 	@Override
 	public List<Event> getScheduledEvents() {
-		Event query = from(Event.class);
+		final Event query = from(Event.class);
 		where(query.getLambda()).eq(this);
 		
 		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
@@ -197,8 +209,8 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public List<MonitoringEvent> getMonitoringEvents() {
-		MonitoringEvent query = from(MonitoringEvent.class);
-		where(query.getLambdaName()).eq(name).and(query.getLambdaOwner()).eq(owner);
+		final MonitoringEvent query = from(MonitoringEvent.class);
+		where(query.getLambdaName()).eq(this.name).and(query.getLambdaOwner()).eq(this.owner);
 		
 		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession());
 	}

@@ -27,12 +27,12 @@ public class AuthenticationServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		executorService = Executors.newSingleThreadExecutor();
+		this.executorService = Executors.newSingleThreadExecutor();
 	}
 	
 	@After
 	public void tearDown() throws Exception {
-		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
 	}
 	
@@ -43,19 +43,19 @@ public class AuthenticationServiceTest {
 	
 	@Test
 	public void getInstanceReturnsSingleton() throws Exception {
-		AuthenticationService asFirst = AuthenticationService.getInstance();
+		final AuthenticationService asFirst = AuthenticationService.getInstance();
 		Assert.assertNotNull(asFirst);
-		AuthenticationService asSecond = AuthenticationService.getInstance();
+		final AuthenticationService asSecond = AuthenticationService.getInstance();
 		Assert.assertNotNull(asSecond);
 		Assert.assertSame(asFirst, asSecond);
 	}
 	
 	@Test
 	public void getInstanceSingletonIsThreadlocal() throws Exception {
-		AuthenticationService asFirst = AuthenticationService.getInstance();
+		final AuthenticationService asFirst = AuthenticationService.getInstance();
 		Assert.assertNotNull(asFirst);
 		
-		final Future<AuthenticationService> future = executorService.submit(AuthenticationService::getInstance);
+		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
 		
 		Assert.assertNotNull(future.get());
 		Assert.assertNotSame(asFirst, future.get());
@@ -64,7 +64,7 @@ public class AuthenticationServiceTest {
 	@Test
 	public void authenticateViaParimaryKey() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		Map<String, String>         params                = new HashMap<>();
+		final Map<String, String>   params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaPrimaryKey.User");
 		final User user = new NullIdentityProvider().register
 				(params).getLeft();
@@ -76,7 +76,7 @@ public class AuthenticationServiceTest {
 	@Test
 	public void authenticateViaKey() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		Map<String, String>         params                = new HashMap<>();
+		final Map<String, String>   params                = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
 		final User user = new NullIdentityProvider().register
 				(params).getLeft();
@@ -95,7 +95,7 @@ public class AuthenticationServiceTest {
 	
 	@Test
 	public void authenticateViaString() throws Exception {
-		Map<String, String>         params                = new HashMap<>();
+		final Map<String, String> params = new HashMap<>();
 		params.put("name", "AuthenticationServiceTest.authenticateViaString.User");
 		final Pair<User, String>    pair                  = new NullIdentityProvider().register(params);
 		final User                  user                  = pair.getLeft();
