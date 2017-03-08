@@ -164,6 +164,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void schedule(final Event event) {
+		if (getScheduledEvent(event.getName()).isPresent()) throw new DuplicateEventException();
 		event.setLambda(this);
 		event.save();
 	}
