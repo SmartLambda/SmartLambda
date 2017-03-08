@@ -11,4 +11,7 @@ public class IdentitySyntaxException extends IdentityException{
 	public IdentitySyntaxException(final String messsage) {
 		super(messsage);
 	}
+	public IdentitySyntaxException(Throwable cause) {
+		super(cause);
+	}
 }

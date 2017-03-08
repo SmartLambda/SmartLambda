@@ -5,6 +5,7 @@ import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.DuplicateKeyException;
 import edu.teco.smartlambda.authentication.DuplicateUserException;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
+import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import lombok.Getter;
@@ -208,6 +209,9 @@ public class User {
 	 */
 	@Transient
 	public Optional<Key> getKeyByName(final String name) {
+		if (!AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new).isPrimaryKey())
+			throw new InsufficientPermissionsException();
+		
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		final Key     query   = from(Key.class);
 		where(query.getUser()).eq(this).and(query.getName()).eq(name);

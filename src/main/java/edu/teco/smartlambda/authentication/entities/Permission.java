@@ -7,6 +7,8 @@ import lombok.Getter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -40,6 +42,7 @@ public class Permission {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambda")
 	private Lambda lambda = null;
+	@Enumerated(EnumType.STRING)
 	private PermissionType permissionType;
 	
 	/**

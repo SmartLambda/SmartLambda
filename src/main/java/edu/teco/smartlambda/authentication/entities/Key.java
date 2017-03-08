@@ -9,6 +9,7 @@ import edu.teco.smartlambda.lambda.LambdaDecorator;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,7 +56,8 @@ public class Key {
 	
 	/**
 	 * Creates a new Key
-	 * @param id The id, the key can be found in the database with
+	 *
+	 * @param id   The id, the key can be found in the database with
 	 * @param name Human readable identifier, unique per User
 	 * @param user This key is assigned to that user
 	 */
@@ -67,6 +69,7 @@ public class Key {
 	
 	/**
 	 * Returns all permissions of the key
+	 *
 	 * @return Set of Permissions
 	 */
 	public Set<Permission> getPermissions() {
@@ -74,6 +77,40 @@ public class Key {
 		where(permission.getKey()).eq(this);
 		
 		return new HashSet<>(select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()));
+	}
+	
+	public Set<Permission> getVisiblePermissions() {
+		final User authenticatedUser =
+				AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new);
+		final HashSet<Permission> permissions = new HashSet<>();
+		
+		final Permission permissionUser = from(Permission.class);
+		where(permissionUser.getKey()).eq(this).and(permissionUser.getUser()).eq(authenticatedUser);
+		permissions.addAll(select(permissionUser).list(Application.getInstance().getSessionFactory().getCurrentSession()));
+		
+		final Permission permissionLambda = from(Permission.class);
+		where(permissionLambda.getKey()).eq(this).and(permissionLambda.getLambda().getOwner()).eq(authenticatedUser);
+		permissions.addAll(select(permissionLambda).list(Application.getInstance().getSessionFactory().getCurrentSession()));
+		
+		final Query<Permission> permissionGrantUser = Application.getInstance().getSessionFactory().getCurrentSession().createQuery(
+				"SELECT p1 FROM edu.teco.smartlambda.authentication.entities.Permission p1 WHERE p1.key = :key AND EXISTS (SELECT 1 FROM" +
+						" " + "edu" + ".teco" + ".smartlambda.authentication.entities.Permission p2 WHERE " +
+						"p2.key = :authenticatedKey AND p2.permissionType = 'GRANT' AND p2.user = p1.user)", Permission.class);
+		permissionGrantUser.setParameter("key", this);
+		
+		assert AuthenticationService.getInstance().getAuthenticatedKey().isPresent();
+		permissionGrantUser.setParameter("authenticatedKey", AuthenticationService.getInstance().getAuthenticatedKey().get());
+		permissions.addAll(permissionGrantUser.getResultList());
+		
+		final Query<Permission> permissionGrantLambda = Application.getInstance().getSessionFactory().getCurrentSession().createQuery(
+				"SELECT p1 FROM edu.teco.smartlambda.authentication.entities.Permission p1 WHERE p1.key = :key AND EXISTS " +
+						"(SELECT 1 FROM edu.teco.smartlambda.authentication.entities.Permission p2 WHERE " +
+						"p2.key = :authenticatedKey AND p2.permissionType = 'GRANT' AND p2.lambda = p1.lambda)", Permission.class);
+		permissionGrantLambda.setParameter("key", this);
+		permissionGrantLambda.setParameter("authenticatedKey", AuthenticationService.getInstance().getAuthenticatedKey().get());
+		permissions.addAll(permissionGrantLambda.getResultList());
+		
+		return permissions;
 	}
 	
 	/**
@@ -138,6 +175,7 @@ public class Key {
 	/**
 	 * Adds a Permission for the supplied lambda of the supplied type to this Key Object
 	 * Adding an already existing Permission doesn't change anything
+	 *
 	 * @param lambda the supplied Lambda
 	 * @param type   the supplied Type
 	 *
@@ -158,6 +196,7 @@ public class Key {
 	/**
 	 * Adds a Permission for the supplied User of the supplied type to this Key Object
 	 * Adding an already existing Permission doesn't change anything
+	 *
 	 * @param user the supplied User
 	 * @param type the supplied Type
 	 *
@@ -182,6 +221,7 @@ public class Key {
 	/**
 	 * Removes a Permission for the supplied lambda of the supplied type to this Key Object
 	 * If the Permission doesn't exist, nothing changes
+	 *
 	 * @param lambda the supplied Lambda
 	 * @param type   the supplied Type
 	 *
@@ -190,7 +230,7 @@ public class Key {
 	 */
 	public void revokePermission(final AbstractLambda lambda, final PermissionType type) throws InsufficientPermissionsException {
 		if (this.currentAuthenticatedUserHasLambdaPermissionToGrant(LambdaDecorator.unwrap(lambda), type)) {
-			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			final Session    session    = Application.getInstance().getSessionFactory().getCurrentSession();
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).eq(this).and(permission.getLambda()).eq(LambdaDecorator.unwrap(lambda))
 					.and(permission.getPermissionType()).eq(type);
@@ -206,6 +246,7 @@ public class Key {
 	/**
 	 * Removes a Permission for the supplied User of the supplied type to this Key Object
 	 * If the Permission doesn't exist, nothing changes
+	 *
 	 * @param user the supplied User
 	 * @param type the supplied Type
 	 *
@@ -214,7 +255,7 @@ public class Key {
 	 */
 	public void revokePermission(final User user, final PermissionType type) throws InsufficientPermissionsException {
 		if (this.currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
-			final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+			final Session    session    = Application.getInstance().getSessionFactory().getCurrentSession();
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).eq(this).and(permission.getUser()).eq(user).and(permission.getPermissionType()).eq(type);
 			final List<Permission> permissions = select(permission).list(session);
@@ -255,7 +296,9 @@ public class Key {
 	
 	/**
 	 * Searches in the database for a Key object with the supplied id
+	 *
 	 * @param id id parameter of the key
+	 *
 	 * @return an optional with the found key or an empty Optional if such a key doesn't exist
 	 */
 	public static Optional<Key> getKeyById(final String id) {
