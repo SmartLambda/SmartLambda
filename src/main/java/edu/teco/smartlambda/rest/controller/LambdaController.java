@@ -106,12 +106,15 @@ public class LambdaController {
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
-		if (lambda.isAsync()) {
+		if ((lambda.isAsync() && lambdaExecutionRequest.async == null) ||
+				(lambdaExecutionRequest.async != null && lambdaExecutionRequest.async)) {
 			lambda.executeAsync(lambdaExecutionRequest.getParameters().toString());
-			return null;
+			response.status(200);
+			return "";
 		} else {
 			final ExecutionReturnValue executionReturnValue =
 					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).getExecutionReturnValue();
+			response.status(200);
 			return executionReturnValue.getReturnValue().orElse(null);
 		}
 	}
