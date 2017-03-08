@@ -164,9 +164,8 @@ public class Key {
 	public void delete() throws InsufficientPermissionsException {
 		final Key authenticatedKey = AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new);
 		if (authenticatedKey.equals(this.user.getPrimaryKey())) {
-			Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-			session.delete(this);
-			session.delete(this.getUser());
+			Application.getInstance().getSessionFactory().getCurrentSession().delete(this);
+			if (this.isPrimaryKey()) Application.getInstance().getSessionFactory().getCurrentSession().delete(this.getUser());
 		} else {
 			throw new InsufficientPermissionsException();
 		}
