@@ -14,6 +14,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import static org.torpedoquery.jpa.Torpedo.from;
+import static org.torpedoquery.jpa.Torpedo.select;
+import static org.torpedoquery.jpa.Torpedo.where;
+
 /**
  * Created on 28.02.17.
  */
@@ -27,6 +31,12 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		if (accessToken == null) {
 			throw new IdentitySyntaxException();
 		}
+		
+		final GitHubCredential query = from(GitHubCredential.class);
+		where(query.getAccessToken()).eq(accessToken);
+		if (select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).isPresent()) throw new
+				GitHubCredentialDuplicateException("Account already exists");
+		
 		final String name = this.gitHubRequest(accessToken);
 		
 		final GitHubCredential credential = new GitHubCredential(accessToken);
