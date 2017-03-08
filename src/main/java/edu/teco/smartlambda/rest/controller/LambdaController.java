@@ -2,6 +2,8 @@ package edu.teco.smartlambda.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
@@ -14,6 +16,8 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class LambdaController {
 	@Data
@@ -120,7 +124,21 @@ public class LambdaController {
 	}
 	
 	public static Object getLambdaList(final Request request, final Response response) {
-		return null;
+		final List<LambdaResponse> lambdas = new LinkedList<>();
+		
+		for (final AbstractLambda lambda : AuthenticationService.getInstance().getAuthenticatedUser()
+				.orElseThrow(NotAuthenticatedException::new).getVisibleLambdas()) {
+			final LambdaResponse lambdaResponse = new LambdaResponse();
+			lambdaResponse.setName(lambda.getName());
+			lambdaResponse.setUser(lambda.getOwner().getName());
+			lambdaResponse.setRuntime(lambda.getRuntime().getName());
+			lambdaResponse.setAsync(lambda.isAsync());
+			
+			lambdas.add(lambdaResponse);
+		}
+		
+		response.status(200);
+		return lambdas;
 	}
 	
 	public static Object getStatistics(final Request request, final Response response) {
