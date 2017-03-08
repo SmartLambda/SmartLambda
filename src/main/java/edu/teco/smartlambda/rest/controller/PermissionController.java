@@ -59,7 +59,7 @@ public class PermissionController {
 				final User permissionUser = User.getByName(lambdaPermissionOwnerAndName.getUser())
 						.orElseThrow(() -> new UserNotFoundException(lambdaPermissionOwnerAndName.getUser()));
 				
-				if (lambdaPermissionOwnerAndName.getName() != null) key.grantPermission(LambdaFacade.getInstance().getFactory()
+				if (!lambdaPermissionOwnerAndName.getName().equals("*")) key.grantPermission(LambdaFacade.getInstance().getFactory()
 								.getLambdaByOwnerAndName(permissionUser, lambdaPermissionOwnerAndName.getName())
 								.orElseThrow(() -> new LambdaNotFoundException(lambdaPermissionOwnerAndName.getName())),
 						PermissionType.valueOf(type.toUpperCase()));
@@ -73,7 +73,7 @@ public class PermissionController {
 			for (final LambdaPermissionOwnerAndName lambdaPermissionOwnerAndName : list) {
 				final User permissionUser = User.getByName(lambdaPermissionOwnerAndName.getUser()).orElseThrow(() -> new UserNotFoundException(lambdaPermissionOwnerAndName.getUser()));
 				
-				if (lambdaPermissionOwnerAndName.getName() != null) key.revokePermission(
+				if (!lambdaPermissionOwnerAndName.getName().equals("*")) key.revokePermission(
 						LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(permissionUser, lambdaPermissionOwnerAndName.getName())
 								.orElseThrow(() -> new LambdaNotFoundException(lambdaPermissionOwnerAndName.getName())), PermissionType.valueOf(type.toUpperCase()));
 				else key.revokePermission(permissionUser, PermissionType.valueOf(type.toUpperCase()));
