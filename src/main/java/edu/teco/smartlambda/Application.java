@@ -8,6 +8,7 @@ import edu.teco.smartlambda.authentication.entities.Permission;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.configuration.ConfigurationService;
+import edu.teco.smartlambda.identity.GitHubCredential;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
@@ -147,6 +148,7 @@ public class Application {
 		configuration.addAnnotatedClass(Lambda.class);
 		configuration.addAnnotatedClass(MonitoringEvent.class);
 		configuration.addAnnotatedClass(Event.class);
+		configuration.addAnnotatedClass(GitHubCredential.class);
 		configuration.configure(new File(BuildConfig.HIBERNATE_CONFIGURATION_PATH));
 		
 		this.sessionFactory = configuration.buildSessionFactory();
