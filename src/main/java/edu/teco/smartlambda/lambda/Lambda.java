@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static org.torpedoquery.jpa.Torpedo.from;
@@ -163,6 +164,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void schedule(final Event event) {
+		if (this.getScheduledEvent(event.getName()).isPresent()) throw new DuplicateEventException(event.getName());
 		event.setLambda(this);
 		event.save();
 	}
@@ -178,10 +180,10 @@ public class Lambda extends AbstractLambda {
 	}
 	
 	@Override
-	public Event getScheduledEvent(final String name) {
+	public Optional<Event> getScheduledEvent(final String name) {
 		final Event query = from(Event.class);
-		where(query.getLambda()).eq(this);
-		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
+		where(query.getLambda()).eq(this).and(query.getName()).eq(name);
+		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
 	@Override

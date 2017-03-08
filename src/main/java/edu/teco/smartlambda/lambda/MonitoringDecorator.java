@@ -3,6 +3,7 @@ package edu.teco.smartlambda.lambda;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.ExecutionResult;
@@ -10,6 +11,7 @@ import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Decorates lambdas with calls to the monitoring service
@@ -39,8 +41,10 @@ public class MonitoringDecorator extends LambdaDecorator {
 			
 			@Override
 			public void onSuccess(final ExecutionResult result) {
+				Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, result.getConsumedCPUTime(),
 						result.getExecutionReturnValue(), event);
+				Application.getInstance().getSessionFactory().getCurrentSession().getTransaction().commit();
 			}
 			
 			@Override
@@ -81,7 +85,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Event getScheduledEvent(final String name) {
+	public Optional<Event> getScheduledEvent(final String name) {
 		return super.getScheduledEvent(name);
 	}
 	

@@ -9,6 +9,7 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
+import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
@@ -17,6 +18,7 @@ import edu.teco.smartlambda.rest.controller.LambdaController;
 import edu.teco.smartlambda.rest.controller.PermissionController;
 import edu.teco.smartlambda.rest.controller.ScheduleController;
 import edu.teco.smartlambda.rest.controller.UserController;
+import edu.teco.smartlambda.rest.exception.EventNotFoundException;
 import edu.teco.smartlambda.rest.exception.IdentityProviderNotFoundException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
@@ -109,12 +111,22 @@ public class Application {
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		
+		Spark.exception(EventNotFoundException.class, (Exception exception, Request request, Response response) -> {
+			response.status(404);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
 		Spark.exception(NotAuthenticatedException.class, (Exception exception, Request request, Response response) -> {
 			response.status(401);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		
 		Spark.exception(DuplicateLambdaException.class, (Exception exception, Request request, Response response) -> {
+			response.status(409);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(DuplicateEventException.class, (Exception exception, Request request, Response response) -> {
 			response.status(409);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});

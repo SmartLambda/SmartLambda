@@ -10,6 +10,7 @@ import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Decorates lambdas with authentication and aborts the lambda call, if authentication fails
@@ -74,12 +75,12 @@ public class PermissionDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Event getScheduledEvent(final String name) {
+	public Optional<Event> getScheduledEvent(final String name) {
 		this.ensureActionIsPermitted(PermissionType.SCHEDULE);
-		final Event event = super.getScheduledEvent(name);
+		final Optional<Event> event = super.getScheduledEvent(name);
 		
-		if (AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new) !=
-				event.getKey().getUser() || !event.getKey().isPrimaryKey()) this.ensureActionIsPermitted(PermissionType.READ);
+		if (event.isPresent() && (AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new) !=
+				event.get().getKey().getUser() || !event.get().getKey().isPrimaryKey())) this.ensureActionIsPermitted(PermissionType.READ);
 		
 		return event;
 	}
