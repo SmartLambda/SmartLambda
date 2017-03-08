@@ -127,7 +127,8 @@ public class Key {
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getLambda()).eq(LambdaDecorator.unwrap(lambda))
 				.and(permission.getPermissionType()).eq(type);
-		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
+		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty() ||
+				this.hasPermission(lambda.getOwner(), type);
 	}
 	
 	/**

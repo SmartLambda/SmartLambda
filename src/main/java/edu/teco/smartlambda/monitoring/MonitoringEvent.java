@@ -34,10 +34,13 @@ public class MonitoringEvent {
 	private User                lambdaOwner;
 	@Getter
 	private String              lambdaName;
+	@Getter
 	@Setter
 	private long                duration;
+	@Getter
 	@Setter
 	private long                CPUTime;
+	@Getter
 	@Setter
 	private String              error;
 	@Getter

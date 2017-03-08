@@ -2,11 +2,10 @@ package edu.teco.smartlambda.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import edu.teco.smartlambda.authentication.AuthenticationService;
-import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
+import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
@@ -40,6 +39,13 @@ public class LambdaController {
 		private boolean async;
 		private String  runtime;
 		private byte[]  src;
+	}
+	
+	@Data
+	private static class StatisticsResponse {
+		private long executions;
+		private long averageExecutionTime;
+		private long errors;
 	}
 	
 	public static Object createLambda(final Request request, final Response response) throws IOException {
@@ -126,8 +132,8 @@ public class LambdaController {
 	public static Object getLambdaList(final Request request, final Response response) {
 		final List<LambdaResponse> lambdas = new LinkedList<>();
 		
-		for (final AbstractLambda lambda : AuthenticationService.getInstance().getAuthenticatedUser()
-				.orElseThrow(NotAuthenticatedException::new).getVisibleLambdas()) {
+		for (final AbstractLambda lambda : User.getByName(request.params(":user"))
+				.orElseThrow(() -> new UserNotFoundException(request.params(":name"))).getVisibleLambdas()) {
 			final LambdaResponse lambdaResponse = new LambdaResponse();
 			lambdaResponse.setName(lambda.getName());
 			lambdaResponse.setUser(lambda.getOwner().getName());
@@ -142,6 +148,26 @@ public class LambdaController {
 	}
 	
 	public static Object getStatistics(final Request request, final Response response) {
-		return null;
+		final StatisticsResponse statisticsResponse = new StatisticsResponse();
+		final User               user               =
+				User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user")));
+		long                     executions         = 0;
+		long                     totalExecutionTime = 0;
+		long                     errors             = 0;
+		
+		for (final MonitoringEvent event : LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, request.params(":name"))
+				.orElseThrow(() -> new LambdaNotFoundException(request.params(":name"))).getMonitoringEvents()) {
+			executions++;
+			if (event.getError() != null) errors++;
+			
+			totalExecutionTime += event.getDuration();
+		}
+		
+		statisticsResponse.setExecutions(executions);
+		statisticsResponse.setErrors(errors);
+		statisticsResponse.setAverageExecutionTime(totalExecutionTime / executions);
+		
+		response.status(200);
+		return statisticsResponse;
 	}
 }
