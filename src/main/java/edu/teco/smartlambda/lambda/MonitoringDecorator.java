@@ -11,6 +11,7 @@ import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Decorates lambdas with calls to the monitoring service
@@ -84,7 +85,7 @@ public class MonitoringDecorator extends LambdaDecorator {
 	}
 	
 	@Override
-	public Event getScheduledEvent(final String name) {
+	public Optional<Event> getScheduledEvent(final String name) {
 		return super.getScheduledEvent(name);
 	}
 	

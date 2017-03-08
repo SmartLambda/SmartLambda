@@ -7,6 +7,7 @@ import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
+import edu.teco.smartlambda.rest.exception.EventNotFoundException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.schedule.Event;
@@ -57,7 +58,8 @@ public class ScheduleController {
 		final String          name            = request.params(":name");
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
-		final Event event = lambda.getScheduledEvent(request.params(":event-name"));
+		final Event event = lambda.getScheduledEvent(request.params(":event-name"))
+				.orElseThrow(() -> new EventNotFoundException(request.params(":event-name")));
 		
 		if (scheduleRequest.getCalendar() != null) event.setCronExpression(scheduleRequest.getCalendar());
 		
@@ -72,7 +74,8 @@ public class ScheduleController {
 		final String name = request.params(":name");
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
-		final Event            event            = lambda.getScheduledEvent(request.params(":event-name"));
+		final Event event = lambda.getScheduledEvent(request.params(":event-name"))
+				.orElseThrow(() -> new EventNotFoundException(request.params(":event-name")));
 		final ScheduleResponse scheduleResponse = new ScheduleResponse();
 		scheduleResponse.setName(event.getName());
 		scheduleResponse.setParameters(event.getParameters());
@@ -87,7 +90,8 @@ public class ScheduleController {
 		final String name = request.params(":name");
 		final AbstractLambda lambda = LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(user, name)
 				.orElseThrow(() -> new LambdaNotFoundException(name));
-		final Event event = lambda.getScheduledEvent(request.params(":event-name"));
+		final Event event = lambda.getScheduledEvent(request.params(":event-name"))
+				.orElseThrow(() -> new EventNotFoundException(request.params(":event-name")));
 		
 		event.delete();
 		

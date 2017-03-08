@@ -8,6 +8,7 @@ import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.schedule.Event;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An abstract superclass to a lambda representation, that defines the interface for lambdas and their decorators
@@ -54,7 +55,7 @@ public abstract class AbstractLambda {
 	 *
 	 * @return the scheduled event or null if none such exists
 	 */
-	public abstract Event getScheduledEvent(final String name);
+	public abstract Optional<Event> getScheduledEvent(final String name);
 	
 	/**
 	 * @return a list of all scheduled events
