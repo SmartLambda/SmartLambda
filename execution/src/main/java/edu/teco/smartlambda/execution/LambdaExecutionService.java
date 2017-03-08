@@ -41,7 +41,7 @@ public class LambdaExecutionService {
 		final Gson gson = new GsonBuilder().create();
 		
 		// the reported return value
-		ExecutionReturnValue executionReturnValue = new ExecutionReturnValue(null, null);
+		ExecutionReturnValue executionReturnValue = new ExecutionReturnValue("", "");
 		
 		final DataInputStream  systemInputStream  = new DataInputStream(System.in);
 		final DataOutputStream systemOutputStream = new DataOutputStream(System.out);
@@ -102,7 +102,7 @@ public class LambdaExecutionService {
 				System.setIn(prevSysIn);
 				System.setOut(prevSysOut);
 				
-				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), null);
+				executionReturnValue = new ExecutionReturnValue(gson.toJson(returnValue), "");
 			} catch (final NoSuchMethodException e) {
 				e.printStackTrace();
 				executionReturnValue = new ExecutionReturnValue(null,

@@ -51,7 +51,7 @@ public class MonitoringService {
 		monitoringEvent.setCPUTime(CPUTime);
 		monitoringEvent.setDuration(Calendar.getInstance().getTimeInMillis() - monitoringEvent.getTime().getTimeInMillis());
 		if (executionReturnValue.isException()) {
-			monitoringEvent.setError(executionReturnValue.getException().get().getStackTrace().toString());
+			monitoringEvent.setError(executionReturnValue.getException().get());
 		}
 		monitoringEvent.save();
 	}

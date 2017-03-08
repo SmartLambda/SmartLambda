@@ -1,24 +1,62 @@
 package edu.teco.smartlambda.shared;
 
-import lombok.RequiredArgsConstructor;
-
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The serializable object that is returned by the Container whenever a lambda is executed
  */
-@RequiredArgsConstructor
 public class ExecutionReturnValue implements Serializable {
 	
-	private final String    returnValue;
-	private final Throwable exception;
+	private final String returnValue;
+	private final String exception;
+	
+	/**
+	 * An execution return value or exception, that will be parsed into a string
+	 *
+	 * @param returnValue serialized return value
+	 * @param exception   exception to be serialized
+	 */
+	public ExecutionReturnValue(final String returnValue, final Throwable exception) {
+		this(returnValue, generateStackTrace(exception, false));
+	}
+	
+	/**
+	 * Generate stack traces from exceptions
+	 *
+	 * @param throwable an exception
+	 *
+	 * @return a stack trace string
+	 */
+	private static String generateStackTrace(final Throwable throwable, final boolean isCause) {
+		if (throwable == null) return "";
+		
+		String msg = (isCause ? "Caused by: " : "") + throwable.getClass().getName() + ": " + throwable.getMessage() + "\n\t";
+		msg += Arrays.stream(Arrays.copyOfRange(throwable.getStackTrace(), 0, throwable.getStackTrace().length - 5))
+				.map(StackTraceElement::toString).collect(Collectors.joining("\n\t"));
+		msg += (throwable.getCause() != throwable ? "\n" + generateStackTrace(throwable.getCause(), true) : "");
+		
+		return msg;
+	}
+	
+	/**
+	 * An Execution Return value or exception as string
+	 *
+	 * @param returnValue serialized return value
+	 * @param exception   exception / error as string
+	 */
+	public ExecutionReturnValue(final String returnValue, final String exception) {
+		this.returnValue = returnValue;
+		this.exception = exception != null && exception.equals("") ? null : exception;
+	}
 	
 	/**
 	 * @return whether the execution resulted in an error
 	 */
 	public boolean isException() {
-		return exception != null;
+		return this.getException().isPresent();
 	}
 	
 	/**
@@ -31,7 +69,7 @@ public class ExecutionReturnValue implements Serializable {
 	/**
 	 * @return the exception thrown while lambda execution or an empty optional if no exception was thrown
 	 */
-	public Optional<Throwable> getException() {
+	public Optional<String> getException() {
 		return Optional.ofNullable(this.exception);
 	}
 }
