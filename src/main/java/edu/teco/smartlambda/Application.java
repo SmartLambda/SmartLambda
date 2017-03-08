@@ -9,6 +9,7 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.identity.GitHubCredential;
+import edu.teco.smartlambda.identity.GitHubCredentialDuplicateException;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
@@ -128,6 +129,11 @@ public class Application {
 		});
 		
 		Spark.exception(DuplicateEventException.class, (Exception exception, Request request, Response response) -> {
+			response.status(409);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(GitHubCredentialDuplicateException.class, (Exception exception, Request request, Response response) -> {
 			response.status(409);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
