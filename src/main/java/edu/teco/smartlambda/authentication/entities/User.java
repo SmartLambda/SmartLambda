@@ -8,6 +8,7 @@ import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
+import edu.teco.smartlambda.lambda.LambdaFacade;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
@@ -25,8 +26,10 @@ import javax.persistence.Transient;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.IDENTITY;
 import static org.torpedoquery.jpa.Torpedo.from;
@@ -184,22 +187,40 @@ public class User {
 		}
 	}
 	
+	private void ensureAuthenticatedWithPrimaryKey() {
+		if (!AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new).isPrimaryKey())
+			throw new InsufficientPermissionsException();
+	}
+	
+	@Transient
+	public List<AbstractLambda> getLambdas() {
+		final Lambda query = from(Lambda.class);
+		where(query.getOwner()).eq(this);
+		return select(query).list(Application.getInstance().getSessionFactory().getCurrentSession()).stream()
+				.map(lambda -> LambdaFacade.getInstance().getFactory().decorate(lambda)).collect(Collectors.toList());
+	}
+	
 	/**
-	 * Returns all Lambdas, which this User can See (all Lambdas if this User is an Admin and shared Lambdas otherwise)
+	 * Returns all lambdas of this user that are visible to the currently authenticated user
 	 *
-	 * @return Set of Users
+	 * @return set of lambdas
+	 * @throws InsufficientPermissionsException when user is not authenticated with their primary key
 	 */
 	@Transient
 	public Set<AbstractLambda> getVisibleLambdas() {
-		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
-		if (this.isAdmin) {
-			final Lambda query = from(Lambda.class);
-			return new HashSet<>(select(query).list(session));
-		} else {
-			final Lambda query = from(Lambda.class);
-			where(query.getOwner()).in(this.getVisibleUsers());
-			return new HashSet<>(select(query).list(session));
+		this.ensureAuthenticatedWithPrimaryKey();
+		
+		final Set<AbstractLambda> lambdas = new HashSet<>();
+		
+		assert AuthenticationService.getInstance().getAuthenticatedUser().isPresent();
+		
+		for (final AbstractLambda lambda : this.getLambdas()) {
+			if (AuthenticationService.getInstance().getAuthenticatedUser().get().getPrimaryKey().hasPermission(lambda, PermissionType
+					.READ))
+				lambdas.add(lambda);
 		}
+		
+		return lambdas;
 	}
 	
 	/**
@@ -209,8 +230,7 @@ public class User {
 	 */
 	@Transient
 	public Optional<Key> getKeyByName(final String name) {
-		if (!AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new).isPrimaryKey())
-			throw new InsufficientPermissionsException();
+		this.ensureAuthenticatedWithPrimaryKey();
 		
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		final Key     query   = from(Key.class);
