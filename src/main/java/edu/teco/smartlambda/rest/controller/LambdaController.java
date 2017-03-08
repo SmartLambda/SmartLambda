@@ -2,8 +2,6 @@ package edu.teco.smartlambda.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import edu.teco.smartlambda.authentication.AuthenticationService;
-import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
@@ -134,8 +132,8 @@ public class LambdaController {
 	public static Object getLambdaList(final Request request, final Response response) {
 		final List<LambdaResponse> lambdas = new LinkedList<>();
 		
-		for (final AbstractLambda lambda : AuthenticationService.getInstance().getAuthenticatedUser()
-				.orElseThrow(NotAuthenticatedException::new).getVisibleLambdas()) {
+		for (final AbstractLambda lambda : User.getByName(request.params(":user"))
+				.orElseThrow(() -> new UserNotFoundException(request.params(":name"))).getVisibleLambdas()) {
 			final LambdaResponse lambdaResponse = new LambdaResponse();
 			lambdaResponse.setName(lambda.getName());
 			lambdaResponse.setUser(lambda.getOwner().getName());
