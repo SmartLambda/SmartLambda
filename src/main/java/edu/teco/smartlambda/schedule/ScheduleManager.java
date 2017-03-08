@@ -44,14 +44,15 @@ public class ScheduleManager {
 			final Event event;
 			try {
 				
-				Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 				//Checks all started futures, if they're still running -> update lock, else -> update nextExecutionTime
 				futures.forEach((Event e, ListenableFuture<ExecutionResult> future) -> {
 					if (!future.isDone()) {
+						Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 						e.setLock(Calendar.getInstance());
 						Application.getInstance().getSessionFactory().getCurrentSession().update(e);
 						Application.getInstance().getSessionFactory().getCurrentSession().getTransaction().commit();
 					} else {
+						Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 						e.setLock(null);
 						e.save();
 						Application.getInstance().getSessionFactory().getCurrentSession().getTransaction().commit();
