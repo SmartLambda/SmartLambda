@@ -50,6 +50,7 @@ public class UserController {
 		registrationResponse.setName(userKey.getLeft().getName());
 		registrationResponse.setPrimaryKey(userKey.getRight());
 		
+		response.status(201);
 		return registrationResponse;
 	}
 }
