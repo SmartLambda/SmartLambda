@@ -164,7 +164,7 @@ public class Lambda extends AbstractLambda {
 	
 	@Override
 	public void schedule(final Event event) {
-		if (getScheduledEvent(event.getName()).isPresent()) throw new DuplicateEventException();
+		if (this.getScheduledEvent(event.getName()).isPresent()) throw new DuplicateEventException(event.getName());
 		event.setLambda(this);
 		event.save();
 	}
@@ -182,7 +182,7 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public Optional<Event> getScheduledEvent(final String name) {
 		final Event query = from(Event.class);
-		where(query.getLambda()).eq(this);
+		where(query.getLambda()).eq(this).and(query.getName()).eq(name);
 		return select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession());
 	}
 	
