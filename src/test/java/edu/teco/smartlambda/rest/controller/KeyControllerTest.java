@@ -3,6 +3,7 @@ package edu.teco.smartlambda.rest.controller;
 import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.utility.TestUtility;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,11 @@ public class KeyControllerTest {
 		when(this.request.params(":name")).thenReturn(REQUEST_KEY_NAME);
 		
 		this.response = mock(Response.class);
+	}
+	
+	@Test
+	public void testPrivateConstructor() throws Exception {
+		TestUtility.coverPrivateDefaultConstructor(KeyController.class);
 	}
 	
 	@Test

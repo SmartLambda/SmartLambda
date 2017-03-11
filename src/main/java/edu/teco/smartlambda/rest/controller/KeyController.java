@@ -14,6 +14,9 @@ import spark.Response;
  * Provides REST calls related to lifecycle handling of access keys.
  */
 public class KeyController {
+	private KeyController() {
+	}
+	
 	/**
 	 * <code><b>PUT</b> /key/<i>:name</i></code>
 	 * <p>
