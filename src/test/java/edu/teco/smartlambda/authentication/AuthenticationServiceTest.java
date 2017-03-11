@@ -62,6 +62,13 @@ public class AuthenticationServiceTest {
 	}
 	
 	@Test
+	public void AuthenticationServiceHasNoKeyAtStart() throws Exception {
+		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
+		
+		Assert.assertFalse(future.get().getAuthenticatedKey().isPresent());
+	}
+	
+	@Test
 	public void authenticateViaParimaryKey() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		final Map<String, String>   params                = new HashMap<>();
