@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,19 +45,17 @@ public class UserTest {
 		final Pair<Key, String> keyPair = user.createKey("UserTest.createKey");
 		final Key key = keyPair.getLeft();
 		final String id;
-		try {
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			id = arrayToString(sha256.digest(keyPair.getRight().getBytes()));
-			Assert.assertTrue(Key.getKeyById(id).isPresent());
-		} catch (NoSuchAlgorithmException a) {
-			Assert.fail();
-		}
+
+		final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+		id = this.arrayToString(sha256.digest(keyPair.getRight().getBytes()));
+		Assert.assertTrue(Key.getKeyById(id).isPresent());
+
 	}
 	
-	private String arrayToString(byte[] array) {
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < array.length; ++i) {
-			sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+	private String arrayToString(final byte[] array) {
+		final StringBuffer sb = new StringBuffer();
+		for (final byte currentByte : array) {
+			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
 		}
 		return sb.toString();
 	}
