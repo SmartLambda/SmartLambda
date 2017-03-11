@@ -146,8 +146,8 @@ public class User {
 	private String arrayToString(final byte[] array)
 	{
 		final StringBuilder sb = new StringBuilder();
-		for (final byte anArray : array) {
-			sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
+		for (final byte currentByte : array) {
+			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
 		}
 		return sb.toString();
 	}
