@@ -33,4 +33,21 @@ public final class TestUtility {
 			constructor.newInstance();
 		}
 	}
+	
+	/**
+	 * Cover all constructors of an exception
+	 *
+	 * @param clazz the exception class to cover
+	 *
+	 * @throws IllegalAccessException    this exception is highly unexpected, because the constructor is made accessible by reflection
+	 * @throws InvocationTargetException if an exception is thrown by the called constructor
+	 * @throws InstantiationException    highly unexpected, because the {@link Class#newInstance()} method isn't used
+	 */
+	public static void coverException(final Class<? extends Throwable> clazz)
+			throws IllegalAccessException, InvocationTargetException, InstantiationException {
+		for (final Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+			constructor.setAccessible(true);
+			constructor.newInstance(new Object[constructor.getParameterCount()]);
+		}
+	}
 }
