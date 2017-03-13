@@ -9,8 +9,17 @@ import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -20,9 +29,20 @@ import java.util.concurrent.Future;
 /**
  * Created on 10.02.17.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MessageDigest.class)
+@PowerMockIgnore({"javax.xml.*", "org.xml.sax.*", "org.w3c.*", "javax.management.*"})
 public class AuthenticationServiceTest {
 	
 	private ExecutorService executorService;
+	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+	
+	@BeforeClass
+	public static void beforeClass() {
+		PowerMockito.mockStatic(MessageDigest.class);
+	}
 	
 	@Before
 	public void setUp() throws Exception {
@@ -66,6 +86,13 @@ public class AuthenticationServiceTest {
 		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
 		
 		Assert.assertFalse(future.get().getAuthenticatedKey().isPresent());
+	}
+	
+	@Test
+	public void AuthenticationServiceHasNoUserAtStart() throws Exception {
+		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
+		
+		Assert.assertFalse(future.get().getAuthenticatedUser().isPresent());
 	}
 	
 	@Test
@@ -115,11 +142,32 @@ public class AuthenticationServiceTest {
 		assert authenticationService.getAuthenticatedKey().isPresent();
 		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
 	}
-
+	
 	
 	@Test(expected=NotAuthenticatedException.class)
 	public void getAuthenticatedUserViaWrongString() throws Exception {
 		final AuthenticationService authenticationService = AuthenticationService.getInstance();
 		authenticationService.authenticate("This is a non existing Key");
 	}
+	
+	@Test
+	public void getAuthenticatedUser() throws Exception {
+		final AuthenticationService authenticationService = AuthenticationService.getInstance();
+		final Map<String, String>   params                = new HashMap<>();
+		params.put("name", "AuthenticationServiceTest.getAuthenticatedUser.User");
+		final User user = new NullIdentityProvider().register
+				(params).getLeft();
+		authenticationService.authenticate(user.getPrimaryKey());
+		assert authenticationService.getAuthenticatedKey().isPresent();
+		Assert.assertSame(user, authenticationService.getAuthenticatedUser().orElseThrow(AssertionError::new));
+	}
+	
+
+	/*@Test //(expected = RuntimeException.class)
+	public void NoSuchAlgorithmExceptionTest() throws Exception{
+		this.thrown.expectCause(is(new NoSuchAlgorithmException()));
+		//PowerMockito.when(MessageDigest.getInstance(anyString())).thenThrow(new NoSuchAlgorithmException());
+		PowerMockito.doThrow(new NoSuchAlgorithmException()).when(MessageDigest.class, "getInstance", Mockito.anyString());
+		AuthenticationService.getInstance().authenticate("");
+	}*/
 }
