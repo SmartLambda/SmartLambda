@@ -60,8 +60,8 @@ buildConfig {
     version = project.version
     packageName = project.group + "." + "smartlambda"
     if(Os.isFamily(Os.FAMILY_WINDOWS)) {
-        buildConfigField "String", "CONFIGURATION_PATH", "%AppData%\\\\smartlambda\\\\smartlambda.xml"
-        buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "%AppData%\\\\smartlambda\\\\hibernate.xml"
+        buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda\\\\smartlambda.xml"
+        buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "C:\\\\smartlambda\\\\hibernate.xml"
     } else {
         buildConfigField "String", "CONFIGURATION_PATH", "/etc/smartlambda/smartlambda.xml"
         buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "/etc/smartlambda/hibernate.xml"
