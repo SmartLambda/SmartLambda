@@ -68,7 +68,7 @@ public final class TestUtility {
 			if (method.getName().startsWith("get") && method.getParameterCount() == 0 && !method.getReturnType().equals(Void.TYPE)) {
 				assert method.invoke(o) != null;
 			} else if (method.getName().startsWith("set") && method.getParameterCount() == 1 && method.getReturnType().equals(Void.TYPE)) {
-				method.invoke(o, null);
+				method.invoke(o, new Object[] {null});
 			}
 		}
 	}
