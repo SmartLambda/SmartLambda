@@ -12,13 +12,13 @@ package edu.teco.smartlambda.container.docker;
 
 import com.spotify.docker.client.LogReader;
 import com.spotify.docker.client.LogStream;
+import lombok.SneakyThrows;
 import org.apache.http.conn.EofSensorInputStream;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.glassfish.jersey.message.internal.EntityInputStream;
-import org.slf4j.LoggerFactory;
 import sun.nio.ch.ChannelInputStream;
 
 import java.io.FilterInputStream;
@@ -124,17 +124,15 @@ class HttpHijackingWorkaround {
 	 *
 	 * @return the content of the leaf in the traversed hierarchy path
 	 */
+	@SneakyThrows // since the expressions are constant the exceptions cannot occur (except when the library is changed, but then a crash
+	// is favourable)
 	private static Object getInternalField(final Object fieldContent, final List<String[]> classFieldTupels) {
 		Object curr = fieldContent;
-		try {
-			for (final String[] classFieldTuple : classFieldTupels) {
-				//noinspection ConstantConditions
-				final Field field = Class.forName(classFieldTuple[0]).getDeclaredField(classFieldTuple[1]);
-				field.setAccessible(true);
-				curr = field.get(curr);
-			}
-		} catch (IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
-			LoggerFactory.getLogger(HttpHijackingWorkaround.class).error("violation of class hierarchy in reflection access", e);
+		for (final String[] classFieldTuple : classFieldTupels) {
+			//noinspection ConstantConditions
+			final Field field = Class.forName(classFieldTuple[0]).getDeclaredField(classFieldTuple[1]);
+			field.setAccessible(true);
+			curr = field.get(curr);
 		}
 		return curr;
 	}
