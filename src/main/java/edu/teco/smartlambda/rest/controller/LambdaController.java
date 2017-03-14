@@ -41,7 +41,6 @@ public class LambdaController {
 		private String  name;
 		private boolean async;
 		private String  runtime;
-		private byte[]  src;
 	}
 	
 	@Data
