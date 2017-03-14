@@ -9,6 +9,8 @@ import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,9 +23,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import spark.Request;
 import spark.Response;
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,6 +57,15 @@ public class LambdaControllerTest {
 		private final byte[]  src;
 	}
 	
+	@Data
+	@AllArgsConstructor
+	private static class LambdaResponse {
+		private String  user;
+		private String  name;
+		private Boolean async;
+		private String  runtime;
+	}
+	
 	@Before
 	public void setUp() throws Exception {
 		PowerMockito.mockStatic(User.class);
@@ -60,8 +74,10 @@ public class LambdaControllerTest {
 		
 		this.testUser = mock(User.class);
 		when(User.getByName(TEST_USER_NAME)).thenReturn(Optional.ofNullable(this.testUser));
+		when(this.testUser.getName()).thenReturn(TEST_USER_NAME);
 		
 		this.testRuntime = mock(Runtime.class);
+		when(this.testRuntime.getName()).thenReturn(TEST_RUNTIME);
 		
 		final RuntimeRegistry runtimeRegistry = mock(RuntimeRegistry.class);
 		when(RuntimeRegistry.getInstance()).thenReturn(runtimeRegistry);
@@ -179,9 +195,65 @@ public class LambdaControllerTest {
 		verifyNoMoreInteractions(lambda);
 	}
 	
+	private Pair<Response, LambdaResponse> doReadLambda(final String lambdaName) throws Exception {
+		final AbstractLambda lambda = mock(AbstractLambda.class);
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
+		
+		when(lambda.getName()).thenReturn(TEST_LAMBDA_NAME);
+		when(lambda.getOwner()).thenReturn(this.testUser);
+		when(lambda.getRuntime()).thenReturn(this.testRuntime);
+		when(lambda.isAsync()).thenReturn(true);
+		
+		final Request request = mock(Request.class);
+		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(lambdaName);
+		
+		final Response response = mock(Response.class);
+		final Object   object   = LambdaController.readLambda(request, response);
+		
+		final Field user    = object.getClass().getDeclaredField("user");
+		final Field name    = object.getClass().getDeclaredField("name");
+		final Field async   = object.getClass().getDeclaredField("async");
+		final Field runtime = object.getClass().getDeclaredField("runtime");
+		
+		assertEquals(4, object.getClass().getDeclaredFields().length);
+		
+		assertNotNull(user);
+		assertSame(String.class, user.getType());
+		assertNotNull(name);
+		assertSame(String.class, name.getType());
+		assertNotNull(async);
+		assertSame(boolean.class, async.getType());
+		assertNotNull(runtime);
+		assertSame(String.class, runtime.getType());
+		
+		user.setAccessible(true);
+		name.setAccessible(true);
+		async.setAccessible(true);
+		runtime.setAccessible(true);
+		
+		return new ImmutablePair<>(response,
+				new LambdaResponse((String) user.get(object), (String) name.get(object), (Boolean) async.get(object),
+						(String) runtime.get(object)));
+	}
+	
 	@Test
 	public void readLambda() throws Exception {
+		final Pair<Response, LambdaResponse> result = this.doReadLambda(TEST_LAMBDA_NAME);
 		
+		assertEquals(TEST_USER_NAME, result.getRight().getUser());
+		assertEquals(TEST_LAMBDA_NAME, result.getRight().getName());
+		assertEquals(TEST_RUNTIME, result.getRight().getRuntime());
+		assertEquals(true, result.getRight().getAsync());
+		
+		verify(result.getLeft()).status(200);
+	}
+	
+	@Test(expected = LambdaNotFoundException.class)
+	public void readLambdaUnknownLambda() throws Exception {
+		this.doReadLambda("does_not_exist");
 	}
 	
 	@Test
