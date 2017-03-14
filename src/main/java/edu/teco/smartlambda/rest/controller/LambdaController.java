@@ -140,8 +140,13 @@ public class LambdaController {
 			final ExecutionReturnValue executionReturnValue = lambda.executeSync(
 					lambdaExecutionRequest.getParameters() != null ? lambdaExecutionRequest.getParameters().toString() : "")
 					.getExecutionReturnValue();
-			response.status(200);
-			return executionReturnValue.getReturnValue().orElse(null);
+			if (executionReturnValue.isException()) {
+				response.status(502);
+				return "";
+			} else {
+				response.status(200);
+				return executionReturnValue.getReturnValue().orElse("");
+			}
 		}
 	}
 	
