@@ -1,22 +1,28 @@
 package edu.teco.smartlambda.rest.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
 import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.verification.AtMost;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -40,11 +46,14 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LambdaFacade.class, User.class, RuntimeRegistry.class})
 public class LambdaControllerTest {
-	private static final Gson   gson             = new Gson();
-	private static final String TEST_USER_NAME   = "TestUser";
-	private static final String TEST_RUNTIME     = "TestRuntime";
-	private static final byte[] TEST_SRC         = "TestSource".getBytes(Charset.forName("US-ASCII"));
-	private static final String TEST_LAMBDA_NAME = "TestLambda";
+	private static final Gson   gson                  = new Gson();
+	private static final String TEST_USER_NAME        = "TestUser";
+	private static final String TEST_RUNTIME          = "TestRuntime";
+	private static final byte[] TEST_SRC              = "TestSource".getBytes(Charset.forName("US-ASCII"));
+	private static final String TEST_LAMBDA_NAME      = "TestLambda";
+	private static final String TEST_PARAMETER_NAME   = "TestParameter";
+	private static final String TEST_PARAMETER_VALUE  = "TestParameterValue";
+	private static final String TEST_EXECUTION_RESULT = "TestResult";
 	
 	private User          testUser;
 	private Runtime       testRuntime;
@@ -55,6 +64,12 @@ public class LambdaControllerTest {
 		private final Boolean async;
 		private final String  runtime;
 		private final byte[]  src;
+	}
+	
+	@RequiredArgsConstructor
+	private static class LambdaExecutionRequest {
+		private final Boolean    async;
+		private final JsonObject parameters;
 	}
 	
 	@Data
@@ -256,14 +271,125 @@ public class LambdaControllerTest {
 		this.doReadLambda("does_not_exist");
 	}
 	
+	private Pair<Response, AbstractLambda> doDeleteLambda(final String lambdaName) throws Exception {
+		final AbstractLambda lambda = mock(AbstractLambda.class);
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
+		
+		final Request request = mock(Request.class);
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(lambdaName);
+		
+		final Response response = mock(Response.class);
+		assertSame(Object.class, LambdaController.deleteLambda(request, response).getClass());
+		
+		return new ImmutablePair<>(response, lambda);
+	}
+	
 	@Test
 	public void deleteLambda() throws Exception {
+		final Pair<Response, AbstractLambda> result = this.doDeleteLambda(TEST_LAMBDA_NAME);
 		
+		verify(result.getLeft()).status(200);
+		verify(result.getRight()).delete();
+		verifyNoMoreInteractions(result.getRight());
+	}
+	
+	@Test(expected = LambdaNotFoundException.class)
+	public void deleteLambdaUnknownLambda() throws Exception {
+		this.doDeleteLambda("does_not_exist");
+	}
+	
+	private Triple<Response, AbstractLambda, Object> doExecuteLambda(final LambdaExecutionRequest executionRequest,
+			final boolean defaultAsync, final ExecutionReturnValue returnValue, final String lambdaName) throws Exception {
+		final AbstractLambda lambda = mock(AbstractLambda.class);
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
+		
+		when(lambda.isAsync()).thenReturn(defaultAsync);
+		
+		final Request request = mock(Request.class);
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(lambdaName);
+		when(request.body()).thenReturn(gson.toJson(executionRequest));
+		
+		final Response response = mock(Response.class);
+		if (returnValue != null) {
+			final ExecutionResult executionResult = new ExecutionResult();
+			executionResult.setExecutionReturnValue(returnValue);
+			
+			when(lambda.executeSync(anyString())).thenReturn(executionResult);
+		}
+		
+		return new ImmutableTriple<>(response, lambda, LambdaController.executeLambda(request, response));
+	}
+	
+	private Triple<Response, AbstractLambda, Object> doExecuteLambda(final LambdaExecutionRequest executionRequest,
+			final boolean defaultAsync, final ExecutionReturnValue returnValue) throws Exception {
+		return this.doExecuteLambda(executionRequest, defaultAsync, returnValue, TEST_LAMBDA_NAME);
 	}
 	
 	@Test
 	public void executeLambda() throws Exception {
+		final JsonObject parameters = new JsonObject();
+		parameters.addProperty(TEST_PARAMETER_NAME, TEST_PARAMETER_VALUE);
 		
+		Triple<Response, AbstractLambda, Object> result = this.doExecuteLambda(new LambdaExecutionRequest(null, parameters), true, null);
+		verify(result.getMiddle()).executeAsync(gson.toJson(parameters));
+		verify(result.getMiddle()).isAsync();
+		verifyNoMoreInteractions(result.getMiddle());
+		
+		verify(result.getLeft()).status(202);
+		assertEquals("", result.getRight());
+		
+		final ExecutionReturnValue returnValue = new ExecutionReturnValue(TEST_EXECUTION_RESULT, "");
+		
+		result = this.doExecuteLambda(new LambdaExecutionRequest(null, parameters), false, returnValue);
+		verify(result.getMiddle()).executeSync(gson.toJson(parameters));
+		verify(result.getMiddle()).isAsync();
+		verifyNoMoreInteractions(result.getMiddle());
+		
+		verify(result.getLeft()).status(200);
+		assertEquals(TEST_EXECUTION_RESULT, result.getRight());
+	}
+	
+	@Test
+	public void executeLambdaExplicitAsync() throws Exception {
+		final Triple<Response, AbstractLambda, Object> result = this.doExecuteLambda(new LambdaExecutionRequest(true, null), false, null);
+		verify(result.getMiddle()).executeAsync("");
+		verify(result.getMiddle(), new AtMost(1)).isAsync();
+		verifyNoMoreInteractions(result.getMiddle());
+		
+		verify(result.getLeft()).status(202);
+		assertEquals("", result.getRight());
+	}
+	
+	@Test
+	public void executeLambdaExplicitSync() throws Exception {
+		final ExecutionReturnValue executionReturnValue = new ExecutionReturnValue(TEST_EXECUTION_RESULT, "");
+		
+		final Triple<Response, AbstractLambda, Object> result =
+				this.doExecuteLambda(new LambdaExecutionRequest(false, null), true, executionReturnValue);
+		verify(result.getMiddle()).executeSync("");
+		verify(result.getMiddle(), new AtMost(1)).isAsync();
+		verifyNoMoreInteractions(result.getMiddle());
+		
+		verify(result.getLeft()).status(200);
+		assertEquals(TEST_EXECUTION_RESULT, result.getRight());
+	}
+	
+	@Test
+	public void executeLambdaException() throws Exception {
+		final ExecutionReturnValue executionReturnValue = new ExecutionReturnValue("", new Exception().fillInStackTrace());
+		
+		final Triple<Response, AbstractLambda, Object> resullt =
+				this.doExecuteLambda(new LambdaExecutionRequest(false, null), true, executionReturnValue);
+		verify(resullt.getMiddle()).executeSync("");
+		verify(resullt.getMiddle(), new AtMost(1)).isAsync();
+		verifyNoMoreInteractions(resullt.getMiddle());
+		
+		verify(resullt.getLeft()).status(502);
+		assertEquals("", resullt.getRight());
 	}
 	
 	@Test
