@@ -78,9 +78,18 @@ public class LambdaController {
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
 		if (lambdaRequest.getAsync() != null) lambda.setAsync(lambdaRequest.getAsync());
-		if (lambdaRequest.getRuntime() != null)
-			lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime()));
-		if (lambdaRequest.getSrc() != null) lambda.deployBinary(lambdaRequest.getSrc());
+		if (lambdaRequest.getRuntime() != null) {
+			final Runtime runtime = RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime());
+			
+			if (runtime == null) throw new RuntimeNotFoundException(lambdaRequest.getRuntime());
+			
+			lambda.setRuntime(runtime);
+		}
+		if (lambdaRequest.getSrc() != null) {
+			if (lambdaRequest.getSrc() == null || lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
+			
+			lambda.deployBinary(lambdaRequest.getSrc());
+		}
 		lambda.update();
 		
 		response.status(200);
