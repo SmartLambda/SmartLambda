@@ -5,6 +5,7 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
+import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import lombok.RequiredArgsConstructor;
@@ -101,16 +102,14 @@ public class LambdaControllerTest {
 		verify(lambda).save();
 	}
 	
-	@Test
+	@Test(expected = InvalidLambdaDefinitionException.class)
 	public void createLambdaInvalidRuntime() throws Exception {
-		final Response response = this.doCreateLambda(new LambdaRequest(true, "does_not_exist", TEST_SRC)).getLeft();
-		verify(response).status(400);
+		this.doCreateLambda(new LambdaRequest(true, "does_not_exist", TEST_SRC)).getLeft();
 	}
 	
-	@Test
+	@Test(expected = InvalidLambdaDefinitionException.class)
 	public void createLambdaMissingSource() throws Exception {
 		final Response response = this.doCreateLambda(new LambdaRequest(true, TEST_RUNTIME, new byte[] {})).getLeft();
-		verify(response).status(400);
 	}
 	
 	@Test
