@@ -137,8 +137,9 @@ public class LambdaController {
 			response.status(202);
 			return "";
 		} else {
-			final ExecutionReturnValue executionReturnValue =
-					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).getExecutionReturnValue();
+			final ExecutionReturnValue executionReturnValue = lambda.executeSync(
+					lambdaExecutionRequest.getParameters() != null ? lambdaExecutionRequest.getParameters().toString() : "")
+					.getExecutionReturnValue();
 			response.status(200);
 			return executionReturnValue.getReturnValue().orElse(null);
 		}
