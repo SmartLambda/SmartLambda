@@ -7,6 +7,7 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.rest.exception.MissingSourceException;
 import edu.teco.smartlambda.rest.exception.RuntimeNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
 import edu.teco.smartlambda.runtime.Runtime;
@@ -56,6 +57,7 @@ public class LambdaController {
 		final Runtime        runtime       = RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime());
 		
 		if (runtime == null) throw new RuntimeNotFoundException(lambdaRequest.getRuntime());
+		if (lambdaRequest.getSrc() == null || lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
 		
 		lambda.setAsync(lambdaRequest.getAsync());
 		lambda.setOwner(User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user"))));
