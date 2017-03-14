@@ -6,6 +6,7 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
 import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
+import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,11 @@ import java.nio.charset.Charset;
 import java.util.Optional;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -43,7 +47,7 @@ public class LambdaControllerTest {
 	
 	@RequiredArgsConstructor
 	private static class LambdaRequest {
-		private final boolean async;
+		private final Boolean async;
 		private final String  runtime;
 		private final byte[]  src;
 	}
@@ -100,21 +104,79 @@ public class LambdaControllerTest {
 		verify(lambda).setRuntime(this.testRuntime);
 		verify(lambda).deployBinary(TEST_SRC);
 		verify(lambda).save();
+		verifyNoMoreInteractions(lambda);
 	}
 	
 	@Test(expected = InvalidLambdaDefinitionException.class)
 	public void createLambdaInvalidRuntime() throws Exception {
-		this.doCreateLambda(new LambdaRequest(true, "does_not_exist", TEST_SRC)).getLeft();
+		this.doCreateLambda(new LambdaRequest(true, "does_not_exist", TEST_SRC));
 	}
 	
 	@Test(expected = InvalidLambdaDefinitionException.class)
 	public void createLambdaMissingSource() throws Exception {
-		final Response response = this.doCreateLambda(new LambdaRequest(true, TEST_RUNTIME, new byte[] {})).getLeft();
+		this.doCreateLambda(new LambdaRequest(true, TEST_RUNTIME, new byte[] {}));
+	}
+	
+	private Pair<Response, AbstractLambda> doUpdateLambda(final LambdaRequest lambdaRequest, final String lambdaName) throws Exception {
+		final AbstractLambda lambda = mock(AbstractLambda.class);
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
+		
+		final Request request = mock(Request.class);
+		
+		when(request.body()).thenReturn(gson.toJson(lambdaRequest));
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(lambdaName);
+		
+		final Response response = mock(Response.class);
+		
+		assertSame(Object.class, LambdaController.updateLambda(request, response).getClass());
+		
+		return new ImmutablePair<>(response, lambda);
+	}
+	
+	private Pair<Response, AbstractLambda> doUpdateLambda(final LambdaRequest lambdaRequest) throws Exception {
+		return this.doUpdateLambda(lambdaRequest, TEST_LAMBDA_NAME);
 	}
 	
 	@Test
 	public void updateLambda() throws Exception {
+		final Pair<Response, AbstractLambda> result   = this.doUpdateLambda(new LambdaRequest(true, TEST_RUNTIME, TEST_SRC));
+		final Response                       response = result.getLeft();
+		final AbstractLambda                 lambda   = result.getRight();
 		
+		verify(response).status(200);
+		verify(lambda).setAsync(true);
+		verify(lambda).setRuntime(this.testRuntime);
+		verify(lambda).deployBinary(TEST_SRC);
+		verify(lambda).update();
+		verifyNoMoreInteractions(lambda);
+	}
+	
+	@Test(expected = InvalidLambdaDefinitionException.class)
+	public void updateLambdaInvalidRuntime() throws Exception {
+		this.doUpdateLambda(new LambdaRequest(true, "does_not_exist", TEST_SRC));
+	}
+	
+	@Test(expected = InvalidLambdaDefinitionException.class)
+	public void updateLambdaMissingSource() throws Exception {
+		this.doUpdateLambda(new LambdaRequest(true, TEST_RUNTIME, new byte[] {}));
+	}
+	
+	@Test(expected = LambdaNotFoundException.class)
+	public void updateLambdaUnknownLambda() throws Exception {
+		this.doUpdateLambda(new LambdaRequest(true, TEST_RUNTIME, TEST_SRC), "does_not_exist");
+	}
+	
+	@Test
+	public void updateLambdaNoChanges() throws Exception {
+		final Pair<Response, AbstractLambda> result   = this.doUpdateLambda(new LambdaRequest(null, null, null));
+		final Response                       response = result.getLeft();
+		final AbstractLambda                 lambda   = result.getRight();
+		
+		verify(response).status(200);
+		verify(lambda).update();
+		verifyNoMoreInteractions(lambda);
 	}
 	
 	@Test
