@@ -7,7 +7,9 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.rest.exception.RuntimeNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
+import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import lombok.Data;
@@ -51,11 +53,14 @@ public class LambdaController {
 	public static Object createLambda(final Request request, final Response response) throws IOException {
 		final LambdaRequest  lambdaRequest = new ObjectMapper().readValue(request.body(), LambdaRequest.class);
 		final AbstractLambda lambda        = LambdaFacade.getInstance().getFactory().createLambda();
+		final Runtime        runtime       = RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime());
+		
+		if (runtime == null) throw new RuntimeNotFoundException(lambdaRequest.getRuntime());
 		
 		lambda.setAsync(lambdaRequest.getAsync());
 		lambda.setOwner(User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user"))));
 		lambda.setName(request.params(":name"));
-		lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime()));
+		lambda.setRuntime(runtime);
 		lambda.deployBinary(lambdaRequest.getSrc());
 		lambda.save();
 		
