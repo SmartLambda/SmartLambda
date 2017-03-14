@@ -86,7 +86,7 @@ public class LambdaController {
 			lambda.setRuntime(runtime);
 		}
 		if (lambdaRequest.getSrc() != null) {
-			if (lambdaRequest.getSrc() == null || lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
+			if (lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
 			
 			lambda.deployBinary(lambdaRequest.getSrc());
 		}
