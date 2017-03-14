@@ -133,7 +133,7 @@ public class LambdaController {
 		
 		if ((lambda.isAsync() && lambdaExecutionRequest.async == null) ||
 				(lambdaExecutionRequest.async != null && lambdaExecutionRequest.async)) {
-			lambda.executeAsync(lambdaExecutionRequest.getParameters().toString());
+			lambda.executeAsync(lambdaExecutionRequest.getParameters() != null ? lambdaExecutionRequest.getParameters().toString() : "");
 			response.status(202);
 			return "";
 		} else {
