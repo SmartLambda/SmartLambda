@@ -2,12 +2,14 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaDecorator;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.utility.TestUtility;
 import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Transaction;
 import org.junit.After;
@@ -68,11 +70,33 @@ public class KeyTest {
 	}
 	
 	@Test
-	public void grantToAndUseGrant() throws Exception {
-		Key key2 = this.user.createKey("KeyTest.grantToAndUseGrant").getLeft();
+	public void grantUserPermissionToOtherKey() throws Exception {
+		final Key key2 = this.user.createKey("KeyTest.grantUserPermissionToOtherKey").getLeft();
 		AuthenticationService.getInstance().authenticate(this.key);
 		key2.grantPermission(this.user, PermissionType.DELETE);
 		Assert.assertTrue(key2.hasPermission(this.user, PermissionType.DELETE));
+	}
+	
+	@Test
+	public void grantLambdaPermissionToOtherKey() throws Exception {
+		final Key key2 = this.user.createKey("KeyTest.grantLambdaPermissionToOtherKey").getLeft();
+		AuthenticationService.getInstance().authenticate(this.key);
+		key2.grantPermission(this.lambda, PermissionType.DELETE);
+		Assert.assertTrue(key2.hasPermission(this.lambda, PermissionType.DELETE));
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void grantUserPermissionWithoutPermission() throws Exception{
+		final Key otherKey = this.user.createKey("KeyTest.grantUserPermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.grantPermission(this.user, PermissionType.CREATE);
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void grantLambdaPermissionWithoutPermission() throws Exception{
+		final Key otherKey = this.user.createKey("KeyTest.grantUserPermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.grantPermission(this.lambda, PermissionType.CREATE);
 	}
 	
 	@Test
@@ -115,13 +139,30 @@ public class KeyTest {
 		Assert.assertFalse(Key.getKeyById(id).isPresent());
 	}
 	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void deleteWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.deleteWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.delete();
+	}
+	
 	@Test
 	public void revokePermission() throws Exception {
 		Assert.assertTrue(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
-		System.out.println(this.key.getPermissions().toString());
 		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
-		System.out.println(this.key.getPermissions().toString());
 		Assert.assertFalse(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void revokePermissionWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.revokePermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
+	}
+	
+	@Test
+	public void testGettersAndSetters() throws Exception{
+		TestUtility.testGettersAndSetters(this.key);
 	}
 	
 	@Test
@@ -132,5 +173,17 @@ public class KeyTest {
 			got.add(perm.getPermissionType());
 		}
 		Assert.assertFalse(got.contains(PermissionType.GRANT));
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void revokePermissionUserWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.revokePermissionUserWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.revokePermission(this.user, PermissionType.GRANT);
+	}
+	
+	@Test
+	public void getVisiblePermissions() throws Exception {
+		//TODO
 	}
 }
