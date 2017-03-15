@@ -7,7 +7,10 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
+import edu.teco.smartlambda.rest.exception.MissingSourceException;
+import edu.teco.smartlambda.rest.exception.RuntimeNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
+import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import lombok.Data;
@@ -38,7 +41,6 @@ public class LambdaController {
 		private String  name;
 		private boolean async;
 		private String  runtime;
-		private byte[]  src;
 	}
 	
 	@Data
@@ -51,11 +53,15 @@ public class LambdaController {
 	public static Object createLambda(final Request request, final Response response) throws IOException {
 		final LambdaRequest  lambdaRequest = new ObjectMapper().readValue(request.body(), LambdaRequest.class);
 		final AbstractLambda lambda        = LambdaFacade.getInstance().getFactory().createLambda();
+		final Runtime        runtime       = RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime());
+		
+		if (runtime == null) throw new RuntimeNotFoundException(lambdaRequest.getRuntime());
+		if (lambdaRequest.getSrc() == null || lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
 		
 		lambda.setAsync(lambdaRequest.getAsync());
 		lambda.setOwner(User.getByName(request.params(":user")).orElseThrow(() -> new UserNotFoundException(request.params(":user"))));
 		lambda.setName(request.params(":name"));
-		lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime()));
+		lambda.setRuntime(runtime);
 		lambda.deployBinary(lambdaRequest.getSrc());
 		lambda.save();
 		
@@ -71,9 +77,18 @@ public class LambdaController {
 				.orElseThrow(() -> new LambdaNotFoundException(name));
 		
 		if (lambdaRequest.getAsync() != null) lambda.setAsync(lambdaRequest.getAsync());
-		if (lambdaRequest.getRuntime() != null)
-			lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime()));
-		if (lambdaRequest.getSrc() != null) lambda.deployBinary(lambdaRequest.getSrc());
+		if (lambdaRequest.getRuntime() != null) {
+			final Runtime runtime = RuntimeRegistry.getInstance().getRuntimeByName(lambdaRequest.getRuntime());
+			
+			if (runtime == null) throw new RuntimeNotFoundException(lambdaRequest.getRuntime());
+			
+			lambda.setRuntime(runtime);
+		}
+		if (lambdaRequest.getSrc() != null) {
+			if (lambdaRequest.getSrc().length == 0) throw new MissingSourceException();
+			
+			lambda.deployBinary(lambdaRequest.getSrc());
+		}
 		lambda.update();
 		
 		response.status(200);
@@ -118,14 +133,20 @@ public class LambdaController {
 		
 		if ((lambda.isAsync() && lambdaExecutionRequest.async == null) ||
 				(lambdaExecutionRequest.async != null && lambdaExecutionRequest.async)) {
-			lambda.executeAsync(lambdaExecutionRequest.getParameters().toString());
-			response.status(200);
+			lambda.executeAsync(lambdaExecutionRequest.getParameters() != null ? lambdaExecutionRequest.getParameters().toString() : "");
+			response.status(202);
 			return "";
 		} else {
-			final ExecutionReturnValue executionReturnValue =
-					lambda.executeSync(lambdaExecutionRequest.getParameters().toString()).getExecutionReturnValue();
-			response.status(200);
-			return executionReturnValue.getReturnValue().orElse(null);
+			final ExecutionReturnValue executionReturnValue = lambda.executeSync(
+					lambdaExecutionRequest.getParameters() != null ? lambdaExecutionRequest.getParameters().toString() : "")
+					.getExecutionReturnValue();
+			if (executionReturnValue.isException()) {
+				response.status(502);
+				return "";
+			} else {
+				response.status(200);
+				return executionReturnValue.getReturnValue().orElse("");
+			}
 		}
 	}
 	
@@ -133,7 +154,7 @@ public class LambdaController {
 		final List<LambdaResponse> lambdas = new LinkedList<>();
 		
 		for (final AbstractLambda lambda : User.getByName(request.params(":user"))
-				.orElseThrow(() -> new UserNotFoundException(request.params(":name"))).getVisibleLambdas()) {
+				.orElseThrow(() -> new UserNotFoundException(request.params(":user"))).getVisibleLambdas()) {
 			final LambdaResponse lambdaResponse = new LambdaResponse();
 			lambdaResponse.setName(lambda.getName());
 			lambdaResponse.setUser(lambda.getOwner().getName());
