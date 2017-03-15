@@ -382,14 +382,14 @@ public class LambdaControllerTest {
 	public void executeLambdaException() throws Exception {
 		final ExecutionReturnValue executionReturnValue = new ExecutionReturnValue("", new Exception().fillInStackTrace());
 		
-		final Triple<Response, AbstractLambda, Object> resullt =
+		final Triple<Response, AbstractLambda, Object> result =
 				this.doExecuteLambda(new LambdaExecutionRequest(false, null), true, executionReturnValue);
-		verify(resullt.getMiddle()).executeSync("");
-		verify(resullt.getMiddle(), new AtMost(1)).isAsync();
-		verifyNoMoreInteractions(resullt.getMiddle());
+		verify(result.getMiddle()).executeSync("");
+		verify(result.getMiddle(), new AtMost(1)).isAsync();
+		verifyNoMoreInteractions(result.getMiddle());
 		
-		verify(resullt.getLeft()).status(502);
-		assertEquals("", resullt.getRight());
+		verify(result.getLeft()).status(502);
+		assertEquals("", result.getRight());
 	}
 	
 	@Test
