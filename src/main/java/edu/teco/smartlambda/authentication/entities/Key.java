@@ -79,6 +79,14 @@ public class Key {
 		return new HashSet<>(select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()));
 	}
 	
+	/**
+	 * Returns a Set of Permissions of the following Types:
+	 * 1. User-Permissions of this Key for the currently authenticated User
+	 * 2. Lambda-Permissions of this Key for the currently authenticated Users Lambdas
+	 * 3. User-Permissions with the PermissionType GRANT of the currently authenticated Key for the User of this Key
+	 * 4. Lambda-Permissions with the PermissionType GRANT of the currently authenticated Key for this Keys Users Lambdas
+	 * @return Set of those Permissions
+	 */
 	public Set<Permission> getVisiblePermissions() {
 		final User authenticatedUser =
 				AuthenticationService.getInstance().getAuthenticatedUser().orElseThrow(NotAuthenticatedException::new);
