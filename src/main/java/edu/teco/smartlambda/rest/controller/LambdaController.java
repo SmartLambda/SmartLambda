@@ -154,7 +154,7 @@ public class LambdaController {
 		final List<LambdaResponse> lambdas = new LinkedList<>();
 		
 		for (final AbstractLambda lambda : User.getByName(request.params(":user"))
-				.orElseThrow(() -> new UserNotFoundException(request.params(":name"))).getVisibleLambdas()) {
+				.orElseThrow(() -> new UserNotFoundException(request.params(":user"))).getVisibleLambdas()) {
 			final LambdaResponse lambdaResponse = new LambdaResponse();
 			lambdaResponse.setName(lambda.getName());
 			lambdaResponse.setUser(lambda.getOwner().getName());
