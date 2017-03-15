@@ -9,7 +9,6 @@ import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaDecorator;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
-import edu.teco.smartlambda.utility.TestUtility;
 import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Transaction;
 import org.junit.After;
@@ -160,10 +159,7 @@ public class KeyTest {
 		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
 	}
 	
-	@Test
-	public void testGettersAndSetters() throws Exception{
-		TestUtility.testGettersAndSetters(this.key);
-	}
+	//TODO Cover Lombok Getters/Setters
 	
 	@Test
 	public void revokePermissionUser() throws Exception {
