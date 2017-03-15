@@ -180,6 +180,60 @@ public class KeyTest {
 	
 	@Test
 	public void getVisiblePermissions() throws Exception {
-		//TODO
+		final AuthenticationService as = AuthenticationService.getInstance();
+		
+		final Map<String, String> params1 = new HashMap<>();
+		params1.put("name", "KeyTest.getVisiblePermissions.User1");
+		final User user1 = new NullIdentityProvider().register(params1).getLeft();
+		final Key  key1  = user1.getPrimaryKey();
+
+		this.lambda.setOwner(user1);
+		this.lambda.save();
+
+		
+		final Map<String, String> params2 = new HashMap<>();
+		params2.put("name", "KeyTest.getVisiblePermissions.User2");
+		final User user2 = new NullIdentityProvider().register(params2).getLeft();
+		final Key  key2  = user2.getPrimaryKey();
+		
+		as.authenticate(key1);
+		
+		//1. User-Permissions of this Key for the currently authenticated User
+		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
+		key2.grantPermission(user1, PermissionType.CREATE);
+		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
+		
+		//2. Lambda-Permissions of this Key for the currently authenticated Users Lambdas
+		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
+		key2.grantPermission(this.lambda, PermissionType.READ);
+		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
+		
+		//3. User-Permissions with the PermissionType GRANT of the currently authenticated Key for the User of this Key
+		//TODO Part 3
+		
+		//4. Lambda-Permissions with the PermissionType GRANT of the currently authenticated Key for this Keys Users Lambdas
+		//TODO Part 4
+	}
+	
+	private boolean containsPermission(final Set<Permission> permissions, final User user, final PermissionType type) {
+		for (final Permission permission : permissions) {
+			if (permission != null && permission.getUser() != null && permission.getPermissionType() != null) {
+				if (permission.getUser().equals(user) && permission.getPermissionType().equals(type)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean containsPermission(final Set<Permission> permissions, final Lambda lambda, final PermissionType type) {
+		for (final Permission permission : permissions) {
+			if (permission != null && permission.getLambda() != null && permission.getPermissionType() != null) {
+				if (permission.getLambda().equals(lambda) && permission.getPermissionType().equals(type)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
