@@ -33,7 +33,7 @@ public class RuntimeRegistry {
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				LoggerFactory.getLogger(RuntimeRegistry.class).error("Exception while loading runtime");
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
+			} catch (final ClassNotFoundException e) {
 				LoggerFactory.getLogger(RuntimeRegistry.class).error("Runtime " + runtime + " not found");
 			}
 		}
@@ -45,6 +45,6 @@ public class RuntimeRegistry {
 	}
 	
 	public Runtime getRuntimeByName(final String name) {
-		return runtimes.get(name);
+		return this.runtimes.get(name);
 	}
 }
