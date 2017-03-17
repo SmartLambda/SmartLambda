@@ -196,23 +196,44 @@ public class KeyTest {
 		final User user2 = new NullIdentityProvider().register(params2).getLeft();
 		final Key  key2  = user2.getPrimaryKey();
 		
+		
+		final Map<String, String> params3 = new HashMap<>();
+		params3.put("name", "KeyTest.getVisiblePermissions.User3");
+		final User user3 = new NullIdentityProvider().register(params3).getLeft();
+		final Key  key3  = user2.getPrimaryKey();
+		
 		as.authenticate(key1);
 		
 		//1. User-Permissions of this Key for the currently authenticated User
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
 		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
 		key2.grantPermission(user1, PermissionType.CREATE);
 		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
 		
 		//2. Lambda-Permissions of this Key for the currently authenticated Users Lambdas
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
 		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
 		key2.grantPermission(this.lambda, PermissionType.READ);
 		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
 		
-		//3. User-Permissions with the PermissionType GRANT of the currently authenticated Key for the User of this Key
-		//TODO Part 3
+		//3. User-Permissions of this Key, sharing a User with the currently authenticated Keys GRANT-Permissions
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key3.getVisiblePermissions(), user1, PermissionType.PATCH));
+		key2.grantPermission(user1, PermissionType.GRANT);
+		key3.grantPermission(user1, PermissionType.PATCH);
+		as.authenticate(key2);
+		Assert.assertTrue(this.containsPermission(key3.getVisiblePermissions(), user1, PermissionType.PATCH));
+		as.authenticate(key1);
 		
-		//4. Lambda-Permissions with the PermissionType GRANT of the currently authenticated Key for this Keys Users Lambdas
-		//TODO Part 4
+		//4. Lambda-Permissions of this Key, sharing a Lambda with the currently authenticated Keys GRANT-Permissions
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key3.getVisiblePermissions(), this.lambda, PermissionType.STATUS));
+		key2.revokePermission(user1, PermissionType.GRANT);//revoke user-permission because otherwise lambda-permission wouldn't be set
+		key2.grantPermission(this.lambda, PermissionType.GRANT);
+		key3.grantPermission(this.lambda, PermissionType.STATUS);
+		as.authenticate(key2);
+		Assert.assertTrue(this.containsPermission(key3.getVisiblePermissions(), this.lambda, PermissionType.STATUS));
+		as.authenticate(key1);
 	}
 	
 	private boolean containsPermission(final Set<Permission> permissions, final User user, final PermissionType type) {
