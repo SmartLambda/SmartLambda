@@ -11,7 +11,6 @@ import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,11 +37,6 @@ public class MonitoringServiceTest {
 	private        MonitoringEvent saveEvent;
 	private        User            user;
 	private static SessionFactory  sessionFactory;
-	
-	/*@BeforeClass
-	public static void initialSetUp() {
-		sessionFactory.getCurrentSession().beginTransaction();
-	}*/
 	
 	@Before
 	public void setUp() {
@@ -148,13 +142,5 @@ public class MonitoringServiceTest {
 	public void onLambdaExecutionStartNotAuthenticatedExceptionTest() {
 		ThreadManager.getExecutorService().submit(AuthenticationService::getInstance);
 		this.monitoringService.onLambdaExecutionStart(this.lambda);
-	}
-	
-	@After
-	public void tearDown() {
-		/*Session session = sessionFactory.getCurrentSession();
-		if(actualEvent != null) {
-		session.delete(this.actualEvent); } */
-		
 	}
 }
