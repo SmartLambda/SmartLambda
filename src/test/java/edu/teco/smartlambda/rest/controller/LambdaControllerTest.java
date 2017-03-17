@@ -7,6 +7,7 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
+import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.runtime.ExecutionResult;
@@ -35,6 +36,8 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -462,5 +465,48 @@ public class LambdaControllerTest {
 	
 	@Test
 	public void getStatistics() throws Exception {
+		final Request               request             = mock(Request.class);
+		final Response              response            = mock(Response.class);
+		final AbstractLambda        lambda              = mock(AbstractLambda.class);
+		final List<MonitoringEvent> monitoringEventList = new LinkedList<>();
+		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(TEST_LAMBDA_NAME);
+		
+		MonitoringEvent monitoringEvent = mock(MonitoringEvent.class);
+		when(monitoringEvent.getDuration()).thenReturn(42L);
+		when(monitoringEvent.getError()).thenReturn("abc");
+		monitoringEventList.add(monitoringEvent);
+		
+		monitoringEvent = mock(MonitoringEvent.class);
+		when(monitoringEvent.getDuration()).thenReturn(1337L);
+		when(monitoringEvent.getError()).thenReturn(null);
+		monitoringEventList.add(monitoringEvent);
+		
+		monitoringEvent = mock(MonitoringEvent.class);
+		when(monitoringEvent.getDuration()).thenReturn(5L);
+		when(monitoringEvent.getError()).thenReturn("xyz");
+		monitoringEventList.add(monitoringEvent);
+		
+		when(lambda.getMonitoringEvents()).thenReturn(monitoringEventList);
+		
+		when(this.lambdaFactory.getLambdaByOwnerAndName(this.testUser, TEST_LAMBDA_NAME)).thenReturn(Optional.of(lambda));
+		
+		final Object result               = LambdaController.getStatistics(request, response);
+		final Field  executions           = result.getClass().getDeclaredField("executions");
+		final Field  averageExecutionTime = result.getClass().getDeclaredField("averageExecutionTime");
+		final Field  errors               = result.getClass().getDeclaredField("errors");
+		
+		assertEquals(3, result.getClass().getDeclaredFields().length);
+		
+		executions.setAccessible(true);
+		averageExecutionTime.setAccessible(true);
+		errors.setAccessible(true);
+		
+		assertEquals(3L, executions.get(result));
+		assertEquals(461L, averageExecutionTime.get(result));
+		assertEquals(2L, errors.get(result));
+		
+		verify(response).status(200);
 	}
 }
