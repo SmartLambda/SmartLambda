@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.lambda.AbstractLambda;
+import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
 import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
@@ -31,11 +32,16 @@ import spark.Response;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -210,24 +216,7 @@ public class LambdaControllerTest {
 		verifyNoMoreInteractions(lambda);
 	}
 	
-	private Pair<Response, LambdaResponse> doReadLambda(final String lambdaName) throws Exception {
-		final AbstractLambda lambda = mock(AbstractLambda.class);
-		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
-		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
-		
-		when(lambda.getName()).thenReturn(TEST_LAMBDA_NAME);
-		when(lambda.getOwner()).thenReturn(this.testUser);
-		when(lambda.getRuntime()).thenReturn(this.testRuntime);
-		when(lambda.isAsync()).thenReturn(true);
-		
-		final Request request = mock(Request.class);
-		
-		when(request.params(":user")).thenReturn(TEST_USER_NAME);
-		when(request.params(":name")).thenReturn(lambdaName);
-		
-		final Response response = mock(Response.class);
-		final Object   object   = LambdaController.readLambda(request, response);
-		
+	private LambdaResponse validateLambdaResponseObject(final Object object) throws Exception {
 		final Field user    = object.getClass().getDeclaredField("user");
 		final Field name    = object.getClass().getDeclaredField("name");
 		final Field async   = object.getClass().getDeclaredField("async");
@@ -249,9 +238,29 @@ public class LambdaControllerTest {
 		async.setAccessible(true);
 		runtime.setAccessible(true);
 		
-		return new ImmutablePair<>(response,
-				new LambdaResponse((String) user.get(object), (String) name.get(object), (Boolean) async.get(object),
-						(String) runtime.get(object)));
+		return new LambdaResponse((String) user.get(object), (String) name.get(object), (Boolean) async.get(object),
+				(String) runtime.get(object));
+	}
+	
+	private Pair<Response, LambdaResponse> doReadLambda(final String lambdaName) throws Exception {
+		final AbstractLambda lambda = mock(AbstractLambda.class);
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), anyString())).thenReturn(Optional.empty());
+		when(this.lambdaFactory.getLambdaByOwnerAndName(eq(this.testUser), eq(TEST_LAMBDA_NAME))).thenReturn(Optional.ofNullable(lambda));
+		
+		when(lambda.getName()).thenReturn(TEST_LAMBDA_NAME);
+		when(lambda.getOwner()).thenReturn(this.testUser);
+		when(lambda.getRuntime()).thenReturn(this.testRuntime);
+		when(lambda.isAsync()).thenReturn(true);
+		
+		final Request request = mock(Request.class);
+		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(lambdaName);
+		
+		final Response response = mock(Response.class);
+		final Object   object   = LambdaController.readLambda(request, response);
+		
+		return new ImmutablePair<>(response, this.validateLambdaResponseObject(object));
 	}
 	
 	@Test
@@ -394,11 +403,64 @@ public class LambdaControllerTest {
 	
 	@Test
 	public void getLambdaList() throws Exception {
+		final Request             request  = mock(Request.class);
+		final Response            response = mock(Response.class);
+		final Set<AbstractLambda> lambdas  = new HashSet<>();
 		
+		Lambda lambda = mock(Lambda.class);
+		when(lambda.getOwner()).thenReturn(this.testUser);
+		when(lambda.getName()).thenReturn(TEST_LAMBDA_NAME);
+		when(lambda.getRuntime()).thenReturn(this.testRuntime);
+		when(lambda.isAsync()).thenReturn(true);
+		lambdas.add(lambda);
+		
+		lambda = mock(Lambda.class);
+		when(lambda.getOwner()).thenReturn(this.testUser);
+		when(lambda.getName()).thenReturn(TEST_LAMBDA_NAME + "2");
+		when(lambda.getRuntime()).thenReturn(this.testRuntime);
+		when(lambda.isAsync()).thenReturn(false);
+		lambdas.add(lambda);
+		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(this.testUser.getVisibleLambdas()).thenReturn(lambdas);
+		
+		final Object result = LambdaController.getLambdaList(request, response);
+		assertTrue(result instanceof Collection);
+		final Collection collection = (Collection) result;
+		assertEquals(2, collection.size());
+		final Iterator iterator = collection.iterator();
+		
+		final String  nextName;
+		final boolean nextAsync;
+		
+		LambdaResponse lambdaResponse = this.validateLambdaResponseObject(iterator.next());
+		
+		assertEquals(this.testUser.getName(), lambdaResponse.getUser());
+		assertEquals(TEST_RUNTIME, lambdaResponse.getRuntime());
+		
+		if (lambdaResponse.getName().equals(TEST_LAMBDA_NAME + "2")) {
+			nextName = TEST_LAMBDA_NAME;
+			nextAsync = true;
+			
+			assertEquals(TEST_LAMBDA_NAME + "2", lambdaResponse.getName());
+			assertEquals(false, lambdaResponse.getAsync());
+		} else {
+			nextName = TEST_LAMBDA_NAME + "2";
+			nextAsync = false;
+			
+			assertEquals(TEST_LAMBDA_NAME, lambdaResponse.getName());
+			assertEquals(true, lambdaResponse.getAsync());
+		}
+		
+		lambdaResponse = this.validateLambdaResponseObject(iterator.next());
+		
+		assertEquals(this.testUser.getName(), lambdaResponse.getUser());
+		assertEquals(TEST_RUNTIME, lambdaResponse.getRuntime());
+		assertEquals(nextName, lambdaResponse.getName());
+		assertEquals(nextAsync, lambdaResponse.getAsync());
 	}
 	
 	@Test
 	public void getStatistics() throws Exception {
-		
 	}
 }
