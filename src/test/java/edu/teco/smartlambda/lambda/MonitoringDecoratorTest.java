@@ -1,5 +1,8 @@
 package edu.teco.smartlambda.lambda;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
@@ -7,6 +10,7 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -14,12 +18,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 /**
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(MonitoringService.class)
+@PrepareForTest({MonitoringService.class, Futures.class})
 public class MonitoringDecoratorTest {
 	
 	private MonitoringDecorator monitoredLambda;
@@ -56,7 +61,18 @@ public class MonitoringDecoratorTest {
 	
 	@Test
 	public void executeAsync() throws Exception {
-		// TODO
+		mockStatic(Futures.class);
+		
+		this.monitoredLambda.executeAsync("");
+		verify(this.mockedMonitoringService).onLambdaExecutionStart(this.innerLambda);
+		verify(this.innerLambda).executeAsync("");
+		
+		final ArgumentCaptor<ListenableFuture> captorFuture   = ArgumentCaptor.forClass(ListenableFuture.class);
+		final ArgumentCaptor<FutureCallback>   captorCallback = ArgumentCaptor.forClass(FutureCallback.class);
+		
+		verifyStatic();
+		//noinspection unchecked
+		Futures.addCallback(captorFuture.capture(), captorCallback.capture());
 	}
 	
 	@Test
