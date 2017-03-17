@@ -9,37 +9,70 @@ import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Calendar;
+import java.util.Optional;
 
-import static org.torpedoquery.jpa.Torpedo.from;
-import static org.torpedoquery.jpa.Torpedo.select;
-import static org.torpedoquery.jpa.Torpedo.where;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Application.class, AuthenticationService.class})
 public class MonitoringServiceTest {
 	
 	private AbstractLambda lambda;
 	private final MonitoringService monitoringService = MonitoringService.getInstance();
-	private MonitoringEvent actualEvent;
+	private        MonitoringEvent actualEvent;
+	private        MonitoringEvent saveEvent;
+	private        User            user;
+	private static SessionFactory  sessionFactory;
+	
+	/*@BeforeClass
+	public static void initialSetUp() {
+		sessionFactory.getCurrentSession().beginTransaction();
+	}*/
 	
 	@Before
 	public void setUp() {
+		sessionFactory = Mockito.mock(SessionFactory.class);
+		Session     session = Mockito.mock(Session.class);
+		Application app     = Mockito.mock(Application.class);
+		PowerMockito.mockStatic(Application.class);
+		PowerMockito.when(Application.getInstance()).thenReturn(app);
+		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(sessionFactory);
+		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
+		
+		PowerMockito.when(session.save(any(MonitoringEvent.class))).thenAnswer(invocation -> {
+			saveEvent = (MonitoringEvent) invocation.getArguments()[0];
+			return null;
+		});
 		this.lambda = Mockito.mock(Lambda.class);
 		Mockito.when(this.lambda.getName()).thenReturn("test");
 		Mockito.when(this.lambda.getOwner()).thenReturn(Mockito.mock(User.class));
 	}
 	
+	private void mockAuthentication() {
+		PowerMockito.mockStatic(AuthenticationService.class);
+		AuthenticationService authService = Mockito.mock(AuthenticationService.class);
+		PowerMockito.when(AuthenticationService.getInstance()).thenReturn(authService);
+		PowerMockito.when(authService.getAuthenticatedKey()).thenReturn(Optional.of(Mockito.mock(Key.class)));
+	}
+	
 	@Test
 	public void onLambdaExecutionStartTest() {
-		AuthenticationService.getInstance().authenticate(Mockito.mock(Key.class));
+		this.mockAuthentication();
 		this.actualEvent = this.monitoringService.onLambdaExecutionStart(this.lambda);
 		
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.EXECUTION,
@@ -55,22 +88,18 @@ public class MonitoringServiceTest {
 	
 	@Test
 	public void onLambdaExecutionEndErrorTest() {
-		AuthenticationService.getInstance().authenticate(Mockito.mock(Key.class));
+		this.mockAuthentication();
 		final Exception e = new NullPointerException("");
 		this.actualEvent = this.monitoringService.onLambdaExecutionStart(this.lambda);
 		this.monitoringService.onLambdaExecutionEnd(this.lambda, 0, new ExecutionReturnValue(null, e), this.actualEvent);
 		
+		final ExecutionReturnValue exRetVal = new ExecutionReturnValue(null, e);
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.EXECUTION,
 				AuthenticationService.getInstance().getAuthenticatedKey().orElse(null));
 		expectedEvent.setTime(this.actualEvent.getTime());
-		expectedEvent.setError(e.getStackTrace().toString());
-		expectedEvent.setDuration(Calendar.getInstance().getTimeInMillis() - expectedEvent.getTime().getTimeInMillis());
+		expectedEvent.setError(exRetVal.getException().get());
+		expectedEvent.setDuration(this.actualEvent.getDuration());
 		expectedEvent.setCPUTime(0);
-		
-		final MonitoringEvent query = from(MonitoringEvent.class);
-		where(query.getLambdaName()).eq(this.actualEvent.getLambdaName()).and(query.getLambdaOwner()).eq(this.actualEvent.getLambdaOwner
-				());
-		this.actualEvent = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 		
 		Assert.assertTrue((expectedEvent.getTime().equals(this.actualEvent.getTime())) &&
 				(expectedEvent.getLambdaName().equals(this.actualEvent.getLambdaName())) &&
@@ -82,15 +111,12 @@ public class MonitoringServiceTest {
 	
 	@Test
 	public void onLambdaDeletionTest() {
-		AuthenticationService.getInstance().authenticate(Mockito.mock(Key.class));
+		this.mockAuthentication();
 		this.monitoringService.onLambdaDeletion(this.lambda);
 		
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.DELETION,
 				AuthenticationService.getInstance().getAuthenticatedKey().get());
 		
-		final MonitoringEvent query = from(MonitoringEvent.class);
-		where(query.getLambdaName()).eq(expectedEvent.getLambdaName()).and(query.getLambdaOwner()).eq(expectedEvent.getLambdaOwner());
-		this.actualEvent = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 		expectedEvent.setTime(this.actualEvent.getTime());
 		
 		Assert.assertTrue((expectedEvent.getTime().equals(this.actualEvent.getTime())) &&
@@ -102,14 +128,11 @@ public class MonitoringServiceTest {
 	
 	@Test
 	public void onLambdaDeploymentTest() {
-		AuthenticationService.getInstance().authenticate(Mockito.mock(Key.class));
-		this.monitoringService.onLambdaDeletion(this.lambda);
+		this.mockAuthentication();
+		this.monitoringService.onLambdaDeployment(this.lambda);
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.DEPLOYMENT,
 				AuthenticationService.getInstance().getAuthenticatedKey().get());
 		
-		final MonitoringEvent query = from(MonitoringEvent.class);
-		where(query.getLambdaName()).eq(expectedEvent.getLambdaName()).and(query.getLambdaOwner()).eq(expectedEvent.getLambdaOwner());
-		this.actualEvent = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession()).get();
 		expectedEvent.setTime(this.actualEvent.getTime());
 		
 		Assert.assertTrue((expectedEvent.getTime().equals(this.actualEvent.getTime())) &&
@@ -127,6 +150,9 @@ public class MonitoringServiceTest {
 	
 	@After
 	public void tearDown() {
-		Application.getInstance().getSessionFactory().getCurrentSession().delete(this.actualEvent);
+		/*Session session = sessionFactory.getCurrentSession();
+		if(actualEvent != null) {
+		session.delete(this.actualEvent); } */
+		
 	}
 }
