@@ -83,8 +83,8 @@ public class Key {
 	 * Returns a Set of Permissions of the following Types:
 	 * 1. User-Permissions of this Key for the currently authenticated User
 	 * 2. Lambda-Permissions of this Key for the currently authenticated Users Lambdas
-	 * 3. User-Permissions with the PermissionType GRANT of the currently authenticated Key for the User of this Key
-	 * 4. Lambda-Permissions with the PermissionType GRANT of the currently authenticated Key for this Keys Users Lambdas
+	 * 3. User-Permissions of this Key, sharing a User with the currently authenticated Keys GRANT-Permissions
+	 * 4. Lambda-Permissions of this Key, sharing a Lambda with the currently authenticated Keys GRANT-Permissions
 	 * @return Set of those Permissions
 	 */
 	public Set<Permission> getVisiblePermissions() {
@@ -182,7 +182,7 @@ public class Key {
 	
 	/**
 	 * Adds a Permission for the supplied lambda of the supplied type to this Key Object
-	 * Adding an already existing Permission doesn't change anything
+	 * Adding an already existing Permission or a Permission where the equivalent User-Permission exists, doesn't change anything
 	 *
 	 * @param lambda the supplied Lambda
 	 * @param type   the supplied Type
