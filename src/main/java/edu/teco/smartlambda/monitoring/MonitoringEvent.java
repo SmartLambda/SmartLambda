@@ -27,6 +27,7 @@ public class MonitoringEvent {
 	
 	@Temporal(TemporalType.DATE)
 	@Getter
+	@Setter
 	private Calendar            time;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "lambdaOwner")

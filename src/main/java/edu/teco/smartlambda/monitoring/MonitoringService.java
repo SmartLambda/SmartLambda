@@ -14,7 +14,6 @@ import java.util.Calendar;
 public class MonitoringService {
 	
 	private static ThreadLocal<MonitoringService> instance;
-	private final AuthenticationService authenticationService = AuthenticationService.getInstance();
 	
 	public MonitoringService() {}
 	
@@ -36,7 +35,7 @@ public class MonitoringService {
 	 */
 	public MonitoringEvent onLambdaExecutionStart(final AbstractLambda lambda) {
 		return new MonitoringEvent(lambda, MonitoringEvent.MonitoringEventType.EXECUTION,
-				this.authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
+				AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 	}
 	
 	/**
@@ -63,7 +62,7 @@ public class MonitoringService {
 	 */
 	public void onLambdaDeletion(final AbstractLambda lambda) {
 		final MonitoringEvent monitoringEvent = new MonitoringEvent(lambda, MonitoringEvent.MonitoringEventType.DELETION,
-				this.authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
+				AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 		monitoringEvent.save();
 	}
 	
@@ -74,7 +73,7 @@ public class MonitoringService {
 	 */
 	public void onLambdaDeployment(final AbstractLambda lambda) {
 		final MonitoringEvent monitoringEvent = new MonitoringEvent(lambda, MonitoringEvent.MonitoringEventType.DEPLOYMENT,
-				this.authenticationService.getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
+				AuthenticationService.getInstance().getAuthenticatedKey().orElseThrow(NotAuthenticatedException::new));
 		monitoringEvent.save();
 	}
 }
