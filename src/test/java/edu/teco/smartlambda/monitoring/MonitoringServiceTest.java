@@ -113,6 +113,7 @@ public class MonitoringServiceTest {
 	public void onLambdaDeletionTest() {
 		this.mockAuthentication();
 		this.monitoringService.onLambdaDeletion(this.lambda);
+		this.actualEvent = this.saveEvent;
 		
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.DELETION,
 				AuthenticationService.getInstance().getAuthenticatedKey().get());
@@ -130,6 +131,7 @@ public class MonitoringServiceTest {
 	public void onLambdaDeploymentTest() {
 		this.mockAuthentication();
 		this.monitoringService.onLambdaDeployment(this.lambda);
+		this.actualEvent = this.saveEvent;
 		final MonitoringEvent expectedEvent = new MonitoringEvent(this.lambda, MonitoringEvent.MonitoringEventType.DEPLOYMENT,
 				AuthenticationService.getInstance().getAuthenticatedKey().get());
 		
