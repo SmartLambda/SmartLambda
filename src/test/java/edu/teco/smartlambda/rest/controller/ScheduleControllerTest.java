@@ -163,7 +163,21 @@ public class ScheduleControllerTest {
 	
 	@Test
 	public void deleteSchedule() throws Exception {
+		final Request  request  = mock(Request.class);
+		final Response response = mock(Response.class);
 		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(TEST_LAMBDA_NAME);
+		when(request.params(":event-name")).thenReturn(TEST_SCHEDULE_NAME);
+		
+		final Event event = mock(Event.class);
+		when(this.testLambda.getScheduledEvent(TEST_SCHEDULE_NAME)).thenReturn(Optional.of(event));
+		
+		assertEquals(Object.class, ScheduleController.deleteSchedule(request, response).getClass());
+		
+		verify(event).delete();
+		verifyNoMoreInteractions(event);
+		verify(response).status(200);
 	}
 	
 	@Test
