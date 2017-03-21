@@ -23,17 +23,17 @@ public class NullIdentityProviderTest {
 	
 	@After
 	public void tearDown() throws Exception {
-		Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
+		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
 		if (transaction.isActive()) transaction.rollback();
 	}
 	
 	@Test
 	public void testReturnValue() {
-		IdentityProvider    ip     = new NullIdentityProvider();
-		Map<String, String> params = new HashMap<>();
-		String              input  = "testname123";
+		final IdentityProvider    ip     = new NullIdentityProvider();
+		final Map<String, String> params = new HashMap<>();
+		final String              input  = "testname123";
 		params.put("name", input);
-		User user = ip.register(params).getLeft();
+		final User user = ip.register(params).getLeft();
 		Assert.assertEquals(input, user.getName());
 	}
 }

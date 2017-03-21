@@ -20,16 +20,16 @@ import static org.torpedoquery.jpa.Torpedo.where;
  */
 public class GitHubIdentityProviderTest {
 	//This shall be a personal GitHub authentication token from an existing GitHub-account. It's name is verified in gitHubAuthentication()
-	final String GITHUB_USERNAME = "";
-	final String GITHUB_TOKEN = "";
-	String token;
-	User user;
+	private final String GITHUB_USERNAME = "";
+	private final String GITHUB_TOKEN    = "";
+	private String token;
+	private User   user;
 	@Before
 	public void buildUp() {
 		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
 		final Map<String, String> params = new HashMap<>();
 
-		this.token = GITHUB_TOKEN;
+		this.token = this.GITHUB_TOKEN;
 		params.put("accessToken", this.token);
 		this.user = new GitHubIdentityProvider().register(params).getLeft();
 	}
@@ -52,6 +52,6 @@ public class GitHubIdentityProviderTest {
 	@Ignore
 	@Test
 	public void gitHubAuthentication() throws Exception{
-		Assert.assertTrue(this.user.getName().equals(GITHUB_USERNAME));
+		Assert.assertTrue(this.user.getName().equals(this.GITHUB_USERNAME));
 	}
 }
