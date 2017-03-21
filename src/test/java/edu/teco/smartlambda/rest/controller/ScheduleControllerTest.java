@@ -1,5 +1,6 @@
 package edu.teco.smartlambda.rest.controller;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.teco.smartlambda.authentication.AuthenticationService;
@@ -9,6 +10,8 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import edu.teco.smartlambda.lambda.LambdaFactory;
 import edu.teco.smartlambda.schedule.Event;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +23,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import spark.Request;
 import spark.Response;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -46,6 +50,14 @@ public class ScheduleControllerTest {
 	private static class ScheduleRequest {
 		private final String     calendar;
 		private final JsonObject parameters;
+	}
+	
+	@Data
+	@AllArgsConstructor
+	private static class ScheduleResponse {
+		private final String     name;
+		private final String     calendar;
+		private final ObjectNode parameters;
 	}
 	
 	@Before
@@ -118,7 +130,35 @@ public class ScheduleControllerTest {
 	
 	@Test
 	public void readSchedule() throws Exception {
+		final Request    request    = mock(Request.class);
+		final Response   response   = mock(Response.class);
+		final JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty(TEST_PARAMETER_NAME, TEST_PARAMETER_VALUE);
 		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(TEST_LAMBDA_NAME);
+		when(request.params(":event-name")).thenReturn(TEST_SCHEDULE_NAME);
+		
+		final Event event = mock(Event.class);
+		when(event.getName()).thenReturn(TEST_SCHEDULE_NAME);
+		when(event.getCronExpression()).thenReturn(TEST_CRON_EXPRESSION);
+		when(event.getParameters()).thenReturn(new Gson().toJson(jsonObject));
+		when(this.testLambda.getScheduledEvent(TEST_SCHEDULE_NAME)).thenReturn(Optional.of(event));
+		
+		final Object object     = ScheduleController.readSchedule(request, response);
+		final Field  name       = object.getClass().getDeclaredField("name");
+		final Field  parameters = object.getClass().getDeclaredField("parameters");
+		final Field  calendar   = object.getClass().getDeclaredField("calendar");
+		
+		assertEquals(3, object.getClass().getDeclaredFields().length);
+		name.setAccessible(true);
+		parameters.setAccessible(true);
+		calendar.setAccessible(true);
+		
+		assertEquals(TEST_SCHEDULE_NAME, name.get(object));
+		assertEquals(TEST_CRON_EXPRESSION, calendar.get(object));
+		assertEquals(new Gson().toJson(jsonObject), parameters.get(object));
+		verify(response).status(200);
 	}
 	
 	@Test
