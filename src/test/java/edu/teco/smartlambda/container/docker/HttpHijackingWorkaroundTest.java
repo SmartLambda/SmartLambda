@@ -25,6 +25,7 @@ public class HttpHijackingWorkaroundTest {
 	@Test
 	public void getOutputStream() throws Exception {
 		final DockerImageBuilder imageBuilder = new DockerImageBuilder();
+
 		try (InputStream binStream = HttpHijackingWorkaroundTest.class.getClassLoader().getResourceAsStream("lambda.jar")) {
 			assumeNotNull(binStream);
 			

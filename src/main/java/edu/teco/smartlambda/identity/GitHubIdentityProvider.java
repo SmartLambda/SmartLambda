@@ -52,8 +52,8 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		return NAME;
 	}
 	
-	private String gitHubRequest(String accessToken) {
-		String     name = null;
+	private String gitHubRequest(final String accessToken) {
+		final String name;
 		//TODO ask GitHub for the name, throw Exception otherwise on error throw InvalidCredentialsException
 		try {
 			final URL               url        = new URL(this.GITHUB_URL);

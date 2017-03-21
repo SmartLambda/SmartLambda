@@ -8,11 +8,11 @@ public class GitHubCredentialDuplicateException extends IdentityException{
 		super();
 	}
 	
-	public GitHubCredentialDuplicateException(Throwable cause) {
+	public GitHubCredentialDuplicateException(final Throwable cause) {
 		super(cause);
 	}
 	
-	public GitHubCredentialDuplicateException(String message) {
+	public GitHubCredentialDuplicateException(final String message) {
 		super(message);
 	}
 }
