@@ -27,6 +27,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -38,7 +39,7 @@ public class ScheduleControllerTest {
 	private static final String TEST_PARAMETER_NAME  = "TestParameter";
 	private static final String TEST_PARAMETER_VALUE = "TestParameterValue";
 	private static final String TEST_CRON_EXPRESSION = "30 01 * * *";
-	private AbstractLambda lambda;
+	private AbstractLambda testLambda;
 	private Key            testKey;
 	
 	@RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class ScheduleControllerTest {
 		PowerMockito.mockStatic(User.class);
 		PowerMockito.mockStatic(AuthenticationService.class);
 		
-		this.lambda = mock(AbstractLambda.class);
+		this.testLambda = mock(AbstractLambda.class);
 		final User user = mock(User.class);
 		
 		final LambdaFactory lambdaFactory = mock(LambdaFactory.class);
@@ -62,7 +63,7 @@ public class ScheduleControllerTest {
 		when(User.getByName(TEST_USER_NAME)).thenReturn(Optional.of(user));
 		when(LambdaFacade.getInstance()).thenReturn(lambdaFacade);
 		when(lambdaFacade.getFactory()).thenReturn(lambdaFactory);
-		when(lambdaFactory.getLambdaByOwnerAndName(user, TEST_LAMBDA_NAME)).thenReturn(Optional.of(this.lambda));
+		when(lambdaFactory.getLambdaByOwnerAndName(user, TEST_LAMBDA_NAME)).thenReturn(Optional.of(this.testLambda));
 		
 		this.testKey = mock(Key.class);
 		
@@ -85,7 +86,7 @@ public class ScheduleControllerTest {
 		
 		final Event[] event = new Event[1];
 		
-		doAnswer((InvocationOnMock invocation) -> event[0] = invocation.getArgument(0)).when(this.lambda).schedule(any());
+		doAnswer((InvocationOnMock invocation) -> event[0] = invocation.getArgument(0)).when(this.testLambda).schedule(any());
 		assertEquals(Object.class, ScheduleController.createSchedule(request, response).getClass());
 		
 		assertEquals(TEST_SCHEDULE_NAME, event[0].getName());
@@ -97,7 +98,22 @@ public class ScheduleControllerTest {
 	
 	@Test
 	public void updateSchedule() throws Exception {
+		final Request  request  = mock(Request.class);
+		final Response response = mock(Response.class);
 		
+		when(request.params(":user")).thenReturn(TEST_USER_NAME);
+		when(request.params(":name")).thenReturn(TEST_LAMBDA_NAME);
+		when(request.params(":event-name")).thenReturn(TEST_SCHEDULE_NAME);
+		when(request.body()).thenReturn(new Gson().toJson(new ScheduleRequest("0 0 * * *", null)));
+		
+		final Event event = mock(Event.class);
+		when(this.testLambda.getScheduledEvent(TEST_SCHEDULE_NAME)).thenReturn(Optional.of(event));
+		
+		assertEquals(Object.class, ScheduleController.updateSchedule(request, response).getClass());
+		
+		verify(event).setCronExpression("0 0 * * *");
+		verifyNoMoreInteractions(event);
+		verify(response).status(200);
 	}
 	
 	@Test
