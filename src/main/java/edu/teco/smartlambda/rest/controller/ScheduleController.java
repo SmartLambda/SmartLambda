@@ -48,7 +48,7 @@ public class ScheduleController {
 		lambda.schedule(event);
 		
 		response.status(201);
-		return null;
+		return new Object();
 	}
 	
 	public static Object updateSchedule(final Request request, final Response response) throws IOException {
@@ -66,7 +66,7 @@ public class ScheduleController {
 		if (scheduleRequest.getParameters() != null) event.setParameters(scheduleRequest.getParameters().toString());
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object readSchedule(final Request request, final Response response) {
@@ -96,7 +96,7 @@ public class ScheduleController {
 		event.delete();
 		
 		response.status(200);
-		return null;
+		return new Object();
 	}
 	
 	public static Object getScheduledEvents(final Request request, final Response response) {
