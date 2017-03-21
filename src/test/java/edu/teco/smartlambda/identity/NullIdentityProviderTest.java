@@ -2,6 +2,7 @@ package edu.teco.smartlambda.identity;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.utility.TestUtility;
 import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,5 +36,20 @@ public class NullIdentityProviderTest {
 		params.put("name", input);
 		final User user = ip.register(params).getLeft();
 		Assert.assertEquals(input, user.getName());
+	}
+	
+	@Test (expected = IdentitySyntaxException.class)
+	public void testNullParameter() {
+		new NullIdentityProvider().register(null);
+	}
+	
+	@Test (expected = IdentitySyntaxException.class)
+	public void testEmptyParameter() {
+		new NullIdentityProvider().register(new HashMap<>());
+	}
+	
+	@Test
+	public void testGettersAndSetters() throws Exception{
+		TestUtility.testGettersAndSetters(new NullIdentityProvider());
 	}
 }
