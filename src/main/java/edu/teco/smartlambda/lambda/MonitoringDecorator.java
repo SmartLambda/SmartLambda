@@ -49,8 +49,8 @@ public class MonitoringDecorator extends LambdaDecorator {
 			
 			@Override
 			public void onFailure(final Throwable t) {
-				MonitoringService.getInstance().onLambdaExecutionEnd(MonitoringDecorator.this.lambda, 0, new ExecutionReturnValue(null, t),
-						event);
+				MonitoringService.getInstance()
+						.onLambdaExecutionEnd(MonitoringDecorator.this.lambda, 0, new ExecutionReturnValue(null, (Throwable) null), event);
 			}
 		});
 		
