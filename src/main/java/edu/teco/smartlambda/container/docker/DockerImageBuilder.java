@@ -96,7 +96,6 @@ public class DockerImageBuilder implements ImageBuilder {
 		
 		//noinspection ResultOfMethodCallIgnored
 		file.setExecutable(executable);
-		assert file.canExecute() == executable;
 		
 		return this;
 	}
