@@ -27,7 +27,7 @@ public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	 */
 	@Override
 	public AbstractLambda createLambda() {
-		return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
+		return this.decorate(new Lambda());
 	}
 	
 	@Override
