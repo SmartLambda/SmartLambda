@@ -27,6 +27,9 @@ public class GitHubIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
+		if (parameters == null) {
+			throw new IdentitySyntaxException();
+		}
 		final String accessToken = parameters.get("accessToken");
 		if (accessToken == null) {
 			throw new IdentitySyntaxException();
