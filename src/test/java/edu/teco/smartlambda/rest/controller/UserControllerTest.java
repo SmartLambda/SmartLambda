@@ -87,6 +87,8 @@ public class UserControllerTest {
 		assertTrue(collection.contains("TestUser1"));
 		assertTrue(collection.contains("TestUser2"));
 		assertTrue(collection.contains("TestUser3"));
+		
+		verify(response).status(200);
 	}
 	
 	@Test

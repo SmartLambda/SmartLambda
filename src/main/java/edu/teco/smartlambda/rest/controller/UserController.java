@@ -37,6 +37,7 @@ public class UserController {
 		for (final User visible : user.getVisibleUsers())
 			users.add(visible.getName());
 		
+		response.status(200);
 		return users;
 	}
 	
