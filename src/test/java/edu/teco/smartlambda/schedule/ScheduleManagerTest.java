@@ -1,69 +1,58 @@
 package edu.teco.smartlambda.schedule;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.concurrent.ThreadManager;
-import edu.teco.smartlambda.monitoring.MonitoringEvent;
-import org.junit.After;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.torpedoquery.jpa.Torpedo;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.torpedoquery.jpa.Torpedo.from;
-import static org.torpedoquery.jpa.Torpedo.select;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
- * Created by Melanie on 05.03.2017.
+ *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Application.class, Torpedo.class})
 public class ScheduleManagerTest {
 	
-	ListenableFuture<Void> future;
-	List<Event> events = new LinkedList<>();
-	Event someEvent;
+	Event  event;
+	String response;
+	Event  saveEvent;
 	
 	@Before
 	public void setUp() {
-		future = ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
-		for (int i = 0; i < 5; i++) {
-			events.add(Mockito.mock(Event.class));
-		}
-		for (Event e : events) {
-			e.save();
-		}
-		someEvent = Mockito.mock(Event.class);
+		event = Mockito.mock(Event.class);
+		Mockito.when(event.execute()).thenAnswer(invocation -> response = "Executed");
+		PowerMockito.mockStatic(Application.class);
+		PowerMockito.when(Application.getInstance()).thenReturn(Mockito.mock(Application.class));
+		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(Mockito.mock(SessionFactory.class));
+		Session session = Mockito.mock(Session.class);
+		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
+		Mockito.doAnswer(invocation -> saveEvent = invocation.getArgument(0)).when(session).update(any(Event.class));
+		Mockito.doAnswer(invocation -> saveEvent = invocation.getArgument(0)).when(session).saveOrUpdate(any(Event.class));
+		Transaction transaction = Mockito.mock(Transaction.class);
+		Mockito.when(session.getTransaction()).thenReturn(transaction);
+		Mockito.doNothing().when(transaction).commit();
+		Mockito.when(session.beginTransaction()).thenReturn(transaction);
+		Mockito.when(session.createQuery(anyString())).thenReturn(Mockito.mock(org.hibernate.query.Query.class));
+		Mockito.when(session.createQuery(anyString()).getSingleResult()).thenReturn(event);
+	}
+	
+	@Test
+	public void executeTest() {
+		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
+		Assert.assertEquals("Executed", response);
 		ScheduleManager.getInstance().setRunning(false);
 	}
 	
-	@Test
-	@Ignore
-	public void runTest() {
-		MonitoringEvent query = from(MonitoringEvent.class);
-		Torpedo.where(query.getLambdaName()).eq(events.get(1).getLambda().getName()).and(query.getLambdaOwner())
-				.eq(events.get(1).getLambda().getOwner());
-		MonitoringEvent result = select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElse(null);
-		Assert.assertNotNull(result);
-	}
-	
-	@Test
-	@Ignore
-	public void saveTest() {
-		Event query = from(Event.class);
-		Torpedo.where(query.getName()).eq(someEvent.getName());
-		Event result = select(query).setMaxResults(1).get(Application.getInstance().getSessionFactory().getCurrentSession()).orElse(null);
-		Assert.assertEquals(someEvent, result);
-	}
-	
-	@After
-	public void tearDown() {
-		future.cancel(true);
-		for (Event e : events) {
-			Application.getInstance().getSessionFactory().getCurrentSession().delete(e);
-		}
-	}
 }
