@@ -2,6 +2,7 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
@@ -68,11 +69,33 @@ public class KeyTest {
 	}
 	
 	@Test
-	public void grantToAndUseGrant() throws Exception {
-		Key key2 = this.user.createKey("KeyTest.grantToAndUseGrant").getLeft();
+	public void grantUserPermissionToOtherKey() throws Exception {
+		final Key key2 = this.user.createKey("KeyTest.grantUserPermissionToOtherKey").getLeft();
 		AuthenticationService.getInstance().authenticate(this.key);
 		key2.grantPermission(this.user, PermissionType.DELETE);
 		Assert.assertTrue(key2.hasPermission(this.user, PermissionType.DELETE));
+	}
+	
+	@Test
+	public void grantLambdaPermissionToOtherKey() throws Exception {
+		final Key key2 = this.user.createKey("KeyTest.grantLambdaPermissionToOtherKey").getLeft();
+		AuthenticationService.getInstance().authenticate(this.key);
+		key2.grantPermission(this.lambda, PermissionType.DELETE);
+		Assert.assertTrue(key2.hasPermission(this.lambda, PermissionType.DELETE));
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void grantUserPermissionWithoutPermission() throws Exception{
+		final Key otherKey = this.user.createKey("KeyTest.grantUserPermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.grantPermission(this.user, PermissionType.CREATE);
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void grantLambdaPermissionWithoutPermission() throws Exception{
+		final Key otherKey = this.user.createKey("KeyTest.grantUserPermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.grantPermission(this.lambda, PermissionType.CREATE);
 	}
 	
 	@Test
@@ -115,14 +138,28 @@ public class KeyTest {
 		Assert.assertFalse(Key.getKeyById(id).isPresent());
 	}
 	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void deleteWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.deleteWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.delete();
+	}
+	
 	@Test
 	public void revokePermission() throws Exception {
 		Assert.assertTrue(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
-		System.out.println(this.key.getPermissions().toString());
 		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
-		System.out.println(this.key.getPermissions().toString());
 		Assert.assertFalse(this.key.hasPermission(this.lambda, PermissionType.EXECUTE));
 	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void revokePermissionWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.revokePermissionWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.revokePermission(this.lambda, PermissionType.EXECUTE);
+	}
+	
+	//TODO Cover Lombok Getters/Setters
 	
 	@Test
 	public void revokePermissionUser() throws Exception {
@@ -132,5 +169,92 @@ public class KeyTest {
 			got.add(perm.getPermissionType());
 		}
 		Assert.assertFalse(got.contains(PermissionType.GRANT));
+	}
+	
+	@Test (expected = InsufficientPermissionsException.class)
+	public void revokePermissionUserWithoutPermission() throws Exception {
+		final Key otherKey = this.user.createKey("KeyTest.revokePermissionUserWithoutPermission").getLeft();
+		AuthenticationService.getInstance().authenticate(otherKey);
+		this.key.revokePermission(this.user, PermissionType.GRANT);
+	}
+	
+	@Test
+	public void getVisiblePermissions() throws Exception {
+		final AuthenticationService as = AuthenticationService.getInstance();
+		
+		final Map<String, String> params1 = new HashMap<>();
+		params1.put("name", "KeyTest.getVisiblePermissions.User1");
+		final User user1 = new NullIdentityProvider().register(params1).getLeft();
+		final Key  key1  = user1.getPrimaryKey();
+
+		this.lambda.setOwner(user1);
+		this.lambda.save();
+
+		
+		final Map<String, String> params2 = new HashMap<>();
+		params2.put("name", "KeyTest.getVisiblePermissions.User2");
+		final User user2 = new NullIdentityProvider().register(params2).getLeft();
+		final Key  key2  = user2.getPrimaryKey();
+		
+		
+		final Map<String, String> params3 = new HashMap<>();
+		params3.put("name", "KeyTest.getVisiblePermissions.User3");
+		final User user3 = new NullIdentityProvider().register(params3).getLeft();
+		final Key  key3  = user2.getPrimaryKey();
+		
+		as.authenticate(key1);
+		
+		//1. User-Permissions of this Key for the currently authenticated User
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
+		key2.grantPermission(user1, PermissionType.CREATE);
+		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), user1, PermissionType.CREATE));
+		
+		//2. Lambda-Permissions of this Key for the currently authenticated Users Lambdas
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
+		key2.grantPermission(this.lambda, PermissionType.READ);
+		Assert.assertTrue(this.containsPermission(key2.getVisiblePermissions(), this.lambda, PermissionType.READ));
+		
+		//3. User-Permissions of this Key, sharing a User with the currently authenticated Keys GRANT-Permissions
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key3.getVisiblePermissions(), user1, PermissionType.PATCH));
+		key2.grantPermission(user1, PermissionType.GRANT);
+		key3.grantPermission(user1, PermissionType.PATCH);
+		as.authenticate(key2);
+		Assert.assertTrue(this.containsPermission(key3.getVisiblePermissions(), user1, PermissionType.PATCH));
+		as.authenticate(key1);
+		
+		//4. Lambda-Permissions of this Key, sharing a Lambda with the currently authenticated Keys GRANT-Permissions
+		assert as.getAuthenticatedKey().orElseThrow(AssertionError::new).equals(key1);
+		Assert.assertFalse(this.containsPermission(key3.getVisiblePermissions(), this.lambda, PermissionType.STATUS));
+		key2.revokePermission(user1, PermissionType.GRANT);//revoke user-permission because otherwise lambda-permission wouldn't be set
+		key2.grantPermission(this.lambda, PermissionType.GRANT);
+		key3.grantPermission(this.lambda, PermissionType.STATUS);
+		as.authenticate(key2);
+		Assert.assertTrue(this.containsPermission(key3.getVisiblePermissions(), this.lambda, PermissionType.STATUS));
+		as.authenticate(key1);
+	}
+	
+	private boolean containsPermission(final Set<Permission> permissions, final User user, final PermissionType type) {
+		for (final Permission permission : permissions) {
+			if (permission != null && permission.getUser() != null && permission.getPermissionType() != null) {
+				if (permission.getUser().equals(user) && permission.getPermissionType().equals(type)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean containsPermission(final Set<Permission> permissions, final Lambda lambda, final PermissionType type) {
+		for (final Permission permission : permissions) {
+			if (permission != null && permission.getLambda() != null && permission.getPermissionType() != null) {
+				if (permission.getLambda().equals(lambda) && permission.getPermissionType().equals(type)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

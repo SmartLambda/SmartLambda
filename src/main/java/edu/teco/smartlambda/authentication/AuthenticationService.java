@@ -9,6 +9,9 @@ import java.util.Optional;
 
 /**
  * Created on 01.02.17.
+ * Manages authentication of Keys inside a thread. Between different threats the authentication runs independently. Before a Key is
+ * authenticated, getter-methods will return empty optionals. Otherwise getter-methods base their return values on the last authenticated
+ * Key
  */
 public class AuthenticationService {
 	
@@ -16,7 +19,8 @@ public class AuthenticationService {
 	private              Key                                authenticatedKey = null;
 	
 	/**
-	 * The AuthenticationService is managed as a ThreadLocal Singleton.
+	 * The AuthenticationService is managed as a ThreadLocal Singleton. getInstance() returns this threads instance of the
+	 * AuthenticationService.
 	 * @return AuthenticationService the current Threads AuthenticationService Instance
 	 */
 	public static AuthenticationService getInstance() {
@@ -46,8 +50,8 @@ public class AuthenticationService {
 	private String arrayToString(final byte[] array)
 	{
 		final StringBuilder sb = new StringBuilder();
-		for (final byte anArray : array) {
-			sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
+		for (final byte currentByte : array) {
+			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
 		}
 		return sb.toString();
 	}
@@ -61,7 +65,7 @@ public class AuthenticationService {
 	}
 	
 	/**
-	 * Returns an Optional, which contains the authenticated Key Object
+	 * Returns an Optional, which contains the currently authenticated Key Object
 	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<Key> getAuthenticatedKey() {
@@ -69,7 +73,7 @@ public class AuthenticationService {
 	}
 	
 	/**
-	 * Returns an Optional, which contains the authenticated Keys User Object
+	 * Returns an Optional, which contains the currently authenticated Keys User Object
 	 * @return Optional, is empty if there is no authenticated Key
 	 */
 	public Optional<User> getAuthenticatedUser() {
