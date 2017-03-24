@@ -11,8 +11,8 @@ public class ConfigurationService {
 	
 	private ConfigurationService() {
 		try {
-			configuration = new Configurations().xml(BuildConfig.CONFIGURATION_PATH);
-		} catch (ConfigurationException e) {
+			this.configuration = new Configurations().xml(BuildConfig.CONFIGURATION_PATH);
+		} catch (final ConfigurationException e) {
 			throw new ConfigurationLoaderException(e);
 		}
 	}
@@ -24,6 +24,6 @@ public class ConfigurationService {
 	}
 	
 	public Configuration getConfiguration() {
-		return configuration;
+		return this.configuration;
 	}
 }

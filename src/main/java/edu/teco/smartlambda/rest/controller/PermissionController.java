@@ -91,34 +91,44 @@ public class PermissionController {
 	}
 	
 	public static Object readUserPermissions(final Request request, final Response response) {
-		return readPermissions(getUserFromRequest(request).getPrimaryKey());
+		final Object result = readPermissions(getUserFromRequest(request).getPrimaryKey());
+		
+		response.status(200);
+		return result;
 	}
 	
 	public static Object grantUserPermissions(final Request request, final Response response) throws IOException {
 		grantPermissions(getUserFromRequest(request).getPrimaryKey(), mapFromJSON(request.body()));
 		
+		response.status(200);
 		return new Object();
 	}
 	
 	public static Object revokeUserPermissions(final Request request, final Response response) throws IOException {
 		revokePermissions(getUserFromRequest(request).getPrimaryKey(), mapFromJSON(request.body()));
 		
+		response.status(200);
 		return new Object();
 	}
 	
 	public static Object readKeyPermissions(final Request request, final Response response) {
-		return readPermissions(getKeyFromRequest(request));
+		final Object result = readPermissions(getKeyFromRequest(request));
+		
+		response.status(200);
+		return result;
 	}
 	
 	public static Object grantKeyPermissions(final Request request, final Response response) throws IOException {
 		grantPermissions(getKeyFromRequest(request), mapFromJSON(request.body()));
 		
+		response.status(200);
 		return new Object();
 	}
 	
 	public static Object revokeKeyPermissions(final Request request, final Response response) throws IOException {
 		revokePermissions(getKeyFromRequest(request), mapFromJSON(request.body()));
 		
+		response.status(200);
 		return new Object();
 	}
 }

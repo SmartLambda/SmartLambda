@@ -12,12 +12,12 @@ import static org.torpedoquery.jpa.Torpedo.where;
 public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	@Override
 	public Optional<AbstractLambda> getLambdaByOwnerAndName(final User owner, final String name) {
-		final AbstractLambda query = from(Lambda.class);
+		final Lambda query = from(Lambda.class);
 		where(query.getOwner()).eq(owner).and(query.getName()).eq(name);
 		
-		final Optional<AbstractLambda> lambda = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
+		final Optional<Lambda> lambda = select(query).get(Application.getInstance().getSessionFactory().getCurrentSession());
 		
-		return lambda.map(abstractLambda -> new PermissionDecorator(new MonitoringDecorator(abstractLambda)));
+		return lambda.map(this::decorate);
 	}
 	
 	/**
@@ -27,7 +27,7 @@ public class PrivilegedMonitoredLambdaFactory extends LambdaFactory {
 	 */
 	@Override
 	public AbstractLambda createLambda() {
-		return new PermissionDecorator(new MonitoringDecorator(new Lambda()));
+		return this.decorate(new Lambda());
 	}
 	
 	@Override

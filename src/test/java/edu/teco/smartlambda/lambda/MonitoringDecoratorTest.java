@@ -1,30 +1,34 @@
 package edu.teco.smartlambda.lambda;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
+import edu.teco.smartlambda.Application;
+import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.monitoring.MonitoringService;
 import edu.teco.smartlambda.runtime.ExecutionResult;
 import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 /**
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MonitoringService.class, Futures.class})
+@PrepareForTest({MonitoringService.class, Application.class})
 public class MonitoringDecoratorTest {
 	
 	private MonitoringDecorator monitoredLambda;
@@ -61,18 +65,34 @@ public class MonitoringDecoratorTest {
 	
 	@Test
 	public void executeAsync() throws Exception {
-		mockStatic(Futures.class);
+		final ExecutionResult      mockedExecutionResult      = mock(ExecutionResult.class);
+		final ExecutionReturnValue mockedExecutionReturnValue = mock(ExecutionReturnValue.class);
 		
+		mockStatic(Application.class);
+		final Application    application = mock(Application.class);
+		final SessionFactory factory     = mock(SessionFactory.class);
+		final Session        session     = mock(Session.class);
+		
+		when(Application.getInstance()).thenReturn(application);
+		when(application.getSessionFactory()).thenReturn(factory);
+		when(factory.getCurrentSession()).thenReturn(session);
+		when(session.getTransaction()).thenReturn(mock(Transaction.class));
+		
+		// test success
+		when(this.innerLambda.executeAsync("")).thenReturn(ThreadManager.getExecutorService().submit(() -> mockedExecutionResult));
+		when(mockedExecutionResult.getConsumedCPUTime()).thenReturn(1L);
+		when(mockedExecutionResult.getExecutionReturnValue()).thenReturn(mockedExecutionReturnValue);
 		this.monitoredLambda.executeAsync("");
-		verify(this.mockedMonitoringService).onLambdaExecutionStart(this.innerLambda);
-		verify(this.innerLambda).executeAsync("");
+		verify(this.mockedMonitoringService, times(1)).onLambdaExecutionEnd(this.innerLambda, 1L, mockedExecutionReturnValue, null);
 		
-		final ArgumentCaptor<ListenableFuture> captorFuture   = ArgumentCaptor.forClass(ListenableFuture.class);
-		final ArgumentCaptor<FutureCallback>   captorCallback = ArgumentCaptor.forClass(FutureCallback.class);
+		// test failure
+		when(this.innerLambda.executeAsync("")).thenReturn(ThreadManager.getExecutorService().submit(() -> {throw new Exception();}));
+		this.monitoredLambda.executeAsync("");
 		
-		verifyStatic();
-		//noinspection unchecked
-		Futures.addCallback(captorFuture.capture(), captorCallback.capture());
+		verify(this.mockedMonitoringService, times(2)).onLambdaExecutionStart(this.innerLambda);
+		verify(this.innerLambda, times(2)).executeAsync("");
+		verify(this.mockedMonitoringService, times(1))
+				.onLambdaExecutionEnd(eq(this.innerLambda), eq(0L), any(ExecutionReturnValue.class), isNull());
 	}
 	
 	@Test
