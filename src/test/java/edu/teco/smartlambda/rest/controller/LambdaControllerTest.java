@@ -42,7 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -227,13 +226,9 @@ public class LambdaControllerTest {
 		
 		assertEquals(4, object.getClass().getDeclaredFields().length);
 		
-		assertNotNull(user);
 		assertSame(String.class, user.getType());
-		assertNotNull(name);
 		assertSame(String.class, name.getType());
-		assertNotNull(async);
 		assertSame(boolean.class, async.getType());
-		assertNotNull(runtime);
 		assertSame(String.class, runtime.getType());
 		
 		user.setAccessible(true);
