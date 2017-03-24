@@ -118,8 +118,16 @@ public class Lambda extends AbstractLambda {
 		});
 	}
 	
+	private void ensureBuilder() {
+		if (this.builder != null) return;
+		
+		this.builder = BuilderFactory.getContainerBuilder();
+	}
+	
 	@Override
 	public void save() {
+		this.ensureBuilder();
+		
 		if (LambdaFacade.getInstance().getFactory().getLambdaByOwnerAndName(this.owner, this.name).isPresent())
 			throw new DuplicateLambdaException(this.owner, this.name);
 		
@@ -172,7 +180,7 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public void deployBinary(final byte[] content) {
 		try {
-			this.builder = BuilderFactory.getContainerBuilder();
+			this.ensureBuilder();
 			this.builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
