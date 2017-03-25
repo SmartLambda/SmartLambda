@@ -1,173 +1,138 @@
 package edu.teco.smartlambda.authentication;
 
-import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
-import edu.teco.smartlambda.identity.NullIdentityProvider;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.Optional;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * Created on 10.02.17.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(MessageDigest.class)
+@PrepareForTest({MessageDigest.class, Key.class})
 @PowerMockIgnore({"javax.xml.*", "org.xml.sax.*", "org.w3c.*", "javax.management.*"})
 public class AuthenticationServiceTest {
 	
-	private ExecutorService executorService;
+	private AuthenticationService authenticationService;
 	
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	
 	@BeforeClass
 	public static void beforeClass() {
-		PowerMockito.mockStatic(MessageDigest.class);
+		mockStatic(MessageDigest.class);
 	}
 	
 	@Before
 	public void setUp() throws Exception {
-		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		this.executorService = Executors.newSingleThreadExecutor();
-	}
-	
-	@After
-	public void tearDown() throws Exception {
-		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
-		if (transaction.isActive()) transaction.rollback();
+		// obtain a fresh instance of AuthenticationService before each test
+		this.authenticationService = Executors.newSingleThreadExecutor().submit(AuthenticationService::getInstance).get();
 	}
 	
 	@Test
 	public void getInstanceNotNull() throws Exception {
-		Assert.assertNotNull(AuthenticationService.getInstance());
+		assertNotNull(this.authenticationService);
 	}
 	
 	@Test
 	public void getInstanceReturnsSingleton() throws Exception {
-		final AuthenticationService asFirst = AuthenticationService.getInstance();
-		Assert.assertNotNull(asFirst);
-		final AuthenticationService asSecond = AuthenticationService.getInstance();
-		Assert.assertNotNull(asSecond);
-		Assert.assertSame(asFirst, asSecond);
+		final AuthenticationService asFirst = this.authenticationService;
+		assertNotNull(asFirst);
+		final AuthenticationService asSecond = this.authenticationService;
+		assertNotNull(asSecond);
+		assertSame(asFirst, asSecond);
 	}
 	
 	@Test
 	public void getInstanceSingletonIsThreadlocal() throws Exception {
 		final AuthenticationService asFirst = AuthenticationService.getInstance();
-		Assert.assertNotNull(asFirst);
+		assertNotNull(asFirst);
 		
-		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
-		
-		Assert.assertNotNull(future.get());
-		Assert.assertNotSame(asFirst, future.get());
+		assertNotNull(this.authenticationService);
+		assertNotSame(asFirst, this.authenticationService);
 	}
 	
 	@Test
-	public void AuthenticationServiceHasNoKeyAtStart() throws Exception {
-		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
-		
-		Assert.assertFalse(future.get().getAuthenticatedKey().isPresent());
-	}
-	
-	@Test
-	public void AuthenticationServiceHasNoUserAtStart() throws Exception {
-		final Future<AuthenticationService> future = this.executorService.submit(AuthenticationService::getInstance);
-		
-		Assert.assertFalse(future.get().getAuthenticatedUser().isPresent());
+	public void AuthenticationServiceIsEmptyAtStart() throws Exception {
+		assertFalse(this.authenticationService.getAuthenticatedKey().isPresent());
+		assertFalse(this.authenticationService.getAuthenticatedUser().isPresent());
 	}
 	
 	@Test
 	public void authenticateViaParimaryKey() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		final Map<String, String>   params                = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.authenticateViaPrimaryKey.User");
-		final User user = new NullIdentityProvider().register
-				(params).getLeft();
-		authenticationService.authenticate(user.getPrimaryKey());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
+		final Key primaryKey = mock(Key.class);
+		when(primaryKey.isPrimaryKey()).thenReturn(true);
+		this.authenticationService.authenticate(primaryKey);
+		
+		assertTrue(this.authenticationService.getAuthenticatedKey().isPresent());
+		assertTrue(this.authenticationService.getAuthenticatedKey().get().isPrimaryKey());
+		assertSame(primaryKey, this.authenticationService.getAuthenticatedKey().get());
 	}
 	
 	@Test
 	public void authenticateViaKey() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		final Map<String, String>   params                = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.authenticateViaKey.User");
-		final User user = new NullIdentityProvider().register
-				(params).getLeft();
-		authenticationService.authenticate(user.getPrimaryKey());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
-		final Key key = user.createKey("AuthenticationServiceTest.authenticateViaKey").getLeft();
-		authenticationService.authenticate(key);
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(key, authenticationService.getAuthenticatedKey().get());
-		//Checking double authentication
-		authenticationService.authenticate(key);
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(key, authenticationService.getAuthenticatedKey().get());
+		final Key key = mock(Key.class);
+		when(key.isPrimaryKey()).thenReturn(false);
+		
+		this.authenticationService.authenticate(key);
+		assertTrue(this.authenticationService.getAuthenticatedKey().isPresent());
+		assertSame(key, this.authenticationService.getAuthenticatedKey().get());
 	}
 	
 	@Test
 	public void authenticateViaString() throws Exception {
-		final Map<String, String> params = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.authenticateViaString.User");
-		final Pair<User, String>    pair                  = new NullIdentityProvider().register(params);
-		final User                  user                  = pair.getLeft();
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		authenticationService.authenticate(pair.getRight());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
-		//Checking double authentication
-		authenticationService.authenticate(pair.getRight());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(user.getPrimaryKey(), authenticationService.getAuthenticatedKey().get());
+		final String someKeyString = "veryKeySuchAuthenticatedMuchWow";
+		final Key    key           = mock(Key.class);
+		
+		mockStatic(Key.class);
+		when(Key.getKeyById(anyString())).thenReturn(Optional.of(key));
+		
+		this.authenticationService.authenticate(someKeyString);
+		assertTrue(this.authenticationService.getAuthenticatedKey().isPresent());
+		assertSame(key, this.authenticationService.getAuthenticatedKey().get());
 	}
 	
-	
-	@Test(expected=NotAuthenticatedException.class)
+	@Test(expected = NotAuthenticatedException.class)
 	public void getAuthenticatedUserViaWrongString() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
+		mockStatic(Key.class);
+		when(Key.getKeyById(anyString())).thenReturn(Optional.empty());
+		
+		final AuthenticationService authenticationService = this.authenticationService;
 		authenticationService.authenticate("This is a non existing Key");
 	}
 	
 	@Test
 	public void getAuthenticatedUser() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		final Map<String, String>   params                = new HashMap<>();
-		params.put("name", "AuthenticationServiceTest.getAuthenticatedUser.User");
-		final User user = new NullIdentityProvider().register
-				(params).getLeft();
-		authenticationService.authenticate(user.getPrimaryKey());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		Assert.assertSame(user, authenticationService.getAuthenticatedUser().orElseThrow(AssertionError::new));
+		final User user = mock(User.class);
+		final Key  key  = mock(Key.class);
+		
+		when(user.getPrimaryKey()).thenReturn(key);
+		when(key.isPrimaryKey()).thenReturn(true);
+		when(key.getUser()).thenReturn(user);
+		
+		this.authenticationService.authenticate(user.getPrimaryKey());
+		assertTrue(this.authenticationService.getAuthenticatedKey().isPresent());
+		assertSame(user, this.authenticationService.getAuthenticatedUser().orElseThrow(AssertionError::new));
 	}
-	
-
-	/*@Test //(expected = RuntimeException.class)
-	public void NoSuchAlgorithmExceptionTest() throws Exception{
-		this.thrown.expectCause(is(new NoSuchAlgorithmException()));
-		//PowerMockito.when(MessageDigest.getInstance(anyString())).thenThrow(new NoSuchAlgorithmException());
-		PowerMockito.doThrow(new NoSuchAlgorithmException()).when(MessageDigest.class, "getInstance", Mockito.anyString());
-		AuthenticationService.getInstance().authenticate("");
-	}*/
 }
