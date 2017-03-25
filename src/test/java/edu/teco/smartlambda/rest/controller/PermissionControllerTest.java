@@ -219,6 +219,37 @@ public class PermissionControllerTest {
 	
 	@Test
 	public void revokeUserPermissions() throws Exception {
+		final PermissionRequest permissionRequest = new PermissionRequest();
+		
+		PermissionObject permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName(TEST_LAMBDA_1_NAME);
+		permissionRequest.setRead(new PermissionObject[] {permissionObject});
+		
+		permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName(TEST_LAMBDA_2_NAME);
+		permissionRequest.setExecute(new PermissionObject[] {permissionObject});
+		
+		permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName("*");
+		permissionRequest.setDelete(new PermissionObject[] {permissionObject});
+		
+		final Request  request  = mock(Request.class);
+		final Response response = mock(Response.class);
+		
+		when(request.body()).thenReturn(new Gson().toJson(permissionRequest));
+		when(request.params(":user")).thenReturn(TEST_USER_3_NAME);
+		
+		final Object result = PermissionController.revokeUserPermissions(request, response);
+		assertSame(Object.class, result.getClass());
+		
+		verify(this.testKey3).revokePermission(this.testLambda1, PermissionType.READ);
+		verify(this.testKey3).revokePermission(this.testLambda2, PermissionType.EXECUTE);
+		verify(this.testKey3).revokePermission(this.testUser2, PermissionType.DELETE);
+		verifyNoMoreInteractions(this.testKey3);
+		verify(response).status(200);
 	}
 	
 	@Test
