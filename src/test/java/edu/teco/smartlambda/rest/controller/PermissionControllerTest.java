@@ -51,6 +51,7 @@ public class PermissionControllerTest {
 	private Key    testKey3;
 	private Lambda testLambda1;
 	private Lambda testLambda2;
+	private Key    testUserKey;
 	
 	@Data
 	private static class PermissionRequest {
@@ -114,6 +115,9 @@ public class PermissionControllerTest {
 		when(lambdaFacade.getFactory()).thenReturn(lambdaFactory);
 		when(lambdaFactory.getLambdaByOwnerAndName(this.testUser2, TEST_LAMBDA_1_NAME)).thenReturn(Optional.ofNullable(this.testLambda1));
 		when(lambdaFactory.getLambdaByOwnerAndName(this.testUser2, TEST_LAMBDA_2_NAME)).thenReturn(Optional.ofNullable(this.testLambda2));
+		
+		this.testUserKey = mock(Key.class);
+		when(this.testUser1.getKeyByName(TEST_KEY_NAME)).thenReturn(Optional.of(this.testUserKey));
 	}
 	
 	private void verifyPermissionCollection(final Collection collection, final String expectedUser, final String expectedName)
@@ -259,9 +263,6 @@ public class PermissionControllerTest {
 	
 	@Test
 	public void readKeyPermissions() throws Exception {
-		final Key userKey = mock(Key.class);
-		when(this.testUser1.getKeyByName(TEST_KEY_NAME)).thenReturn(Optional.of(userKey));
-		
 		final Set<Permission> permissions = new HashSet<>();
 		Permission            permission  = mock(Permission.class);
 		when(permission.getLambda()).thenReturn(this.testLambda1);
@@ -273,7 +274,7 @@ public class PermissionControllerTest {
 		when(permission.getPermissionType()).thenReturn(PermissionType.READ);
 		permissions.add(permission);
 		
-		when(userKey.getVisiblePermissions()).thenReturn(permissions);
+		when(this.testUserKey.getVisiblePermissions()).thenReturn(permissions);
 		
 		final Request  request  = mock(Request.class);
 		final Response response = mock(Response.class);
@@ -309,6 +310,37 @@ public class PermissionControllerTest {
 	
 	@Test
 	public void grantKeyPermissions() throws Exception {
+		final PermissionRequest permissionRequest = new PermissionRequest();
+		
+		PermissionObject permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName(TEST_LAMBDA_1_NAME);
+		permissionRequest.setRead(new PermissionObject[] {permissionObject});
+		
+		permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName(TEST_LAMBDA_2_NAME);
+		permissionRequest.setExecute(new PermissionObject[] {permissionObject});
+		
+		permissionObject = new PermissionObject();
+		permissionObject.setUser(TEST_USER_2_NAME);
+		permissionObject.setName("*");
+		permissionRequest.setDelete(new PermissionObject[] {permissionObject});
+		
+		final Request  request  = mock(Request.class);
+		final Response response = mock(Response.class);
+		
+		when(request.body()).thenReturn(new Gson().toJson(permissionRequest));
+		when(request.params(":name")).thenReturn(TEST_KEY_NAME);
+		
+		final Object result = PermissionController.grantKeyPermissions(request, response);
+		assertSame(Object.class, result.getClass());
+		
+		verify(this.testUserKey).grantPermission(this.testLambda1, PermissionType.READ);
+		verify(this.testUserKey).grantPermission(this.testLambda2, PermissionType.EXECUTE);
+		verify(this.testUserKey).grantPermission(this.testUser2, PermissionType.DELETE);
+		verifyNoMoreInteractions(this.testUserKey);
+		verify(response).status(200);
 	}
 	
 	@Test
