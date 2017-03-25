@@ -40,3 +40,9 @@ task install(dependsOn: build, type: Copy) {
 
     into '../src/main/resources'
 }
+
+task installClean(type: Delete) {
+    delete '../src/main/resources/executionservice.jar'
+}
+
+clean.dependsOn installClean
