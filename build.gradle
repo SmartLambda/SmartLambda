@@ -68,3 +68,5 @@ buildConfig {
         buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "/etc/smartlambda/hibernate.xml"
     }
 }
+
+processResources.dependsOn ':execution:install'
