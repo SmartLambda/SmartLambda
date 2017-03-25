@@ -42,6 +42,7 @@ public class PermissionControllerTest {
 	private static final String TEST_USER_3_NAME   = "TestUser3";
 	private static final String TEST_LAMBDA_1_NAME = "TestLambda1";
 	private static final String TEST_LAMBDA_2_NAME = "TestLambda2";
+	private static final String TEST_KEY_NAME      = "TestKey";
 	
 	private User   testUser1;
 	private User   testUser2;
@@ -81,6 +82,11 @@ public class PermissionControllerTest {
 		when(User.getByName(TEST_USER_1_NAME)).thenReturn(Optional.of(this.testUser1));
 		when(User.getByName(TEST_USER_2_NAME)).thenReturn(Optional.of(this.testUser2));
 		when(User.getByName(TEST_USER_3_NAME)).thenReturn(Optional.of(this.testUser3));
+		
+		final AuthenticationService authenticationService = mock(AuthenticationService.class);
+		when(AuthenticationService.getInstance()).thenReturn(authenticationService);
+		
+		when(authenticationService.getAuthenticatedUser()).thenReturn(Optional.of(this.testUser1));
 		
 		when(this.testUser1.getName()).thenReturn(TEST_USER_1_NAME);
 		when(this.testUser2.getName()).thenReturn(TEST_USER_2_NAME);
@@ -178,7 +184,6 @@ public class PermissionControllerTest {
 				throw new RuntimeException(e);
 			}
 		});
-		
 		verify(response).status(200);
 	}
 	
@@ -254,6 +259,52 @@ public class PermissionControllerTest {
 	
 	@Test
 	public void readKeyPermissions() throws Exception {
+		final Key userKey = mock(Key.class);
+		when(this.testUser1.getKeyByName(TEST_KEY_NAME)).thenReturn(Optional.of(userKey));
+		
+		final Set<Permission> permissions = new HashSet<>();
+		Permission            permission  = mock(Permission.class);
+		when(permission.getLambda()).thenReturn(this.testLambda1);
+		when(permission.getPermissionType()).thenReturn(PermissionType.EXECUTE);
+		permissions.add(permission);
+		
+		permission = mock(Permission.class);
+		when(permission.getLambda()).thenReturn(this.testLambda2);
+		when(permission.getPermissionType()).thenReturn(PermissionType.READ);
+		permissions.add(permission);
+		
+		when(userKey.getVisiblePermissions()).thenReturn(permissions);
+		
+		final Request  request  = mock(Request.class);
+		final Response response = mock(Response.class);
+		when(request.params(":name")).thenReturn(TEST_KEY_NAME);
+		
+		final Object result = PermissionController.readKeyPermissions(request, response);
+		assertTrue(result instanceof Map);
+		final Map map = (Map) result;
+		
+		//noinspection unchecked
+		map.forEach((key, value) -> {
+			try {
+				assertTrue(value instanceof Collection);
+				assertTrue(key instanceof String);
+				
+				switch (PermissionType.valueOf(((String) key).toUpperCase())) {
+					case EXECUTE:
+						this.verifyPermissionCollection((Collection) value, TEST_USER_2_NAME, TEST_LAMBDA_1_NAME);
+						break;
+					case READ:
+						this.verifyPermissionCollection((Collection) value, TEST_USER_2_NAME, TEST_LAMBDA_2_NAME);
+						break;
+					default:
+						assertEquals(0, ((Collection) value).size());
+				}
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		
+		verify(response).status(200);
 	}
 	
 	@Test
