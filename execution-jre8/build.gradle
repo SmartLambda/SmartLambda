@@ -42,6 +42,7 @@ task install(dependsOn: build, type: Copy) {
 }
 
 task installClean(type: Delete) {
+    //noinspection GroovyAssignabilityCheck
     delete '../src/main/resources/jre8/executionservice.jar'
 }
 
