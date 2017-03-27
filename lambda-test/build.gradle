@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     // compile time dependencies
-    compile project(":execution")
+    compile project(":execution-jre8")
 
     compileOnly "org.projectlombok:lombok:1.16.12"
 

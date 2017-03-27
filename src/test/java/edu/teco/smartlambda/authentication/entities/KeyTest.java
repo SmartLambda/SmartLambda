@@ -41,6 +41,7 @@ public class KeyTest {
 		this.user = new NullIdentityProvider().register(params).getLeft();
 		
 		this.lambda = LambdaDecorator.unwrap(abstractLambda);
+		this.lambda.setName("TestLambda");
 		this.lambda.setOwner(this.user);
 		this.lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName("jre8"));
 		try {
@@ -188,7 +189,7 @@ public class KeyTest {
 		final Key  key1  = user1.getPrimaryKey();
 
 		this.lambda.setOwner(user1);
-		this.lambda.save();
+		this.lambda.update();
 
 		
 		final Map<String, String> params2 = new HashMap<>();

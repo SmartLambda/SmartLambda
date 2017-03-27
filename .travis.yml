@@ -1,0 +1,13 @@
+language: java
+sudo: required
+jdk:
+  - oraclejdk8
+services:
+  - docker
+addons:
+  mariadb: '10.1'
+before_script:
+  - sudo mkdir /etc/smartlambda
+  - sudo cp travis/configuration/* /etc/smartlambda
+  - mysql -e "CREATE DATABASE IF NOT EXISTS smartlambda;"
+  - mysql smartlambda < smartlambda.sql
