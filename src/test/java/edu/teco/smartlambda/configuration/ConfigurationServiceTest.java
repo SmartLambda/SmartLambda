@@ -14,7 +14,7 @@ import static org.junit.Assume.assumeTrue;
 public class ConfigurationServiceTest {
 	@BeforeClass
 	public static void verifyConfigurationExists() {
-		File configurationPath = new File(BuildConfig.CONFIGURATION_PATH);
+		final File configurationPath = new File(BuildConfig.CONFIGURATION_PATH);
 		assumeTrue("Configuration file exists", configurationPath.exists() && configurationPath.canRead() && !configurationPath.isDirectory());
 	}
 	
@@ -26,7 +26,7 @@ public class ConfigurationServiceTest {
 	
 	@Test
 	public void getConfiguration() {
-		Configuration configuration = ConfigurationService.getInstance().getConfiguration();
+		final Configuration configuration = ConfigurationService.getInstance().getConfiguration();
 		
 		assertNotNull(configuration);
 	}

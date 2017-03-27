@@ -11,7 +11,8 @@ public class InvalidCredentialsException extends IdentityException{
 	public InvalidCredentialsException(final String message) {
 		super(message);
 	}
-	public InvalidCredentialsException(Throwable cause) {
+	
+	public InvalidCredentialsException(final Throwable cause) {
 		super(cause);
 	}
 }

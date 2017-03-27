@@ -40,13 +40,13 @@ public class IdentityProviderRegistry {
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				LoggerFactory.getLogger(IdentityProviderRegistry.class).error("Exception while loading identity provider");
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
+			} catch (final ClassNotFoundException e) {
 				LoggerFactory.getLogger(IdentityProviderRegistry.class).error("Identity provider " + provider + " not found");
 			}
 		}
 	}
 	
 	public Optional<IdentityProvider> getIdentityProviderByName(final String name) {
-		return Optional.ofNullable(providers.get(name));
+		return Optional.ofNullable(this.providers.get(name));
 	}
 }

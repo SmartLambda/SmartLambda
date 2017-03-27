@@ -22,8 +22,8 @@ import static org.torpedoquery.jpa.Torpedo.where;
  * Created on 28.02.17.
  */
 public class GitHubIdentityProvider implements IdentityProvider{
-	private static final String NAME = "github";
-	private final String GITHUB_URL = "https://api.github.com/user";
+	private static final String NAME       = "github";
+	private static final String GITHUB_URL = "https://api.github.com/user";
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
@@ -52,11 +52,11 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		return NAME;
 	}
 	
-	private String gitHubRequest(String accessToken) {
-		String     name = null;
+	private String gitHubRequest(final String accessToken) {
+		String name;
 		//TODO ask GitHub for the name, throw Exception otherwise on error throw InvalidCredentialsException
 		try {
-			final URL               url        = new URL(this.GITHUB_URL);
+			final URL               url        = new URL(GITHUB_URL);
 			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/json");

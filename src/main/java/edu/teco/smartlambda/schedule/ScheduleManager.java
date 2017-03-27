@@ -84,8 +84,7 @@ public class ScheduleManager {
 			}
 			try {
 				Thread.sleep(1000);
-			} catch (final InterruptedException e) {
-				
+			} catch (final InterruptedException ignored) {
 			}
 		}
 		return null;
