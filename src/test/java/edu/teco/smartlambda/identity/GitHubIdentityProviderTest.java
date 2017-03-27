@@ -2,7 +2,6 @@ package edu.teco.smartlambda.identity;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
-import edu.teco.smartlambda.utility.TestUtility;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -83,11 +82,6 @@ public class GitHubIdentityProviderTest {
 	@Test(expected = IdentitySyntaxException.class)
 	public void testEmptyParameter() {
 		this.gitHubIdentityProvider.register(new HashMap<>());
-	}
-	
-	@Test
-	public void testGettersAndSetters() throws Exception {
-		TestUtility.testGettersAndSetters(this.gitHubIdentityProvider);
 	}
 	
 	@Ignore
