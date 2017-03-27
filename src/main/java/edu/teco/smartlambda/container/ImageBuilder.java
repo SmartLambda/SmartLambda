@@ -56,13 +56,4 @@ public interface ImageBuilder {
 	 * @return this builder instance
 	 */
 	public ImageBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException;
-	
-	/**
-	 * Set the runtime library that manages lambda execution inside the container
-	 *
-	 * @param runtimeLibrary name of runtime library
-	 *
-	 * @return this builder instance
-	 */
-	public ImageBuilder setRuntimeLibrary(final String runtimeLibrary);
 }

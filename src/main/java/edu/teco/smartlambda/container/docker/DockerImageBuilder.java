@@ -2,19 +2,15 @@ package edu.teco.smartlambda.container.docker;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.container.ImageBuilder;
-import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -27,32 +23,22 @@ public class DockerImageBuilder implements ImageBuilder {
 	private final File   tmpDirectory;
 	private       String template;
 	
-	private String runtimeLibrary;
-	
 	public DockerImageBuilder() {
-		containerId = generateContainerId();
+		this.containerId = this.generateContainerId();
 		
-		tmpDirectory = new File(System.getProperty("java.io.tmpdir"), containerId);
-		assert !tmpDirectory.exists() : "Temporary docker file directory already exists!";
+		this.tmpDirectory = new File(System.getProperty("java.io.tmpdir"), this.containerId);
+		assert !this.tmpDirectory.exists() : "Temporary docker file directory already exists!";
 		
 		//noinspection ResultOfMethodCallIgnored
-		tmpDirectory.mkdir();
+		this.tmpDirectory.mkdir();
 	}
 	
 	@Override
-	public DockerImage build()
-			throws DockerCertificateException, IOException, DockerException, InterruptedException, URISyntaxException {
-		final InputStream      inputStream  = DockerImageBuilder.class.getClassLoader().getResourceAsStream(this.runtimeLibrary);
-		final FileOutputStream outputStream = new FileOutputStream(new File(tmpDirectory, this.runtimeLibrary));
-		outputStream.write(IOUtils.toByteArray(inputStream));
-		outputStream.flush();
-		outputStream.close();
-		inputStream.close();
-		
-		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
+	public DockerImage build() throws IOException, DockerException, InterruptedException {
+		final File       dockerFile = new File(this.tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
-		writer.write("FROM " + template + "\n");
+		writer.write("FROM " + this.template + "\n");
 		writer.write("COPY . ~\n");
 		writer.write("WORKDIR ~\n");
 		writer.write("CMD " + this.command + "\n");
@@ -61,10 +47,11 @@ public class DockerImageBuilder implements ImageBuilder {
 		
 		final DockerClient dockerClient = new DefaultDockerClient(
 				ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DockerClientProvider.DEFAULT_SOCKET));
-		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
+		final String imageId =
+				dockerClient.build(this.tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(this.containerId));
 		
 		//noinspection ResultOfMethodCallIgnored
-		tmpDirectory.delete();
+		this.tmpDirectory.delete();
 		
 		return new DockerImage(imageId);
 	}
@@ -83,8 +70,7 @@ public class DockerImageBuilder implements ImageBuilder {
 	
 	@Override
 	public ImageBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException {
-		final File file = new File(tmpDirectory, name);
-		assert !file.exists();
+		final File file = new File(this.tmpDirectory, name);
 		
 		//noinspection ResultOfMethodCallIgnored
 		file.createNewFile();
@@ -97,12 +83,6 @@ public class DockerImageBuilder implements ImageBuilder {
 		//noinspection ResultOfMethodCallIgnored
 		file.setExecutable(executable);
 		
-		return this;
-	}
-	
-	@Override
-	public ImageBuilder setRuntimeLibrary(final String runtimeLibrary) {
-		this.runtimeLibrary = runtimeLibrary;
 		return this;
 	}
 	

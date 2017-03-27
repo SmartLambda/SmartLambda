@@ -49,12 +49,12 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 	}
 	
 	@Override
-	public synchronized void init(ProcessingEnvironment processingEnv) {
+	public synchronized void init(final ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		
 		// get the type mirror of LambdaParameter, LambdaReturnValue
-		lambdaParameterType = processingEnv.getElementUtils().getTypeElement(LambdaParameter.class.getCanonicalName()).asType();
-		lambdaReturnType = processingEnv.getElementUtils().getTypeElement(LambdaReturnValue.class.getCanonicalName()).asType();
+		this.lambdaParameterType = processingEnv.getElementUtils().getTypeElement(LambdaParameter.class.getCanonicalName()).asType();
+		this.lambdaReturnType = processingEnv.getElementUtils().getTypeElement(LambdaReturnValue.class.getCanonicalName()).asType();
 	}
 	
 	@Override
@@ -64,12 +64,12 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 			
 			final ExecutableElement functionElement = (ExecutableElement) element;
 			
-			String  lambdaFunctionEnclosingClassName = functionElement.getEnclosingElement().asType().toString();
-			String  lambdaFunctionName               = functionElement.getSimpleName().toString();
-			boolean hasParameter;
-			boolean hasReturnValue;
-			String  lambdaParameterClassName;
-			String  lambdaReturnValueClassName;
+			final String  lambdaFunctionEnclosingClassName = functionElement.getEnclosingElement().asType().toString();
+			final String  lambdaFunctionName               = functionElement.getSimpleName().toString();
+			final boolean hasParameter;
+			final boolean hasReturnValue;
+			final String  lambdaParameterClassName;
+			final String  lambdaReturnValueClassName;
 			
 			// retrieve parameter
 			final List<? extends VariableElement> parameters = functionElement.getParameters();
@@ -77,7 +77,7 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 			if (parameters.size() > 1) {
 				throw new IllegalLambdaFunctionException("Illegal amount of lambda parameters. Maximum allowed: 1");
 			} else if (parameters.size() == 1) {
-				if (!processingEnv.getTypeUtils().isAssignable(parameters.get(0).asType(), lambdaParameterType)) {
+				if (!this.processingEnv.getTypeUtils().isAssignable(parameters.get(0).asType(), this.lambdaParameterType)) {
 					throw new IllegalLambdaFunctionException("Lambda parameter does not implement " + LambdaParameter.class
 							.getCanonicalName());
 				}
@@ -95,7 +95,7 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 				hasReturnValue = false;
 				lambdaReturnValueClassName = "";
 			} else {
-				if (!processingEnv.getTypeUtils().isAssignable(returnType, lambdaReturnType)) {
+				if (!this.processingEnv.getTypeUtils().isAssignable(returnType, this.lambdaReturnType)) {
 					throw new IllegalLambdaFunctionException("Lambda return value is neither void nor implements " + LambdaReturnValue
 							.class.getCanonicalName());
 				}
@@ -114,14 +114,14 @@ public class LambdaFunctionProcessor extends AbstractProcessor {
 			
 			// write meta data to JAR file
 			try {
-				final FileObject metaFile = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
+				final FileObject metaFile = this.processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
 				                                                                    LambdaExecutionService.LAMBDA_META_DATA_FILE);
 				
 				try (final Writer writer = metaFile.openWriter()) {
 					writer.write(jsonMetaData);
 				}
-			} catch (IOException e) {
-				processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+			} catch (final IOException e) {
+				this.processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
 			}
 		}
 		

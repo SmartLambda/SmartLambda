@@ -11,7 +11,7 @@ public class ApplicationTest {
 	@Test
 	@Ignore
 	public void testValidPortSelected() {
-		Integer port = ConfigurationService.getInstance().getConfiguration().getInteger("rest.port", null);
+		final Integer port = ConfigurationService.getInstance().getConfiguration().getInteger("rest.port", null);
 		
 		assertEquals(port != null ? port : 80, Spark.port());
 	}

@@ -19,15 +19,15 @@ public class DemoLambda {
 	 * @return a string containing the ascii art
 	 */
 	public String convert(final BufferedImage image) {
-		StringBuilder stringBuilder = new StringBuilder((image.getWidth() / 5 + 1) * image.getHeight() / 10 + 1);
+		final StringBuilder stringBuilder = new StringBuilder((image.getWidth() / 5 + 1) * image.getHeight() / 10 + 1);
 		
 		for (int y = 0; y < image.getHeight(); y += 10) {
 			if (stringBuilder.length() != 0) stringBuilder.append("\n");
 			for (int x = 0; x < image.getWidth(); x += 5) {
-				Color pixelColor = new Color(image.getRGB(x, y));
-				double brightness = (double) pixelColor.getRed() * 0.2989 + (double) pixelColor.getBlue() * 0.5870 +
+				final Color pixelColor = new Color(image.getRGB(x, y));
+				final double brightness = (double) pixelColor.getRed() * 0.2989 + (double) pixelColor.getBlue() * 0.5870 +
 						(double) pixelColor.getGreen() * 0.1140;
-				stringBuilder.append(returnStrPos(brightness));
+				stringBuilder.append(this.returnStrPos(brightness));
 			}
 		}
 		return stringBuilder.toString();
@@ -46,7 +46,7 @@ public class DemoLambda {
 	 *
 	 * @return a char applying to the given brightness value
 	 */
-	private char returnStrPos(double brightness) {
+	private char returnStrPos(final double brightness) {
 		final char str;
 		
 		if (brightness >= 230.0) {

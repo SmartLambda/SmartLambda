@@ -28,7 +28,7 @@ public class GitHubCredential {
 	@Column(name = "accessToken", unique = true, nullable = false)
 	private String accessToken;
 	@Getter
-	@OneToOne()
+	@OneToOne
 	@JoinColumn(name = "user")
 	private User user;
 	

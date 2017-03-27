@@ -38,7 +38,7 @@ public class EventTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		Key key = Mockito.mock(Key.class);
+		final Key key = Mockito.mock(Key.class);
 		this.event.setKey(key);
 		this.event.setLambda(Mockito.mock(Lambda.class));
 		this.event.setParameters("");
@@ -50,14 +50,14 @@ public class EventTest {
 		PowerMockito.when(Application.getInstance()).thenReturn(Mockito.mock(Application.class));
 		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(Mockito.mock(SessionFactory.class));
 		
-		Session session = Mockito.mock(Session.class);
+		final Session session = Mockito.mock(Session.class);
 		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
 		Mockito.doAnswer(invocation -> this.saveEvent = invocation.getArgument(0)).when(session).saveOrUpdate(any(Event.class));
 		
 		Mockito.doAnswer(invocation -> this.saveEvent = invocation.getArgument(0)).when(session).delete(any(Event.class));
 		
 		PowerMockito.mockStatic(AuthenticationService.class);
-		AuthenticationService authService = Mockito.mock(AuthenticationService.class);
+		final AuthenticationService authService = Mockito.mock(AuthenticationService.class);
 		PowerMockito.when(AuthenticationService.getInstance()).thenReturn(authService);
 		PowerMockito.doNothing().when(authService).authenticate(key);
 		
@@ -66,12 +66,9 @@ public class EventTest {
 		PowerMockito.mockStatic(LambdaFacade.class);
 		Mockito.when(LambdaFacade.getInstance()).thenReturn(Mockito.mock(LambdaFacade.class));
 		Mockito.when(LambdaFacade.getInstance().getFactory()).thenReturn(Mockito.mock(LambdaFactory.class));
-		AbstractLambda abstractLambda = Mockito.mock(AbstractLambda.class);
+		final AbstractLambda abstractLambda = Mockito.mock(AbstractLambda.class);
 		Mockito.when(LambdaFacade.getInstance().getFactory().decorate(any(Lambda.class))).thenReturn(abstractLambda);
 		Mockito.when(abstractLambda.executeAsync(anyString())).thenReturn(this.future);
-		
-		
-		
 	}
 	
 	@After

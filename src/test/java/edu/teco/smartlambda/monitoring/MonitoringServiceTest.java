@@ -41,15 +41,15 @@ public class MonitoringServiceTest {
 	@Before
 	public void setUp() {
 		sessionFactory = Mockito.mock(SessionFactory.class);
-		Session     session = Mockito.mock(Session.class);
-		Application app     = Mockito.mock(Application.class);
+		final Session     session = Mockito.mock(Session.class);
+		final Application app     = Mockito.mock(Application.class);
 		PowerMockito.mockStatic(Application.class);
 		PowerMockito.when(Application.getInstance()).thenReturn(app);
 		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(sessionFactory);
 		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
 		
 		PowerMockito.when(session.save(any(MonitoringEvent.class))).thenAnswer(invocation -> {
-			saveEvent = (MonitoringEvent) invocation.getArguments()[0];
+			this.saveEvent = (MonitoringEvent) invocation.getArguments()[0];
 			return null;
 		});
 		this.lambda = Mockito.mock(Lambda.class);
@@ -59,7 +59,7 @@ public class MonitoringServiceTest {
 	
 	private void mockAuthentication() {
 		PowerMockito.mockStatic(AuthenticationService.class);
-		AuthenticationService authService = Mockito.mock(AuthenticationService.class);
+		final AuthenticationService authService = Mockito.mock(AuthenticationService.class);
 		PowerMockito.when(AuthenticationService.getInstance()).thenReturn(authService);
 		PowerMockito.when(authService.getAuthenticatedKey()).thenReturn(Optional.of(Mockito.mock(Key.class)));
 	}
