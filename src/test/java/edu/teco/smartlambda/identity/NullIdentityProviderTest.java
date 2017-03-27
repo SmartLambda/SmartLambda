@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -50,5 +51,13 @@ public class NullIdentityProviderTest {
 	@Test (expected = IdentitySyntaxException.class)
 	public void testEmptyParameter() {
 		new NullIdentityProvider().register(new HashMap<>());
+	}
+	
+	@Test
+	public void testGetters() throws Exception {
+		final String providerName = "null";
+		NullIdentityProvider nip = Mockito.mock(NullIdentityProvider.class);
+		Mockito.when(nip.getName()).thenCallRealMethod();
+		Assert.assertSame(nip.getName(), providerName);
 	}
 }
