@@ -4,3 +4,5 @@ jdk:
   - oraclejdk8
 service:
   - docker
+addons:
+  mariadb: '10.1'
