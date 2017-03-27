@@ -2,19 +2,15 @@ package edu.teco.smartlambda.container.docker;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.container.ImageBuilder;
-import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -27,8 +23,6 @@ public class DockerImageBuilder implements ImageBuilder {
 	private final File   tmpDirectory;
 	private       String template;
 	
-	private String runtimeLibrary;
-	
 	public DockerImageBuilder() {
 		containerId = generateContainerId();
 		
@@ -40,15 +34,7 @@ public class DockerImageBuilder implements ImageBuilder {
 	}
 	
 	@Override
-	public DockerImage build()
-			throws DockerCertificateException, IOException, DockerException, InterruptedException, URISyntaxException {
-		final InputStream      inputStream  = DockerImageBuilder.class.getClassLoader().getResourceAsStream(this.runtimeLibrary);
-		final FileOutputStream outputStream = new FileOutputStream(new File(tmpDirectory, this.runtimeLibrary));
-		outputStream.write(IOUtils.toByteArray(inputStream));
-		outputStream.flush();
-		outputStream.close();
-		inputStream.close();
-		
+	public DockerImage build() throws IOException, DockerException, InterruptedException {
 		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
@@ -84,7 +70,6 @@ public class DockerImageBuilder implements ImageBuilder {
 	@Override
 	public ImageBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException {
 		final File file = new File(tmpDirectory, name);
-		assert !file.exists();
 		
 		//noinspection ResultOfMethodCallIgnored
 		file.createNewFile();
@@ -97,12 +82,6 @@ public class DockerImageBuilder implements ImageBuilder {
 		//noinspection ResultOfMethodCallIgnored
 		file.setExecutable(executable);
 		
-		return this;
-	}
-	
-	@Override
-	public ImageBuilder setRuntimeLibrary(final String runtimeLibrary) {
-		this.runtimeLibrary = runtimeLibrary;
 		return this;
 	}
 	
