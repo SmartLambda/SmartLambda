@@ -16,7 +16,11 @@ import org.torpedoquery.jpa.OnGoingStringCondition;
 import org.torpedoquery.jpa.Query;
 import org.torpedoquery.jpa.Torpedo;
 
+import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +30,7 @@ import static org.mockito.ArgumentMatchers.anyString;
  * Created on 22.03.17.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({User.class, Torpedo.class, Application.class})
+@PrepareForTest({User.class, Torpedo.class, Application.class, URL.class, GitHubIdentityProvider.class})
 public class GitHubIdentityProviderTest {
 	
 	private String                 createUserAnswer;
@@ -36,6 +40,8 @@ public class GitHubIdentityProviderTest {
 	private Session                session;
 	private OnGoingStringCondition onGoingStringCondition;
 	private GitHubCredential       gitHubCredential;
+	private HttpURLConnection      connection;
+	private URL                    url;
 	
 	private GitHubIdentityProvider gitHubIdentityProvider;
 	
@@ -72,6 +78,14 @@ public class GitHubIdentityProviderTest {
 		PowerMockito.when(Application.getInstance()).thenReturn(app);
 		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(sessionFactory);
 		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(this.session);
+		
+		//Mock HTTP connection classes
+		this.connection = PowerMockito.mock(HttpURLConnection.class);
+		PowerMockito.mockStatic(URL.class);
+		this.url = PowerMockito.mock(URL.class);
+		PowerMockito.whenNew(URL.class).withAnyArguments().thenReturn(this.url);
+		Mockito.when(this.url.openConnection()).thenReturn(this.connection);
+		PowerMockito.when(this.connection.getResponseCode()).thenReturn(200);
 	}
 	
 	@Test(expected = IdentitySyntaxException.class)
@@ -93,6 +107,17 @@ public class GitHubIdentityProviderTest {
 	@Test
 	public void gitHubCredentialCreation() throws Exception {
 		//TODO
+	}
+	
+	@Test (expected = InvalidCredentialsException.class)
+	public void gitHubAuthenticationBadResponseCode() throws Exception {
+		final String token = "GitHubIdentityProviderTest.gitHubAuthenticationBadResponseCode.Token";
+		PowerMockito.when(this.connection.getResponseCode()).thenReturn(9999);
+		PowerMockito.when(this.connection.getErrorStream()).thenReturn(new ByteArrayInputStream( "mocked InputStream".getBytes() ));
+		
+		final Map<String, String> params = new HashMap<>();
+		params.put("accessToken", token);
+		this.gitHubIdentityProvider.register(params);
 	}
 	
 	@Ignore
