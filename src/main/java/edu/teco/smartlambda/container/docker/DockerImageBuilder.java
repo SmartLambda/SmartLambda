@@ -24,21 +24,21 @@ public class DockerImageBuilder implements ImageBuilder {
 	private       String template;
 	
 	public DockerImageBuilder() {
-		containerId = generateContainerId();
+		this.containerId = this.generateContainerId();
 		
-		tmpDirectory = new File(System.getProperty("java.io.tmpdir"), containerId);
-		assert !tmpDirectory.exists() : "Temporary docker file directory already exists!";
+		this.tmpDirectory = new File(System.getProperty("java.io.tmpdir"), this.containerId);
+		assert !this.tmpDirectory.exists() : "Temporary docker file directory already exists!";
 		
 		//noinspection ResultOfMethodCallIgnored
-		tmpDirectory.mkdir();
+		this.tmpDirectory.mkdir();
 	}
 	
 	@Override
 	public DockerImage build() throws IOException, DockerException, InterruptedException {
-		final File       dockerFile = new File(tmpDirectory, "Dockerfile");
+		final File       dockerFile = new File(this.tmpDirectory, "Dockerfile");
 		final FileWriter writer     = new FileWriter(dockerFile);
 		
-		writer.write("FROM " + template + "\n");
+		writer.write("FROM " + this.template + "\n");
 		writer.write("COPY . ~\n");
 		writer.write("WORKDIR ~\n");
 		writer.write("CMD " + this.command + "\n");
@@ -47,10 +47,11 @@ public class DockerImageBuilder implements ImageBuilder {
 		
 		final DockerClient dockerClient = new DefaultDockerClient(
 				ConfigurationService.getInstance().getConfiguration().getString("docker.socket", DockerClientProvider.DEFAULT_SOCKET));
-		final String imageId = dockerClient.build(tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(containerId));
+		final String imageId =
+				dockerClient.build(this.tmpDirectory.getAbsoluteFile().toPath(), DockerClient.BuildParam.name(this.containerId));
 		
 		//noinspection ResultOfMethodCallIgnored
-		tmpDirectory.delete();
+		this.tmpDirectory.delete();
 		
 		return new DockerImage(imageId);
 	}
@@ -69,7 +70,7 @@ public class DockerImageBuilder implements ImageBuilder {
 	
 	@Override
 	public ImageBuilder storeFile(final byte[] binary, final String name, final boolean executable) throws IOException {
-		final File file = new File(tmpDirectory, name);
+		final File file = new File(this.tmpDirectory, name);
 		
 		//noinspection ResultOfMethodCallIgnored
 		file.createNewFile();
