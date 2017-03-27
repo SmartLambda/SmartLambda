@@ -6,3 +6,8 @@ service:
   - docker
 addons:
   mariadb: '10.1'
+before_script:
+  - mkdir /etc/smartlambda
+  - cp travis/configuration/* /etc/smartlambda
+  - mysql -e "CREATE DATABASE IF NOT EXISTS smartlambda;"
+  - mysql smartlambda < smartlambda.sql
