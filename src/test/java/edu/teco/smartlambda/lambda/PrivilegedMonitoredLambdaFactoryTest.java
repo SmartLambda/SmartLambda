@@ -5,24 +5,20 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assume.assumeNotNull;
 
 /**
  *
  */
-public class LambdaFactoryTest {
+public class PrivilegedMonitoredLambdaFactoryTest {
 	
 	@Test
 	public void getLambdaByOwnerAndName() throws Exception {
-		// TODO
+	
 	}
 	
 	@Test
 	public void createLambda() throws Exception {
-		assumeNotNull(LambdaFacade.getInstance());
-		assumeNotNull(LambdaFacade.getInstance().getFactory());
-		
-		final AbstractLambda emptyLambda = LambdaFacade.getInstance().getFactory().createLambda();
+		final AbstractLambda emptyLambda = new PrivilegedMonitoredLambdaFactory().createLambda();
 		
 		// not a prototype
 		assertNotNull(emptyLambda);
