@@ -18,8 +18,8 @@ public class JRE8 implements Runtime {
 	@Override
 	public void setupContainerImage(final ImageBuilder builder) {
 		try {
-			builder.storeFile(IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("executionservice.jar")),
-					"executionservice.jar");
+			builder.storeFile(IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("jre8/executionservice.jar")),
+					EXECUTION_SERVICE_NAME);
 		} catch (final IOException e) {
 			throw new RuntimeException("Failed to read execution service JAR resource", e);
 		}

@@ -32,7 +32,7 @@ public class HttpHijackingWorkaroundTest {
 		}
 		
 		final Image image = imageBuilder.storeFile(
-				IOUtils.toByteArray(HttpHijackingWorkaround.class.getClassLoader().getResourceAsStream("executionservice" + ".jar")),
+				IOUtils.toByteArray(HttpHijackingWorkaround.class.getClassLoader().getResourceAsStream("jre8/executionservice" + ".jar")),
 				"executionservice.jar").setCommand("java -jar executionservice.jar").setTemplate("openjdk:8").build();
 		
 		final Container container = image.start();
