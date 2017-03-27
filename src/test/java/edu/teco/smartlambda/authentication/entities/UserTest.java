@@ -2,6 +2,8 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.lambda.AbstractLambda;
+import edu.teco.smartlambda.lambda.Lambda;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -15,7 +17,9 @@ import org.torpedoquery.jpa.Query;
 import org.torpedoquery.jpa.Torpedo;
 import org.torpedoquery.jpa.ValueOnGoingCondition;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -99,7 +104,6 @@ public class UserTest {
 		verify(this.session).save(key);
 	}
 	
-	@Test
 	public void getVisibleUsers() throws Exception {
 	
 	}
@@ -117,7 +121,16 @@ public class UserTest {
 	
 	@Test
 	public void getVisibleLambdas() throws Exception {
-	
+		final Lambda visibleLambda   = mock(Lambda.class);
+		final Lambda invisibleLambda = mock(Lambda.class);
+		
+		doReturn(Arrays.asList(visibleLambda, invisibleLambda)).when(this.user).getLambdas();
+		when(this.primaryKey.hasPermission(visibleLambda, PermissionType.READ)).thenReturn(true);
+		when(this.primaryKey.hasPermission(invisibleLambda, PermissionType.READ)).thenReturn(false);
+		
+		final Set<AbstractLambda> visibleLambdas = this.user.getVisibleLambdas();
+		assertTrue(visibleLambdas.size() == 1);
+		assertTrue(visibleLambdas.iterator().next() == visibleLambda);
 	}
 	
 	@Test
