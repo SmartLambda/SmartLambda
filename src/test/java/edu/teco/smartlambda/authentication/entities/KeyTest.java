@@ -189,7 +189,7 @@ public class KeyTest {
 		final Key  key1  = user1.getPrimaryKey();
 
 		this.lambda.setOwner(user1);
-		this.lambda.save();
+		this.lambda.update();
 
 		
 		final Map<String, String> params2 = new HashMap<>();
