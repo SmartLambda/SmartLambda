@@ -23,4 +23,9 @@ public class GitHubCredentialTest {
 		Assert.assertEquals(gitHubCredential.getAccessToken(), token);
 		Assert.assertEquals(gitHubCredential.getUser(), user);
 	}
+	
+	@Test
+	public void testGetters() throws Exception {
+		Assert.assertNotNull(new GitHubCredential(null, null).getId());
+	}
 }
