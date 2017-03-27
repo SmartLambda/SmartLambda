@@ -1,4 +1,4 @@
-include 'execution'
+include 'execution-jre8'
 include 'lambda-test'
 include 'lambda-example'
 include 'shared'

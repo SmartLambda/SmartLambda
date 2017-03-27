@@ -5,8 +5,8 @@
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="execution_main" target="1.8" />
-      <module name="execution_test" target="1.8" />
+      <module name="execution-jre8_main" target="1.8" />
+      <module name="execution-jre8_test" target="1.8" />
       <module name="lambda-example_main" target="1.8" />
       <module name="lambda-example_test" target="1.8" />
       <module name="lambda-test_main" target="1.8" />

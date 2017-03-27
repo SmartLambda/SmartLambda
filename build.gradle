@@ -69,4 +69,4 @@ buildConfig {
     }
 }
 
-processResources.dependsOn ':execution:install'
+processResources.dependsOn ':execution-jre8:install'
