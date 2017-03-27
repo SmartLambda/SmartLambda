@@ -1,7 +1,6 @@
 package edu.teco.smartlambda.identity;
 
 import edu.teco.smartlambda.authentication.entities.User;
-import edu.teco.smartlambda.utility.TestUtility;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,10 +50,5 @@ public class NullIdentityProviderTest {
 	@Test (expected = IdentitySyntaxException.class)
 	public void testEmptyParameter() {
 		new NullIdentityProvider().register(new HashMap<>());
-	}
-	
-	@Test
-	public void testGettersAndSetters() throws Exception{
-		TestUtility.testGettersAndSetters(new NullIdentityProvider());
 	}
 }
