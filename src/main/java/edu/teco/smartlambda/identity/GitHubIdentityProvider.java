@@ -39,10 +39,12 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		
 		final String name = this.gitHubRequest(accessToken);
 		
-		final GitHubCredential credential = new GitHubCredential(accessToken);
+		final Pair<User, String> returnvalue = User.createUser(name);
+		
+		final GitHubCredential credential = new GitHubCredential(accessToken, returnvalue.getLeft());
 		Application.getInstance().getSessionFactory().getCurrentSession().save(credential);
 				
-		return User.createUser(name);
+		return returnvalue;
 	}
 	
 	@Override
