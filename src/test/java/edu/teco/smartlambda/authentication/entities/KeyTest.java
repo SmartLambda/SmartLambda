@@ -41,6 +41,7 @@ public class KeyTest {
 		this.user = new NullIdentityProvider().register(params).getLeft();
 		
 		this.lambda = LambdaDecorator.unwrap(abstractLambda);
+		this.lambda.setName("TestLambda");
 		this.lambda.setOwner(this.user);
 		this.lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName("jre8"));
 		try {
