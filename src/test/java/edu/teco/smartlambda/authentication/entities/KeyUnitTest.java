@@ -19,6 +19,7 @@ import org.torpedoquery.jpa.Torpedo;
 import org.torpedoquery.jpa.ValueOnGoingCondition;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -144,7 +145,7 @@ public class KeyUnitTest {
 		
 		testKey.delete();
 		
-		verify(user).equals(deleteUser[0]);
+		Assert.assertEquals(user, deleteUser[0]);
 		Assert.assertEquals(testKey, deleteKey[0]);
 	}
 	
@@ -166,5 +167,93 @@ public class KeyUnitTest {
 		Assert.assertTrue(expectedPermission.getKey().equals(permission[0].getKey()) &&
 				expectedPermission.getLambda().equals(permission[0].getLambda()) &&
 				expectedPermission.getPermissionType().equals(permission[0].getPermissionType()));
+	}
+	
+	@Test
+	public void grantUserPermissionTest() throws Exception {
+		PermissionType permissionType     = PermissionType.CREATE;
+		Permission[]   permission         = new Permission[1];
+		Permission     expectedPermission = new Permission(user, permissionType, key);
+		when(user.getPrimaryKey()).thenReturn(key);
+		
+		doReturn(false).when(key).hasPermission(user, permissionType);
+		when(session.save(nullable(Permission.class))).thenAnswer(invocation -> {
+			permission[0] = invocation.getArgument(0);
+			return null;
+		});
+		
+		key.grantPermission(user, permissionType);
+		
+		Assert.assertTrue(expectedPermission.getKey().equals(permission[0].getKey()) &&
+				expectedPermission.getUser().equals(permission[0].getUser()) &&
+				expectedPermission.getPermissionType().equals(permission[0].getPermissionType()));
+	}
+	
+	@Test
+	public void revokeLambdaPermissionTest() throws Exception {
+		when(user.getPrimaryKey()).thenReturn(key);
+		
+		final boolean[]            deleted        = new boolean[1];
+		PermissionType             permissionType = PermissionType.CREATE;
+		ValueOnGoingCondition      keyCondition;
+		ValueOnGoingCondition      lambdaCondition;
+		OnGoingComparableCondition permissionTypeCondition;
+		
+		OnGoingLogicalCondition keyReturnCondition    = mock(OnGoingLogicalCondition.class);
+		OnGoingLogicalCondition lambdaReturnCondition = mock(OnGoingLogicalCondition.class);
+		
+		when(Torpedo.where(nullable(Key.class))).thenReturn(
+				keyCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> keyReturnCondition)));
+		when(keyReturnCondition.and(nullable(Lambda.class))).thenReturn(
+				lambdaCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> lambdaReturnCondition)));
+		when(lambdaReturnCondition.and(nullable(PermissionType.class)))
+				.thenReturn(permissionTypeCondition = mock(OnGoingComparableCondition.class));
+		
+		List<Object> permissions = new LinkedList<>();
+		permissions.add(new Permission(user, permissionType, key));
+		
+		when(Torpedo.select(new Object()).list(session)).thenReturn(permissions);
+		doAnswer(invocation -> deleted[0] = true).when(session).delete(any(Permission.class));
+		
+		key.revokePermission(lambda, permissionType);
+		
+		verify(keyCondition).eq(key);
+		verify(lambdaCondition).eq(lambda);
+		verify(permissionTypeCondition).eq(permissionType);
+		Assert.assertEquals(true, deleted[0]);
+	}
+	
+	@Test
+	public void revokeUserPermissionTest() throws Exception {
+		when(user.getPrimaryKey()).thenReturn(key);
+		
+		final boolean[]            deleted        = new boolean[1];
+		PermissionType             permissionType = PermissionType.CREATE;
+		ValueOnGoingCondition      keyCondition;
+		ValueOnGoingCondition      userCondition;
+		OnGoingComparableCondition permissionTypeCondition;
+		
+		OnGoingLogicalCondition keyReturnCondition  = mock(OnGoingLogicalCondition.class);
+		OnGoingLogicalCondition userReturnCondition = mock(OnGoingLogicalCondition.class);
+		
+		when(Torpedo.where(nullable(Key.class))).thenReturn(
+				keyCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> keyReturnCondition)));
+		when(keyReturnCondition.and(nullable(User.class))).thenReturn(
+				userCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> userReturnCondition)));
+		when(userReturnCondition.and(nullable(PermissionType.class)))
+				.thenReturn(permissionTypeCondition = mock(OnGoingComparableCondition.class));
+		
+		List<Object> permissions = new LinkedList<>();
+		permissions.add(new Permission(user, permissionType, key));
+		
+		when(Torpedo.select(new Object()).list(session)).thenReturn(permissions);
+		doAnswer(invocation -> deleted[0] = true).when(session).delete(any(Permission.class));
+		
+		key.revokePermission(user, permissionType);
+		
+		verify(keyCondition).eq(key);
+		verify(userCondition).eq(user);
+		verify(permissionTypeCondition).eq(permissionType);
+		Assert.assertEquals(true, deleted[0]);
 	}
 }
