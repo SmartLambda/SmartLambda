@@ -5,6 +5,7 @@ import edu.teco.smartlambda.authentication.AuthenticationService;
 import edu.teco.smartlambda.lambda.Lambda;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,11 +18,13 @@ import org.torpedoquery.jpa.Query;
 import org.torpedoquery.jpa.Torpedo;
 import org.torpedoquery.jpa.ValueOnGoingCondition;
 
+import java.util.LinkedList;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -33,6 +36,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Torpedo.class, Application.class, AuthenticationService.class})
 public class KeyUnitTest {
@@ -73,11 +77,6 @@ public class KeyUnitTest {
 	}
 	
 	@Test
-	public void getPermissionsTest() throws Exception {
-		when(Torpedo.where(any(Key.class)));
-	}
-	
-	@Test
 	public void hasPermissionsTest() throws Exception {
 		final PermissionType permissionType = PermissionType.CREATE;
 		
@@ -103,5 +102,49 @@ public class KeyUnitTest {
 		verify(keyCondition).eq(this.key);
 		verify(lambdaCondition).eq(this.lambda);
 		verify(permissionCondition).eq(permissionType);
+	}
+	
+	@Test
+	public void hasUserPermissionsTest() throws Exception {
+		final PermissionType permissionType = PermissionType.CREATE;
+		
+		final ValueOnGoingCondition      keyCondition;
+		final ValueOnGoingCondition      userCondition;
+		final OnGoingComparableCondition permissionCondition;
+		
+		final OnGoingLogicalCondition keyReturnCondition    = mock(OnGoingLogicalCondition.class);
+		final OnGoingLogicalCondition lambdaReturnCondition = mock(OnGoingLogicalCondition.class);
+		
+		when(Torpedo.where(nullable(Key.class))).thenReturn(
+				keyCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> keyReturnCondition)));
+		when(keyReturnCondition.and(nullable(User.class))).thenReturn(
+				userCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> lambdaReturnCondition)));
+		when(lambdaReturnCondition.and(nullable(PermissionType.class)))
+				.thenReturn(permissionCondition = mock(OnGoingComparableCondition.class));
+		
+		when(Torpedo.select(new Object()).list(session)).thenReturn(new LinkedList<>());
+		
+		this.key.hasPermission(user, permissionType);
+		
+		verify(keyCondition).eq(this.key);
+		verify(userCondition).eq(this.user);
+		verify(permissionCondition).eq(permissionType);
+	}
+	
+	@Test
+	public void deleteTest() throws Exception {
+		Key testKey = new Key("", "", user);
+		when(AuthenticationService.getInstance().getAuthenticatedKey()).thenReturn(Optional.of(testKey));
+		final Key[]  deleteKey  = new Key[1];
+		final User[] deleteUser = new User[1];
+		
+		when(this.user.getPrimaryKey()).thenReturn(testKey);
+		doAnswer(invocation -> deleteKey[0] = invocation.getArgument(0)).when(session).delete(any(Key.class));
+		doAnswer(invocation -> deleteUser[0] = invocation.getArgument(0)).when(session).delete(any(User.class));
+		
+		testKey.delete();
+		
+		verify(user).equals(deleteUser[0]);
+		Assert.assertEquals(testKey, deleteKey[0]);
 	}
 }
