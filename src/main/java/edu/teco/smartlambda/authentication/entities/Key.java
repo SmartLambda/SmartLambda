@@ -29,7 +29,7 @@ import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
- * Created on 01.02.2017.
+ *
  */
 @Entity
 @Table(name = "Key")

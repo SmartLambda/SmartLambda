@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import static javax.persistence.GenerationType.IDENTITY;
 
 /**
- * Created on 07.03.17.
+ *
  */
 @Entity
 @Table(name = "GitHubCredential")

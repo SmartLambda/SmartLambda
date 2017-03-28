@@ -6,7 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Map;
 
 /**
- * Created on 28.02.17.
+ *
  */
 public class NullIdentityProvider implements IdentityProvider{
 	private static final String NAME = "null";

@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 /**
- * Created on 01.02.17.
  * Manages authentication of Keys inside a thread. Between different threats the authentication runs independently. Before a Key is
  * authenticated, getter-methods will return empty optionals. Otherwise getter-methods base their return values on the last authenticated
  * Key

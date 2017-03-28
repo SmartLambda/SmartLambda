@@ -19,7 +19,7 @@ import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
- * Created on 28.02.17.
+ *
  */
 public class GitHubIdentityProvider implements IdentityProvider{
 	private static final String NAME       = "github";
