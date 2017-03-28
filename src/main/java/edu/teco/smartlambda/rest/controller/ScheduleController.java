@@ -103,6 +103,7 @@ public class ScheduleController {
 		
 		if (scheduleRequest.getParameters() != null) event.setParameters(scheduleRequest.getParameters().toString());
 		
+		lambda.schedule(event);
 		response.status(200);
 		return new Object();
 	}
