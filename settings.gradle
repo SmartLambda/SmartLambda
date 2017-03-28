@@ -1,3 +1,4 @@
+rootProject.name = 'SmartLambda'
 include 'execution-jre8'
 include 'lambda-test'
 include 'lambda-example'

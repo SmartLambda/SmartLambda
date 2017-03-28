@@ -1,0 +1,16 @@
+edu.teco.smartlambda
+edu.teco.smartlambda.authentication
+edu.teco.smartlambda.authentication.entities
+edu.teco.smartlambda.concurrent
+edu.teco.smartlambda.configuration
+edu.teco.smartlambda.container
+edu.teco.smartlambda.container.docker
+edu.teco.smartlambda.identity
+edu.teco.smartlambda.lambda
+edu.teco.smartlambda.monitoring
+edu.teco.smartlambda.rest.controller
+edu.teco.smartlambda.rest.exception
+edu.teco.smartlambda.rest.filter
+edu.teco.smartlambda.rest.response
+edu.teco.smartlambda.runtime
+edu.teco.smartlambda.schedule
