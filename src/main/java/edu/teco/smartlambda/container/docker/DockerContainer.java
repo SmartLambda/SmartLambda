@@ -6,7 +6,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import edu.teco.smartlambda.container.Container;
 
 import java.io.OutputStream;
-import java.nio.channels.WritableByteChannel;
 
 import static edu.teco.smartlambda.container.docker.DockerClientProvider.DEFAULT_SOCKET;
 
@@ -27,7 +26,7 @@ public class DockerContainer implements Container {
 	}
 	
 	@Override
-	public WritableByteChannel getStdIn() throws Exception {
+	public OutputStream getStdIn() throws Exception {
 		this.ensureAttached();
 		return HttpHijackingWorkaround.getOutputStream(this.stream, DEFAULT_SOCKET);
 	}

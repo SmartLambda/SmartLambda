@@ -1,7 +1,5 @@
 package edu.teco.smartlambda.lambda;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.spotify.docker.client.DefaultDockerClient;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.container.BuilderFactory;
@@ -10,41 +8,32 @@ import edu.teco.smartlambda.container.Image;
 import edu.teco.smartlambda.container.ImageBuilder;
 import edu.teco.smartlambda.container.ImageFactory;
 import edu.teco.smartlambda.runtime.ExecutionResult;
-import edu.teco.smartlambda.runtime.JRE8;
 import edu.teco.smartlambda.runtime.Runtime;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
 import edu.teco.smartlambda.schedule.Event;
-import edu.teco.smartlambda.utility.TestUtility;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.nio.channels.WritableByteChannel;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
-import static org.powermock.api.support.membermodification.MemberMatcher.field;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LambdaFacade.class, RuntimeRegistry.class, Application.class, ImageFactory.class, BuilderFactory.class})
@@ -83,9 +72,9 @@ public class LambdaTest {
 			hasInvoked[0] = true;
 			return container;
 		});
-		final WritableByteChannel channel = mock(WritableByteChannel.class);
+		final OutputStream          channel    = mock(OutputStream.class);
 		final ByteArrayOutputStream byteStream = mock(ByteArrayOutputStream.class);
-		final DataOutputStream stream = mock(DataOutputStream.class);
+		final DataOutputStream      stream     = mock(DataOutputStream.class);
 		when(container.getStdIn()).thenReturn(channel);
 		PowerMockito.whenNew(ByteArrayOutputStream.class).withAnyArguments().thenReturn(byteStream);
 		PowerMockito.whenNew(DataOutputStream.class).withAnyArguments().thenReturn(stream);

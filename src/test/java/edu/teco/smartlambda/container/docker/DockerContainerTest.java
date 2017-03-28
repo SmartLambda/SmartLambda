@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.nio.channels.WritableByteChannel;
+import java.io.OutputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,8 +31,8 @@ public class DockerContainerTest {
 	private static final String ID = "31337";
 	private static DockerContainer dockerContainer;
 	
-	private static LogStream           mockedLogStream;
-	private static WritableByteChannel mockedWritableByteChannel;
+	private static LogStream    mockedLogStream;
+	private static OutputStream mockedOutputStream;
 	
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -42,7 +42,7 @@ public class DockerContainerTest {
 		
 		//noinspection unchecked
 		mockedLogStream = mock(LogStream.class);
-		mockedWritableByteChannel = mock(WritableByteChannel.class);
+		mockedOutputStream = mock(OutputStream.class);
 		
 		mockStatic(HttpHijackingWorkaround.class);
 		mockStatic(DockerClientProvider.class);
@@ -50,12 +50,12 @@ public class DockerContainerTest {
 		when(DockerClientProvider.get()).thenReturn(mockedDockerClient);
 		when(mockedDockerClient.attachContainer(ID, DockerClient.AttachParameter.STREAM, DockerClient.AttachParameter.STDIN,
 				DockerClient.AttachParameter.STDOUT, DockerClient.AttachParameter.STDERR)).thenReturn(mockedLogStream);
-		when(HttpHijackingWorkaround.getOutputStream(any(LogStream.class), anyString())).thenReturn(mockedWritableByteChannel);
+		when(HttpHijackingWorkaround.getOutputStream(any(LogStream.class), anyString())).thenReturn(mockedOutputStream);
 	}
 	
 	@Test
 	public void getStdIn() throws Exception {
-		assertSame(mockedWritableByteChannel, dockerContainer.getStdIn());
+		assertSame(mockedOutputStream, dockerContainer.getStdIn());
 	}
 	
 	@Test(timeout = 1000L)
