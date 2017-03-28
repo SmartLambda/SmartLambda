@@ -158,7 +158,9 @@
 <div class="block"><code><b>PUT</b> /<i>:user</i>/lambda/<i>:name</i></code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#createSchedule-spark.Request-spark.Response-">createSchedule(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/User.html#createUser-java.lang.String-">createUser(String)</a></span> - Static method in class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/User.html" title="class in edu.teco.smartlambda.authentication.entities">User</a></dt>
 <dd>
 <div class="block">Creates a new User object and new Key Object and adds it to the Database as it's primaryKey</div>
@@ -208,7 +210,9 @@
 <div class="block"><code><b>DELETE</b> /<i>:user</i>/lambda/<i>:name</i></code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#deleteSchedule-spark.Request-spark.Response-">deleteSchedule(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/lambda/AbstractLambda.html#deployBinary-byte:A-">deployBinary(byte[])</a></span> - Method in class edu.teco.smartlambda.lambda.<a href="edu/teco/smartlambda/lambda/AbstractLambda.html" title="class in edu.teco.smartlambda.lambda">AbstractLambda</a></dt>
 <dd>
 <div class="block">Deploy the lambda binary</div>
@@ -498,7 +502,9 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/lambda/PermissionDecorator.html#getScheduledEvents--">getScheduledEvents()</a></span> - Method in class edu.teco.smartlambda.lambda.<a href="edu/teco/smartlambda/lambda/PermissionDecorator.html" title="class in edu.teco.smartlambda.lambda">PermissionDecorator</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#getScheduledEvents-spark.Request-spark.Response-">getScheduledEvents(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedules</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/Application.html#getSessionFactory--">getSessionFactory()</a></span> - Method in class edu.teco.smartlambda.<a href="edu/teco/smartlambda/Application.html" title="class in edu.teco.smartlambda">Application</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/LambdaController.html#getStatistics-spark.Request-spark.Response-">getStatistics(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/LambdaController.html" title="class in edu.teco.smartlambda.rest.controller">LambdaController</a></dt>
@@ -843,7 +849,9 @@
 <div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i></code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#readSchedule-spark.Request-spark.Response-">readSchedule(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-">readUserPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
 <dd>
 <div class="block"><code><b>GET</b> /<i>:user</i>/permissions</code></div>
@@ -931,7 +939,9 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/lambda/PermissionDecorator.html#schedule-edu.teco.smartlambda.schedule.Event-">schedule(Event)</a></span> - Method in class edu.teco.smartlambda.lambda.<a href="edu/teco/smartlambda/lambda/PermissionDecorator.html" title="class in edu.teco.smartlambda.lambda">PermissionDecorator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller"><span class="typeNameLink">ScheduleController</span></a> - Class in <a href="edu/teco/smartlambda/rest/controller/package-summary.html">edu.teco.smartlambda.rest.controller</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Provides REST calls related to lifecycle handling of scheduled events.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#ScheduleController--">ScheduleController()</a></span> - Constructor for class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/schedule/ScheduleManager.html" title="class in edu.teco.smartlambda.schedule"><span class="typeNameLink">ScheduleManager</span></a> - Class in <a href="edu/teco/smartlambda/schedule/package-summary.html">edu.teco.smartlambda.schedule</a></dt>
@@ -1039,7 +1049,9 @@
 <div class="block"><code><b>PATCH</b> /<i>:user</i>/lambda/<i>:name</i></code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#updateSchedule-spark.Request-spark.Response-">updateSchedule(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>PATCH</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</dd>
 <dt><a href="edu/teco/smartlambda/authentication/entities/User.html" title="class in edu.teco.smartlambda.authentication.entities"><span class="typeNameLink">User</span></a> - Class in <a href="edu/teco/smartlambda/authentication/entities/package-summary.html">edu.teco.smartlambda.authentication.entities</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/User.html#User--">User()</a></span> - Constructor for class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/User.html" title="class in edu.teco.smartlambda.authentication.entities">User</a></dt>
