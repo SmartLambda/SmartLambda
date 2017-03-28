@@ -109,6 +109,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">PermissionController</span>
 extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Provides REST calls related to lifecycle handling of permissions.</div>
 </li>
 </ul>
 </div>
@@ -147,32 +148,44 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#grantKeyPermissions-spark.Request-spark.Response-">grantKeyPermissions</a></span>(spark.Request&nbsp;request,
-                   spark.Response&nbsp;response)</code>&nbsp;</td>
+                   spark.Response&nbsp;response)</code>
+<div class="block"><code><b>PUT</b> /<i>:key</i>/permissions</code></div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#grantUserPermissions-spark.Request-spark.Response-">grantUserPermissions</a></span>(spark.Request&nbsp;request,
-                    spark.Response&nbsp;response)</code>&nbsp;</td>
+                    spark.Response&nbsp;response)</code>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/permissions</code></div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readKeyPermissions-spark.Request-spark.Response-">readKeyPermissions</a></span>(spark.Request&nbsp;request,
-                  spark.Response&nbsp;response)</code>&nbsp;</td>
+                  spark.Response&nbsp;response)</code>
+<div class="block"><code><b>GET</b> /<i>:key</i>/permissions</code></div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-">readUserPermissions</a></span>(spark.Request&nbsp;request,
-                   spark.Response&nbsp;response)</code>&nbsp;</td>
+                   spark.Response&nbsp;response)</code>
+<div class="block"><code><b>GET</b> /<i>:user</i>/permissions</code></div>
+</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#revokeKeyPermissions-spark.Request-spark.Response-">revokeKeyPermissions</a></span>(spark.Request&nbsp;request,
-                    spark.Response&nbsp;response)</code>&nbsp;</td>
+                    spark.Response&nbsp;response)</code>
+<div class="block"><code><b>DELETE</b> /<i>:key</i>/permissions</code></div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#revokeUserPermissions-spark.Request-spark.Response-">revokeUserPermissions</a></span>(spark.Request&nbsp;request,
-                     spark.Response&nbsp;response)</code>&nbsp;</td>
+                     spark.Response&nbsp;response)</code>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/permissions</code></div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -221,6 +234,101 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>readUserPermissions</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;readUserPermissions(spark.Request&nbsp;request,
                                          spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>GET</b> /<i>:user</i>/permissions</code>
+ <p>
+ Lists permissions granted to the specified user. No body parameters are required. The response contains an array of all
+ granted permissions grouped by their types.
+ <br>
+ Permissions are either granted for a specific lambda or for all lambdas of a user.
+ </p>
+ <table>
+ <caption><b>Permission types</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>read</td>
+ <td>Read lambda settings</td>
+ </tr>
+ <tr>
+ <td>patch</td>
+ <td>Change lambda settings (includes deploying a new binary or source code container)</td>
+ </tr>
+ <tr>
+ <td>execute</td>
+ <td>Execute lambdas</td>
+ </tr>
+ <tr>
+ <td>delete</td>
+ <td>Delete lambdas</td>
+ </tr>
+ <tr>
+ <td>status</td>
+ <td>Read lambda statistics</td>
+ </tr>
+ <tr>
+ <td>schedule</td>
+ <td>Create scheduled events</td>
+ </tr>
+ <tr>
+ <td>create</td>
+ <td>Create new lambdas</td>
+ </tr>
+ <tr>
+ <td>grant</td>
+ <td>Grant permissions to others
+ <br>
+ <b>Can't be granted to keys</b></td>
+ </tr>
+ </tbody>
+ </table>
+ <br><br>
+ <table>
+ <caption><b>Permission object parameters</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>user</td>
+ <td>string</td>
+ <td>User a permission is granted to</td>
+ </tr>
+ <tr>
+ <td>lambda</td>
+ <td>string</td>
+ <td>Name of the lambda a permission is granted for, or '*' for permissions granted for all lambdas
+ <br>
+ <b>Option invalid for 'create' permissions</b>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ <p>
+ <br><br>
+ <h3>Example</h3>
+ <pre>
+ <code>
+         {
+              "read":[],
+              "execute":[{"user":"foo","name":"*"}],
+              "grant":[{"user":"foo","name":"bar"}]
+         }
+ </code>
+ </pre></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+</dl>
 </li>
 </ul>
 <a name="grantUserPermissions-spark.Request-spark.Response-">
@@ -232,9 +340,20 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;grantUserPermissions(spark.Request&nbsp;request,
                                           spark.Response&nbsp;response)
                                    throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/permissions</code>
+ <p>
+ Grants permissions to the specified user. Body must contain a valid list of
+ permissions (see <a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a> for an example). Responds with an empty JSON object on success.
+ </p></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the authenticated user doesn't have sufficient permissions to grant
+                                          at least one of the specified permissions</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -247,9 +366,20 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;revokeUserPermissions(spark.Request&nbsp;request,
                                            spark.Response&nbsp;response)
                                     throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/permissions</code>
+ <p>
+ Revokes permissions previously granted to the specified user. Body must contain a valid list of
+ permissions (see <a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a> for an example). Responds with an empty JSON object on success.
+ </p></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the authenticated user doesn't have sufficient permissions to revoke
+                                          (grant) at least one of the specified permissions</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -261,6 +391,18 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>readKeyPermissions</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;readKeyPermissions(spark.Request&nbsp;request,
                                         spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>GET</b> /<i>:key</i>/permissions</code>
+ <p>
+ Lists permissions granted to the specified user. No body parameters are required. See
+ <a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(Request, Response)</code></a> for a result example.
+ </p></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="grantKeyPermissions-spark.Request-spark.Response-">
@@ -272,9 +414,21 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;grantKeyPermissions(spark.Request&nbsp;request,
                                          spark.Response&nbsp;response)
                                   throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>PUT</b> /<i>:key</i>/permissions</code>
+ <p>
+ Grants permissions to the specified key. Body must contain a valid list of
+ permissions (see <a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a> for an example). Responds with an empty JSON object on success.
+ </p></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the authenticated user doesn't have sufficient permissions to grant
+                                          at least one of the specified permissions</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a>, 
+<a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#grantUserPermissions-spark.Request-spark.Response-"><code>grantUserPermissions(spark.Request, spark.Response)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -287,9 +441,21 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;revokeKeyPermissions(spark.Request&nbsp;request,
                                           spark.Response&nbsp;response)
                                    throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>DELETE</b> /<i>:key</i>/permissions</code>
+ <p>
+ Revokes permissions previously granted to the specified key. Body must contain a valid list of
+ permissions (see <a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a> for an example). Responds with an empty JSON object on success.
+ </p></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when the specified user is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the authenticated user doesn't have sufficient permissions to revoke
+                                          (grant) at least one of the specified permissions</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-"><code>readUserPermissions(spark.Request, spark.Response)</code></a>, 
+<a href="../../../../../edu/teco/smartlambda/rest/controller/PermissionController.html#revokeUserPermissions-spark.Request-spark.Response-"><code>revokeUserPermissions(spark.Request, spark.Response)</code></a></dd>
 </dl>
 </li>
 </ul>

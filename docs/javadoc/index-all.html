@@ -98,7 +98,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/authentication/AuthenticationService.html" title="class in edu.teco.smartlambda.authentication"><span class="typeNameLink">AuthenticationService</span></a> - Class in <a href="edu/teco/smartlambda/authentication/package-summary.html">edu.teco.smartlambda.authentication</a></dt>
 <dd>
-<div class="block">Created on 01.02.17.</div>
+<div class="block">Manages authentication of Keys inside a thread.</div>
 </dd>
 </dl>
 <a name="I:B">
@@ -123,11 +123,14 @@
 <h2 class="title">C</h2>
 <dl>
 <dt><a href="edu/teco/smartlambda/configuration/ConfigurationLoaderException.html" title="class in edu.teco.smartlambda.configuration"><span class="typeNameLink">ConfigurationLoaderException</span></a> - Exception in <a href="edu/teco/smartlambda/configuration/package-summary.html">edu.teco.smartlambda.configuration</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="edu/teco/smartlambda/configuration/ConfigurationLoaderException.html#ConfigurationLoaderException-java.lang.Throwable-">ConfigurationLoaderException(Throwable)</a></span> - Constructor for exception edu.teco.smartlambda.configuration.<a href="edu/teco/smartlambda/configuration/ConfigurationLoaderException.html" title="class in edu.teco.smartlambda.configuration">ConfigurationLoaderException</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">A wrapper for any <code>ConfigurationException</code> that extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><code>RuntimeException</code></a>, so the exception can be thrown unchecked to
+ the <code>Spark</code> filters.</div>
+</dd>
 <dt><a href="edu/teco/smartlambda/configuration/ConfigurationService.html" title="class in edu.teco.smartlambda.configuration"><span class="typeNameLink">ConfigurationService</span></a> - Class in <a href="edu/teco/smartlambda/configuration/package-summary.html">edu.teco.smartlambda.configuration</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">A service class loading and providing the <code>Configuration</code> instance that is used for configuring the system.</div>
+</dd>
 <dt><a href="edu/teco/smartlambda/container/Container.html" title="interface in edu.teco.smartlambda.container"><span class="typeNameLink">Container</span></a> - Interface in <a href="edu/teco/smartlambda/container/package-summary.html">edu.teco.smartlambda.container</a></dt>
 <dd>
 <div class="block">A container is a running instance of an <a href="edu/teco/smartlambda/container/Image.html" title="interface in edu.teco.smartlambda.container"><code>Image</code></a>.</div>
@@ -234,7 +237,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/authentication/DuplicateKeyException.html" title="class in edu.teco.smartlambda.authentication"><span class="typeNameLink">DuplicateKeyException</span></a> - Exception in <a href="edu/teco/smartlambda/authentication/package-summary.html">edu.teco.smartlambda.authentication</a></dt>
 <dd>
-<div class="block">Created on 15.02.17.</div>
+<div class="block">Is thrown when a name conflicts occurs because a Key with the same name already exists</div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/DuplicateKeyException.html#DuplicateKeyException--">DuplicateKeyException()</a></span> - Constructor for exception edu.teco.smartlambda.authentication.<a href="edu/teco/smartlambda/authentication/DuplicateKeyException.html" title="class in edu.teco.smartlambda.authentication">DuplicateKeyException</a></dt>
 <dd>&nbsp;</dd>
@@ -244,7 +247,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/authentication/DuplicateUserException.html" title="class in edu.teco.smartlambda.authentication"><span class="typeNameLink">DuplicateUserException</span></a> - Exception in <a href="edu/teco/smartlambda/authentication/package-summary.html">edu.teco.smartlambda.authentication</a></dt>
 <dd>
-<div class="block">Created on 07.03.17.</div>
+<div class="block">Is thrown when a name conflicts occurs because a User with the same name already exists</div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/DuplicateUserException.html#DuplicateUserException--">DuplicateUserException()</a></span> - Constructor for exception edu.teco.smartlambda.authentication.<a href="edu/teco/smartlambda/authentication/DuplicateUserException.html" title="class in edu.teco.smartlambda.authentication">DuplicateUserException</a></dt>
 <dd>&nbsp;</dd>
@@ -520,9 +523,7 @@
 <div class="block">Returns all Users, which this User can See (all Users if this User is an Admin and Users with shared Lambdas otherwise)</div>
 </dd>
 <dt><a href="edu/teco/smartlambda/identity/GitHubCredential.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">GitHubCredential</span></a> - Class in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 07.03.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/GitHubCredential.html#GitHubCredential--">GitHubCredential()</a></span> - Constructor for class edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/GitHubCredential.html" title="class in edu.teco.smartlambda.identity">GitHubCredential</a></dt>
 <dd>
 <div class="block">Empty constructor, used by Hibernate</div>
@@ -538,13 +539,13 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/GitHubCredentialDuplicateException.html#GitHubCredentialDuplicateException-java.lang.String-">GitHubCredentialDuplicateException(String)</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/GitHubCredentialDuplicateException.html" title="class in edu.teco.smartlambda.identity">GitHubCredentialDuplicateException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/identity/GitHubIdentityProvider.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">GitHubIdentityProvider</span></a> - Class in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/GitHubIdentityProvider.html#GitHubIdentityProvider--">GitHubIdentityProvider()</a></span> - Constructor for class edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/GitHubIdentityProvider.html" title="class in edu.teco.smartlambda.identity">GitHubIdentityProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#grantKeyPermissions-spark.Request-spark.Response-">grantKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>PUT</b> /<i>:key</i>/permissions</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/Key.html#grantPermission-edu.teco.smartlambda.lambda.AbstractLambda-edu.teco.smartlambda.authentication.entities.PermissionType-">grantPermission(AbstractLambda, PermissionType)</a></span> - Method in class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/Key.html" title="class in edu.teco.smartlambda.authentication.entities">Key</a></dt>
 <dd>
 <div class="block">Adds a Permission for the supplied lambda of the supplied type to this Key Object
@@ -556,7 +557,9 @@
  Adding an already existing Permission doesn't change anything</div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#grantUserPermissions-spark.Request-spark.Response-">grantUserPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/permissions</code></div>
+</dd>
 </dl>
 <a name="I:H">
 <!--   -->
@@ -586,9 +589,7 @@
 <h2 class="title">I</h2>
 <dl>
 <dt><a href="edu/teco/smartlambda/identity/IdentityException.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">IdentityException</span></a> - Exception in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/IdentityException.html#IdentityException--">IdentityException()</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/IdentityException.html" title="class in edu.teco.smartlambda.identity">IdentityException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/IdentityException.html#IdentityException-java.lang.String-">IdentityException(String)</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/IdentityException.html" title="class in edu.teco.smartlambda.identity">IdentityException</a></dt>
@@ -604,13 +605,9 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/exception/IdentityProviderNotFoundException.html#IdentityProviderNotFoundException-java.lang.String-">IdentityProviderNotFoundException(String)</a></span> - Constructor for exception edu.teco.smartlambda.rest.exception.<a href="edu/teco/smartlambda/rest/exception/IdentityProviderNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">IdentityProviderNotFoundException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/identity/IdentityProviderRegistry.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">IdentityProviderRegistry</span></a> - Class in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/identity/IdentitySyntaxException.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">IdentitySyntaxException</span></a> - Exception in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/IdentitySyntaxException.html#IdentitySyntaxException--">IdentitySyntaxException()</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/IdentitySyntaxException.html" title="class in edu.teco.smartlambda.identity">IdentitySyntaxException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/IdentitySyntaxException.html#IdentitySyntaxException-java.lang.String-">IdentitySyntaxException(String)</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/IdentitySyntaxException.html" title="class in edu.teco.smartlambda.identity">IdentitySyntaxException</a></dt>
@@ -636,9 +633,7 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/InsufficientPermissionsException.html#InsufficientPermissionsException--">InsufficientPermissionsException()</a></span> - Constructor for exception edu.teco.smartlambda.authentication.<a href="edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/identity/InvalidCredentialsException.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">InvalidCredentialsException</span></a> - Exception in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/InvalidCredentialsException.html#InvalidCredentialsException--">InvalidCredentialsException()</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/InvalidCredentialsException.html" title="class in edu.teco.smartlambda.identity">InvalidCredentialsException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/InvalidCredentialsException.html#InvalidCredentialsException-java.lang.String-">InvalidCredentialsException(String)</a></span> - Constructor for exception edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/InvalidCredentialsException.html" title="class in edu.teco.smartlambda.identity">InvalidCredentialsException</a></dt>
@@ -674,9 +669,7 @@
 <h2 class="title">K</h2>
 <dl>
 <dt><a href="edu/teco/smartlambda/authentication/entities/Key.html" title="class in edu.teco.smartlambda.authentication.entities"><span class="typeNameLink">Key</span></a> - Class in <a href="edu/teco/smartlambda/authentication/entities/package-summary.html">edu.teco.smartlambda.authentication.entities</a></dt>
-<dd>
-<div class="block">Created on 01.02.2017.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/rest/controller/KeyController.html" title="class in edu.teco.smartlambda.rest.controller"><span class="typeNameLink">KeyController</span></a> - Class in <a href="edu/teco/smartlambda/rest/controller/package-summary.html">edu.teco.smartlambda.rest.controller</a></dt>
 <dd>
 <div class="block">Provides REST calls related to lifecycle handling of access keys.</div>
@@ -761,14 +754,12 @@
 <dl>
 <dt><a href="edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication"><span class="typeNameLink">NotAuthenticatedException</span></a> - Exception in <a href="edu/teco/smartlambda/authentication/package-summary.html">edu.teco.smartlambda.authentication</a></dt>
 <dd>
-<div class="block">Created on 17.02.17.</div>
+<div class="block">Is thrown when the actual operation needs a permission but there is no authenticated Key</div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/NotAuthenticatedException.html#NotAuthenticatedException--">NotAuthenticatedException()</a></span> - Constructor for exception edu.teco.smartlambda.authentication.<a href="edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/identity/NullIdentityProvider.html" title="class in edu.teco.smartlambda.identity"><span class="typeNameLink">NullIdentityProvider</span></a> - Class in <a href="edu/teco/smartlambda/identity/package-summary.html">edu.teco.smartlambda.identity</a></dt>
-<dd>
-<div class="block">Created on 28.02.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/NullIdentityProvider.html#NullIdentityProvider--">NullIdentityProvider()</a></span> - Constructor for class edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/NullIdentityProvider.html" title="class in edu.teco.smartlambda.identity">NullIdentityProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -814,7 +805,9 @@
 <div class="block">Creates a new Permission object with the supplied parameters for the supplied key</div>
 </dd>
 <dt><a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller"><span class="typeNameLink">PermissionController</span></a> - Class in <a href="edu/teco/smartlambda/rest/controller/package-summary.html">edu.teco.smartlambda.rest.controller</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Provides REST calls related to lifecycle handling of permissions.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#PermissionController--">PermissionController()</a></span> - Constructor for class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/lambda/PermissionDecorator.html" title="class in edu.teco.smartlambda.lambda"><span class="typeNameLink">PermissionDecorator</span></a> - Class in <a href="edu/teco/smartlambda/lambda/package-summary.html">edu.teco.smartlambda.lambda</a></dt>
@@ -838,7 +831,9 @@
 <h2 class="title">R</h2>
 <dl>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#readKeyPermissions-spark.Request-spark.Response-">readKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>GET</b> /<i>:key</i>/permissions</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/LambdaController.html#readLambda-spark.Request-spark.Response-">readLambda(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/LambdaController.html" title="class in edu.teco.smartlambda.rest.controller">LambdaController</a></dt>
 <dd>
 <div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i></code></div>
@@ -846,7 +841,9 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/ScheduleController.html#readSchedule-spark.Request-spark.Response-">readSchedule(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/ScheduleController.html" title="class in edu.teco.smartlambda.rest.controller">ScheduleController</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#readUserPermissions-spark.Request-spark.Response-">readUserPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>GET</b> /<i>:user</i>/permissions</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/GitHubIdentityProvider.html#register-java.util.Map-">register(Map&lt;String, String&gt;)</a></span> - Method in class edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/GitHubIdentityProvider.html" title="class in edu.teco.smartlambda.identity">GitHubIdentityProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/identity/IdentityProvider.html#register-java.util.Map-">register(Map&lt;String, String&gt;)</a></span> - Method in interface edu.teco.smartlambda.identity.<a href="edu/teco/smartlambda/identity/IdentityProvider.html" title="interface in edu.teco.smartlambda.identity">IdentityProvider</a></dt>
@@ -858,7 +855,9 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/UserController.html#register-spark.Request-spark.Response-">register(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/UserController.html" title="class in edu.teco.smartlambda.rest.controller">UserController</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#revokeKeyPermissions-spark.Request-spark.Response-">revokeKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>DELETE</b> /<i>:key</i>/permissions</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/Key.html#revokePermission-edu.teco.smartlambda.lambda.AbstractLambda-edu.teco.smartlambda.authentication.entities.PermissionType-">revokePermission(AbstractLambda, PermissionType)</a></span> - Method in class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/Key.html" title="class in edu.teco.smartlambda.authentication.entities">Key</a></dt>
 <dd>
 <div class="block">Removes a Permission for the supplied lambda of the supplied type to this Key Object
@@ -870,7 +869,9 @@
  If the Permission doesn't exist, nothing changes</div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#revokeUserPermissions-spark.Request-spark.Response-">revokeUserPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/permissions</code></div>
+</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/schedule/ScheduleManager.html#run--">run()</a></span> - Method in class edu.teco.smartlambda.schedule.<a href="edu/teco/smartlambda/schedule/ScheduleManager.html" title="class in edu.teco.smartlambda.schedule">ScheduleManager</a></dt>
 <dd>
 <div class="block">Waits until events are due, acquires them and repeatedly updates their lock state while executing them</div>
@@ -1044,9 +1045,7 @@
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/UserController.html#UserController--">UserController()</a></span> - Constructor for class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/UserController.html" title="class in edu.teco.smartlambda.rest.controller">UserController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception"><span class="typeNameLink">UserNotFoundException</span></a> - Exception in <a href="edu/teco/smartlambda/rest/exception/package-summary.html">edu.teco.smartlambda.rest.exception</a></dt>
-<dd>
-<div class="block">Created on 04.03.17.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/exception/UserNotFoundException.html#UserNotFoundException-java.lang.String-">UserNotFoundException(String)</a></span> - Constructor for exception edu.teco.smartlambda.rest.exception.<a href="edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></dt>
 <dd>&nbsp;</dd>
 </dl>
