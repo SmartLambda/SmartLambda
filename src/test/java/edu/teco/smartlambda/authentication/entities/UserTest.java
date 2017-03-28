@@ -17,6 +17,7 @@ import org.torpedoquery.jpa.Query;
 import org.torpedoquery.jpa.Torpedo;
 import org.torpedoquery.jpa.ValueOnGoingCondition;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -104,8 +106,76 @@ public class UserTest {
 		verify(this.session).save(key);
 	}
 	
-	public void getVisibleUsers() throws Exception {
+	@Test
+	public void getVisibleUsersAsAdmin() throws Exception {
+		final Field adminField = User.class.getDeclaredField("isAdmin");
+		adminField.setAccessible(true);
+		adminField.set(this.user, true);
+		
+		final OnGoingStringCondition<String> stringCondition;
+		final ValueOnGoingCondition<Object>  objectCondition;
+		
+		when(Torpedo.where(anyString())).thenReturn(stringCondition = mock(OnGoingStringCondition.class));
+		when(Torpedo.where((Object) any())).thenReturn(objectCondition = mock(ValueOnGoingCondition.class));
+		
+		verifyNoMoreInteractions(stringCondition);
+		verifyNoMoreInteractions(objectCondition);
+		
+		this.user.getVisibleUsers();
+	}
 	
+	@Test
+	public void getVisibleUsersAsNonAdmin() throws Exception {
+		final Field adminField = User.class.getDeclaredField("isAdmin");
+		adminField.setAccessible(true);
+		adminField.set(this.user, false);
+		
+		// mock query for key-obtaining
+		final Query<Key>                  keyQuery;
+		final ValueOnGoingCondition<User> keyUserCondition;
+		when(Torpedo.where(nullable(User.class))).thenReturn(keyUserCondition = mock(ValueOnGoingCondition.class));
+		when(Torpedo.select(any(Key.class))).thenReturn(keyQuery = mock(Query.class));
+		
+		final ValueOnGoingCondition<Key> permissionsOfKeysCondition;
+		when(Torpedo.where(nullable(Key.class))).thenReturn(permissionsOfKeysCondition = mock(ValueOnGoingCondition.class));
+		
+		// mock the query for permission, where users shall be obtained from
+		final Query<Permission> permissionQuery;
+		when(Torpedo.select(any(Permission.class))).thenReturn(permissionQuery = mock(Query.class));
+		
+		// generate a set of mocked permissions, that contain different users in different permission targets and verify that the users
+		// are obtained from all different targets
+		final User lambdaOwner = mock(User.class);
+		final User keyOwner    = mock(User.class);
+		
+		final Lambda lambda = mock(Lambda.class);
+		when(lambda.getOwner()).thenReturn(lambdaOwner);
+		
+		final Permission permissionWithoutAnyForeighners = mock(Permission.class);
+		final Permission permissionWithForeighnLambda    = mock(Permission.class);
+		final Permission permissionWithForeighnKey       = mock(Permission.class);
+		
+		when(permissionWithForeighnLambda.getLambda()).thenReturn(lambda);
+		when(permissionWithForeighnKey.getUser()).thenReturn(keyOwner);
+		
+		when(permissionQuery.list(this.session))
+				.thenReturn(Arrays.asList(permissionWithoutAnyForeighners, permissionWithForeighnLambda, permissionWithForeighnKey));
+		
+		// execute the to-test method
+		final Set<User> users = this.user.getVisibleUsers();
+		
+		// verify, that the obtained keys are only of the current user
+		verify(keyUserCondition).eq(this.user);
+		
+		// verify, that the obtained permissions are all of keys, that were obtained in the keyQuery before
+		verify(permissionsOfKeysCondition).in(keyQuery);
+		
+		// verify that the permissions that shall be examined for users are listed
+		verify(permissionQuery).list(this.session);
+		
+		assertEquals(2, users.size());
+		assertTrue(users.contains(lambdaOwner));
+		assertTrue(users.contains(keyOwner));
 	}
 	
 	@Test
