@@ -11,3 +11,6 @@ before_script:
   - sudo cp travis/configuration/* /etc/smartlambda
   - mysql -e "CREATE DATABASE IF NOT EXISTS smartlambda;"
   - mysql smartlambda < smartlambda.sql
+after_success:
+  - gradle :javadoc
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash travis/push_docs.sh
