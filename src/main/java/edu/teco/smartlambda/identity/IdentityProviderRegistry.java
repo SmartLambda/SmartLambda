@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created on 28.02.17.
+ *
  */
 public class IdentityProviderRegistry {
 	private final  Map<String, IdentityProvider> providers = new HashMap<>();
