@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SmartLambda.iml" filepath="$PROJECT_DIR$/.idea/modules/SmartLambda.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SmartLambda_main.iml" filepath="$PROJECT_DIR$/.idea/modules/SmartLambda_main.iml" group="SmartLambda" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SmartLambda_test.iml" filepath="$PROJECT_DIR$/.idea/modules/SmartLambda_test.iml" group="SmartLambda" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8.iml" group="execution-jre8" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_main.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_main.iml" group="execution-jre8" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_test.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_test.iml" group="execution-jre8" />
@@ -14,9 +17,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared.iml" group="shared" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared_main.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared_main.iml" group="shared" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/shared_test.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/shared_test.iml" group="shared" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source.iml" filepath="$PROJECT_DIR$/.idea/modules/source.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_main.iml" filepath="$PROJECT_DIR$/.idea/modules/source_main.iml" group="source" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source_test.iml" filepath="$PROJECT_DIR$/.idea/modules/source_test.iml" group="source" />
     </modules>
   </component>
 </project>
