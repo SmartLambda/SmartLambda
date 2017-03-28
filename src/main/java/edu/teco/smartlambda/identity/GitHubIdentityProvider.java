@@ -27,6 +27,9 @@ public class GitHubIdentityProvider implements IdentityProvider{
 	
 	@Override
 	public Pair<User, String> register(final Map<String, String> parameters) throws IdentityException {
+		if (parameters == null) {
+			throw new IdentitySyntaxException();
+		}
 		final String accessToken = parameters.get("accessToken");
 		if (accessToken == null) {
 			throw new IdentitySyntaxException();
@@ -52,9 +55,9 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		return NAME;
 	}
 	
+	//asks GitHub for the users name, throw Exception otherwise. On error throw InvalidCredentialsException
 	private String gitHubRequest(final String accessToken) {
-		String name;
-		//TODO ask GitHub for the name, throw Exception otherwise on error throw InvalidCredentialsException
+		final String name;
 		try {
 			final URL               url        = new URL(GITHUB_URL);
 			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -63,10 +66,10 @@ public class GitHubIdentityProvider implements IdentityProvider{
 			connection.setRequestProperty("Authorization", "token " + accessToken);
 			if (connection.getResponseCode() != 200) {
 				final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-				String output = "";
-				String read;
+				final StringBuilder  output = new StringBuilder();
+				String               read;
 				while ((read = reader.readLine()) != null) {
-					output += read;
+					output.append(read);
 				}
 				throw new InvalidCredentialsException(connection.getHeaderField(0) + ": " + output);
 			}
