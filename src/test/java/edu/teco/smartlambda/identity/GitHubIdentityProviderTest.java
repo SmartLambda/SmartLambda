@@ -7,7 +7,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -35,23 +34,21 @@ import static org.mockito.ArgumentMatchers.anyString;
 @PrepareForTest({User.class, Torpedo.class, Application.class, URL.class, GitHubIdentityProvider.class})
 public class GitHubIdentityProviderTest {
 	
-	private String                 createUserAnswer;
-	private User                   user;
-	private Class                  torpedoFromAnswer;
-	private String                 torpedoWhereAnswer;
-	private Object                 sessionSaveAnswer;
-	private Session                session;
-	private OnGoingStringCondition onGoingStringCondition;
-	private GitHubCredential       gitHubCredential;
-	private HttpURLConnection      connection;
-	private URL                    url;
+	private String                         createUserAnswer;
+	private User                           user;
+	private String                         torpedoWhereAnswer;
+	private String                         torpedoEqAnswer;
+	private Object                         sessionSaveAnswer;
+	private OnGoingStringCondition<String> onGoingStringCondition;
+	private HttpURLConnection              connection;
 	
-	private final String                 gitHubHttpQueryUsernameResponse = "USERNAME";
-	private final String                 gitHubToken = "GITHUB_TOKEN";
+	private final String gitHubHttpQueryUsernameResponse = "USERNAME";
+	private final String gitHubToken                     = "GITHUB_TOKEN";
 	
 	private GitHubIdentityProvider gitHubIdentityProvider;
 	
 	@Before
+	@SuppressWarnings({"unchecked"})
 	public void setUp() throws Exception {
 		this.gitHubIdentityProvider = new GitHubIdentityProvider();
 		
@@ -64,28 +61,34 @@ public class GitHubIdentityProviderTest {
 		});
 		
 		//Catch and test Torpedoquery invocations
-		GitHubCredential gitHubCredential = PowerMockito.mock(GitHubCredential.class);
-		PowerMockito.when(gitHubCredential.getAccessToken()).thenReturn("mockedAccessToken");
+		final GitHubCredential gitHubCredential = PowerMockito.mock(GitHubCredential.class);
+		PowerMockito.when(gitHubCredential.getAccessToken()).thenReturn(this.gitHubToken);
 		
 		PowerMockito.mockStatic(Torpedo.class);
+		this.onGoingStringCondition = PowerMockito.mock(OnGoingStringCondition.class);
+		PowerMockito.when(this.onGoingStringCondition.eq(anyString())).thenAnswer(invocation -> {
+			this.torpedoEqAnswer = (String) invocation.getArguments()[0];
+			return null;
+		});
 		PowerMockito.when(Torpedo.from(GitHubCredential.class)).thenReturn(gitHubCredential);
 		PowerMockito.when(Torpedo.where(anyString())).thenAnswer(invocation -> {
 			this.torpedoWhereAnswer = (String) invocation.getArguments()[0];
-			return PowerMockito.mock(OnGoingStringCondition.class);
+			return this.onGoingStringCondition;
 		});
+		
 		final Query query = PowerMockito.mock(Query.class);
 		PowerMockito.when(Torpedo.select(any(GitHubCredential.class))).thenReturn(query);
 		PowerMockito.when(query.get(any())).thenReturn(Optional.empty());
 		
 		//Mocking Session class and their creation
 		final SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
-		this.session = Mockito.mock(Session.class);
-		final Application app = Mockito.mock(Application.class);
+		final Session        session        = Mockito.mock(Session.class);
+		final Application    app            = Mockito.mock(Application.class);
 		PowerMockito.mockStatic(Application.class);
 		PowerMockito.when(Application.getInstance()).thenReturn(app);
 		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(sessionFactory);
-		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(this.session);
-		PowerMockito.when(this.session.save(any(Object.class))).thenAnswer(invocation -> {
+		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
+		PowerMockito.when(session.save(any(Object.class))).thenAnswer(invocation -> {
 			this.sessionSaveAnswer = invocation.getArguments()[0];
 			return null;
 		});
@@ -93,12 +96,12 @@ public class GitHubIdentityProviderTest {
 		//Mock HTTP connection classes
 		this.connection = PowerMockito.mock(HttpURLConnection.class);
 		PowerMockito.mockStatic(URL.class);
-		this.url = PowerMockito.mock(URL.class);
-		PowerMockito.whenNew(URL.class).withAnyArguments().thenReturn(this.url);
-		Mockito.when(this.url.openConnection()).thenReturn(this.connection);
+		final URL url = PowerMockito.mock(URL.class);
+		PowerMockito.whenNew(URL.class).withAnyArguments().thenReturn(url);
+		Mockito.when(url.openConnection()).thenReturn(this.connection);
 		PowerMockito.when(this.connection.getResponseCode()).thenReturn(200);
-		PowerMockito.when(this.connection.getInputStream()).thenReturn(new ByteArrayInputStream("{\"login\":\"".concat
-				(this.gitHubHttpQueryUsernameResponse + "\"}").getBytes() ));
+		PowerMockito.when(this.connection.getInputStream())
+				.thenReturn(new ByteArrayInputStream("{\"login\":\"".concat(this.gitHubHttpQueryUsernameResponse + "\"}").getBytes()));
 	}
 	
 	@Test(expected = IdentitySyntaxException.class)
@@ -111,10 +114,14 @@ public class GitHubIdentityProviderTest {
 		this.gitHubIdentityProvider.register(new HashMap<>());
 	}
 	
-	@Ignore
 	@Test
 	public void testTorpedoqueryQuery() throws Exception {
-		//TODO
+		final Map<String, String> params = new HashMap<>();
+		params.put("accessToken", this.gitHubToken);
+		this.gitHubIdentityProvider.register(params);
+		
+		Assert.assertEquals(this.torpedoWhereAnswer, this.gitHubToken);
+		Assert.assertEquals(this.torpedoEqAnswer, this.gitHubToken);
 	}
 	
 	@Test
@@ -123,15 +130,14 @@ public class GitHubIdentityProviderTest {
 		params.put("accessToken", this.gitHubToken);
 		this.gitHubIdentityProvider.register(params);
 		
-		final GitHubCredential savedCredential = (GitHubCredential) this.sessionSaveAnswer;
-		Assert.assertEquals(this.gitHubToken, savedCredential.getAccessToken());
-		Assert.assertEquals(this.user, savedCredential.getUser());
+		Assert.assertEquals(this.gitHubToken, ((GitHubCredential) this.sessionSaveAnswer).getAccessToken());
+		Assert.assertEquals(this.user, ((GitHubCredential) this.sessionSaveAnswer).getUser());
 	}
 	
-	@Test (expected = InvalidCredentialsException.class)
+	@Test(expected = InvalidCredentialsException.class)
 	public void gitHubAuthenticationBadResponseCode() throws Exception {
 		PowerMockito.when(this.connection.getResponseCode()).thenReturn(9999);
-		PowerMockito.when(this.connection.getErrorStream()).thenReturn(new ByteArrayInputStream( "mocked InputStream".getBytes() ));
+		PowerMockito.when(this.connection.getErrorStream()).thenReturn(new ByteArrayInputStream("mocked InputStream".getBytes()));
 		
 		final Map<String, String> params = new HashMap<>();
 		params.put("accessToken", this.gitHubToken);
