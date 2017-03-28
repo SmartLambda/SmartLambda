@@ -10,10 +10,9 @@ version '1.0-SNAPSHOT'
 apply plugin: 'application'
 apply plugin: 'idea'
 
-//noinspection GroovyUnusedAssignment
 mainClassName = "edu.teco.smartlambda.Application"
-//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
+docsDirName = "../docs"
 
 idea {
     module {
@@ -40,7 +39,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.6'
     compile group: 'org.torpedoquery', name: 'org.torpedoquery', version: '2.2.1'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.23'
-    compile group: 'com.spotify', name: 'docker-client', version:'7.0.2'
+    compile group: 'com.spotify', name: 'docker-client', version: '7.0.2'
     compile group: 'de.mkammerer', name: 'argon2-jvm', version: '2.2'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile project(":shared")
@@ -60,7 +59,7 @@ buildConfig {
     appName = project.name
     version = project.version
     packageName = project.group + "." + "smartlambda"
-    if(Os.isFamily(Os.FAMILY_WINDOWS)) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda\\\\smartlambda.xml"
         buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "C:\\\\smartlambda\\\\hibernate.xml"
     } else {
