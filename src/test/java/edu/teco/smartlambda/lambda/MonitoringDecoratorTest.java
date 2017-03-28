@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -82,12 +85,16 @@ public class MonitoringDecoratorTest {
 		when(this.innerLambda.executeAsync("")).thenReturn(ThreadManager.getExecutorService().submit(() -> mockedExecutionResult));
 		when(mockedExecutionResult.getConsumedCPUTime()).thenReturn(1L);
 		when(mockedExecutionResult.getExecutionReturnValue()).thenReturn(mockedExecutionReturnValue);
-		this.monitoredLambda.executeAsync("");
+		this.monitoredLambda.executeAsync("").get();
 		verify(this.mockedMonitoringService, times(1)).onLambdaExecutionEnd(this.innerLambda, 1L, mockedExecutionReturnValue, null);
 		
 		// test failure
 		when(this.innerLambda.executeAsync("")).thenReturn(ThreadManager.getExecutorService().submit(() -> {throw new Exception();}));
-		this.monitoredLambda.executeAsync("");
+		try {
+			this.monitoredLambda.executeAsync("").get();
+			fail();
+		} catch (final ExecutionException e) {
+		}
 		
 		verify(this.mockedMonitoringService, times(2)).onLambdaExecutionStart(this.innerLambda);
 		verify(this.innerLambda, times(2)).executeAsync("");
