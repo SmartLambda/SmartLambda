@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- *
+ * A data class for schedule information
  */
 @Entity
 @Table(name = "ScheduleEvent")

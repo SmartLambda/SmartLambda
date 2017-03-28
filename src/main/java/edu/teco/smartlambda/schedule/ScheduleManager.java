@@ -15,7 +15,7 @@ import static org.torpedoquery.jpa.Torpedo.select;
 import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
- *
+ * A class that manages the execution of scheduled events
  */
 public class ScheduleManager {
 	private static ScheduleManager instance;

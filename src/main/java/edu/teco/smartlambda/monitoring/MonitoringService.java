@@ -8,7 +8,7 @@ import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import java.util.Calendar;
 
 /**
- *
+ * A service class that is saving monitoring information
  */
 
 public class MonitoringService {
