@@ -32,7 +32,7 @@ public class GitHubIdentityProvider implements IdentityProvider{
 		}
 		final String accessToken = parameters.get("accessToken");
 		if (accessToken == null) {
-			throw new IdentitySyntaxException();
+			throw new IdentitySyntaxException("no accessToken provided");
 		}
 		
 		final GitHubCredential query = from(GitHubCredential.class);

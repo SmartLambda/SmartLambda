@@ -1,6 +1,8 @@
 package edu.teco.smartlambda;
 
 import com.google.gson.Gson;
+import edu.teco.smartlambda.authentication.DuplicateKeyException;
+import edu.teco.smartlambda.authentication.DuplicateUserException;
 import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.Key;
@@ -10,6 +12,7 @@ import edu.teco.smartlambda.concurrent.ThreadManager;
 import edu.teco.smartlambda.configuration.ConfigurationService;
 import edu.teco.smartlambda.identity.GitHubCredential;
 import edu.teco.smartlambda.identity.GitHubCredentialDuplicateException;
+import edu.teco.smartlambda.identity.IdentityException;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
@@ -119,6 +122,11 @@ public class Application {
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		
+		Spark.exception(IdentityException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
 		Spark.exception(EventNotFoundException.class, (Exception exception, Request request, Response response) -> {
 			response.status(404);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
@@ -126,6 +134,16 @@ public class Application {
 		
 		Spark.exception(NotAuthenticatedException.class, (Exception exception, Request request, Response response) -> {
 			response.status(401);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(DuplicateUserException.class, (Exception exception, Request request, Response response) -> {
+			response.status(409);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(DuplicateKeyException.class, (Exception exception, Request request, Response response) -> {
+			response.status(409);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		

@@ -109,6 +109,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">ScheduleController</span>
 extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Provides REST calls related to lifecycle handling of scheduled events.</div>
 </li>
 </ul>
 </div>
@@ -147,27 +148,37 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/ScheduleController.html#createSchedule-spark.Request-spark.Response-">createSchedule</a></span>(spark.Request&nbsp;request,
-              spark.Response&nbsp;response)</code>&nbsp;</td>
+              spark.Response&nbsp;response)</code>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/ScheduleController.html#deleteSchedule-spark.Request-spark.Response-">deleteSchedule</a></span>(spark.Request&nbsp;request,
-              spark.Response&nbsp;response)</code>&nbsp;</td>
+              spark.Response&nbsp;response)</code>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/ScheduleController.html#getScheduledEvents-spark.Request-spark.Response-">getScheduledEvents</a></span>(spark.Request&nbsp;request,
-                  spark.Response&nbsp;response)</code>&nbsp;</td>
+                  spark.Response&nbsp;response)</code>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedules</code></div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/ScheduleController.html#readSchedule-spark.Request-spark.Response-">readSchedule</a></span>(spark.Request&nbsp;request,
-            spark.Response&nbsp;response)</code>&nbsp;</td>
+            spark.Response&nbsp;response)</code>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/ScheduleController.html#updateSchedule-spark.Request-spark.Response-">updateSchedule</a></span>(spark.Request&nbsp;request,
-              spark.Response&nbsp;response)</code>&nbsp;</td>
+              spark.Response&nbsp;response)</code>
+<div class="block"><code><b>PATCH</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code></div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -217,8 +228,43 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;createSchedule(spark.Request&nbsp;request,
                                     spark.Response&nbsp;response)
                              throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>PUT</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code>
+ <p>
+ Creates a new scheduled event. The request must contain the name of an existing lambda. Responds with an empty JSON object on
+ success.
+ </p>
+ <table>
+ <caption><b>Body parameters</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Type</th>
+ <th>Description</th>
+ <th>Required</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>calendar</td>
+ <td>string</td>
+ <td>A cron-style timestamp</td>
+ <td>Yes</td>
+ </tr>
+ <tr>
+ <td>parameters</td>
+ <td>object</td>
+ <td>An arbitrary JSON object with parameters to pass to the lambda</td>
+ <td>Yes</td>
+ </tr>
+ </tbody>
+ </table></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the currently authenticated key is not permitted to schedule events
+                                          on the lambda</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when target lambda owner is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/LambdaNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">LambdaNotFoundException</a></code> - <b>404</b> Thrown when target lambda is unknown</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
 </dl>
 </li>
@@ -232,8 +278,43 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;updateSchedule(spark.Request&nbsp;request,
                                     spark.Response&nbsp;response)
                              throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>PATCH</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code>
+ <p>
+ Updates an existing scheduled event. The request must contain the name of an existing lambda and schedule. Responds with an empty
+ JSON object on success.
+ </p>
+ <table>
+ <caption><b>Body parameters</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Type</th>
+ <th>Description</th>
+ <th>Required</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>calendar</td>
+ <td>string</td>
+ <td>A cron-style timestamp</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td>parameters</td>
+ <td>object</td>
+ <td>An arbitrary JSON object with parameters to pass to the lambda</td>
+ <td>No</td>
+ </tr>
+ </tbody>
+ </table></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the currently authenticated key is not permitted to schedule events
+                                          on the lambda</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when target lambda owner is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/LambdaNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">LambdaNotFoundException</a></code> - <b>404</b> Thrown when target lambda is unknown</dd>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>
 </dl>
 </li>
@@ -246,6 +327,41 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>readSchedule</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;readSchedule(spark.Request&nbsp;request,
                                   spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code>
+ <p>
+ Reads information about an existing scheduled event. No body parameters are required. The request must contain the name of an
+ existing lambda and schedule.
+ </p>
+ <table>
+ <caption><b>Response values</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>calendar</td>
+ <td>string</td>
+ <td>Execution timestamp</td>
+ </tr>
+ <tr>
+ <td>parameters</td>
+ <td>object</td>
+ <td>JSON parameter object passed to the lambda</td>
+ </tr>
+ </tbody>
+ </table></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the currently authenticated key is not permitted to read scheduled
+                                          events of the lambda</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when target lambda owner is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/LambdaNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">LambdaNotFoundException</a></code> - <b>404</b> Thrown when target lambda is unknown</dd>
+</dl>
 </li>
 </ul>
 <a name="deleteSchedule-spark.Request-spark.Response-">
@@ -256,6 +372,19 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>deleteSchedule</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;deleteSchedule(spark.Request&nbsp;request,
                                     spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>DELETE</b> /<i>:user</i>/lambda/<i>:name</i>/schedule/<i>:event-name</i></code>
+ <p>
+ Deletes an existing scheduled event. The request must contain the name of an existing lambda and schedule. Responds with an empty
+ JSON object on success.
+ </p></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the currently authenticated key is not permitted to delete scheduled
+                                          events of the lambda</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when target lambda owner is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/LambdaNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">LambdaNotFoundException</a></code> - <b>404</b> Thrown when target lambda is unknown</dd>
+</dl>
 </li>
 </ul>
 <a name="getScheduledEvents-spark.Request-spark.Response-">
@@ -266,6 +395,47 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>getScheduledEvents</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;getScheduledEvents(spark.Request&nbsp;request,
                                         spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>GET</b> /<i>:user</i>/lambda/<i>:name</i>/schedules</code>
+ <p>
+ Lists existing scheduled events of a lambda. The request must contain the name of an existing lambda.
+ </p>
+ <table>
+ <caption><b>Response values</b></caption>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>name</td>
+ <td>string</td>
+ <td>Scheduled event name</td>
+ </tr>
+ <tr>
+ <td>calendar</td>
+ <td>string</td>
+ <td>A cron-style timestamp</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td>parameters</td>
+ <td>object</td>
+ <td>An arbitrary JSON object with parameters to pass to the lambda</td>
+ <td>No</td>
+ </tr>
+ </tbody>
+ </table></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/InsufficientPermissionsException.html" title="class in edu.teco.smartlambda.authentication">InsufficientPermissionsException</a></code> - <b>403</b> Thrown when the currently authenticated key is not permitted to read scheduled
+                                          events of the lambda</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/UserNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">UserNotFoundException</a></code> - <b>404</b> Thrown when target lambda owner is unknown</dd>
+<dd><code><a href="../../../../../edu/teco/smartlambda/rest/exception/LambdaNotFoundException.html" title="class in edu.teco.smartlambda.rest.exception">LambdaNotFoundException</a></code> - <b>404</b> Thrown when target lambda is unknown</dd>
+</dl>
 </li>
 </ul>
 </li>
