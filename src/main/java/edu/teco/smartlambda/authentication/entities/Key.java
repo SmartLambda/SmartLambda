@@ -194,7 +194,6 @@ public class Key {
 		if (this.hasPermission(lambda, type)) return;
 		if (this.currentAuthenticatedUserHasLambdaPermissionToGrant(LambdaDecorator.unwrap(lambda), type)) {
 			final Permission permission = new Permission(lambda, type, this);
-			this.grantPermission(permission);
 			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		} else {
 			throw new InsufficientPermissionsException();
@@ -215,15 +214,10 @@ public class Key {
 		if (this.hasPermission(user, type)) return;
 		if (this.currentAuthenticatedUserHasUserPermissionToGrant(user, type)) {
 			final Permission permission = new Permission(user, type, this);
-			this.grantPermission(permission);
 			Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 		} else {
 			throw new InsufficientPermissionsException();
 		}
-	}
-	
-	private void grantPermission(final Permission permission) {
-		Application.getInstance().getSessionFactory().getCurrentSession().save(permission);
 	}
 	
 	/**

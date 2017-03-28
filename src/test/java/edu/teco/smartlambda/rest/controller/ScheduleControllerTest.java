@@ -108,6 +108,7 @@ public class ScheduleControllerTest {
 		doAnswer((InvocationOnMock invocation) -> event[0] = invocation.getArgument(0)).when(this.testLambda).schedule(any());
 		assertEquals(Object.class, ScheduleController.createSchedule(request, response).getClass());
 		
+		assertNotNull(event[0]);
 		assertEquals(TEST_SCHEDULE_NAME, event[0].getName());
 		assertEquals(TEST_CRON_EXPRESSION, event[0].getCronExpression());
 		assertEquals(this.testKey, event[0].getKey());
@@ -130,6 +131,7 @@ public class ScheduleControllerTest {
 		
 		assertEquals(Object.class, ScheduleController.updateSchedule(request, response).getClass());
 		
+		verify(this.testLambda).schedule(event);
 		verify(event).setCronExpression("0 0 * * *");
 		verifyNoMoreInteractions(event);
 		verify(response).status(200);
