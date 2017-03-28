@@ -3,7 +3,7 @@ package edu.teco.smartlambda.container.docker;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import org.apache.commons.io.output.NullOutputStream;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -29,13 +29,13 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class DockerContainerTest {
 	
 	private static final String ID = "31337";
-	private static DockerContainer dockerContainer;
+	private DockerContainer dockerContainer;
 	
-	private static LogStream    mockedLogStream;
-	private static OutputStream mockedOutputStream;
+	private LogStream    mockedLogStream;
+	private OutputStream mockedOutputStream;
 	
-	@BeforeClass
-	public static void setup() throws Exception {
+	@Before
+	public void setup() throws Exception {
 		dockerContainer = new DockerContainer(ID);
 		
 		final DockerClient mockedDockerClient = mock(DockerClient.class);
