@@ -109,6 +109,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public class <span class="typeNameLabel">UserController</span>
 extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Provides REST calls related to user account handling.</div>
 </li>
 </ul>
 </div>
@@ -147,12 +148,16 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/UserController.html#getUserList-spark.Request-spark.Response-">getUserList</a></span>(spark.Request&nbsp;request,
-           spark.Response&nbsp;response)</code>&nbsp;</td>
+           spark.Response&nbsp;response)</code>
+<div class="block"><code><b>GET</b> /users</code></div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../edu/teco/smartlambda/rest/controller/UserController.html#register-spark.Request-spark.Response-">register</a></span>(spark.Request&nbsp;request,
-        spark.Response&nbsp;response)</code>&nbsp;</td>
+        spark.Response&nbsp;response)</code>
+<div class="block"><code><b>POST</b> /register</code></div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -201,6 +206,14 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <h4>getUserList</h4>
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;getUserList(spark.Request&nbsp;request,
                                  spark.Response&nbsp;response)</pre>
+<div class="block"><code><b>GET</b> /users</code>
+ <p>
+ Lists users that are visible to the current user. No body parameters are required. Responds with a list of user name strings.
+ </p></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../edu/teco/smartlambda/authentication/NotAuthenticatedException.html" title="class in edu.teco.smartlambda.authentication">NotAuthenticatedException</a></code> - <b>401</b> Thrown when user is not properly authenticated</dd>
+</dl>
 </li>
 </ul>
 <a name="register-spark.Request-spark.Response-">
@@ -212,6 +225,102 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
 <pre>public static&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;register(spark.Request&nbsp;request,
                               spark.Response&nbsp;response)
                        throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><code><b>POST</b> /register</code>
+ <p>
+     Registers a new user.
+ </p>
+
+ <table>
+     <caption><b>Response values</b></caption>
+     <thead>
+         <tr>
+             <th>Name</th>
+             <th>Description</th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr>
+             <td>name</td>
+             <td>Name of the newly registered user</td>
+         </tr>
+         <tr>
+             <td>primaryKey</td>
+             <td>The primary key of the registered user, which may be used for future authentication</td>
+         </tr>
+     </tbody>
+ </table>
+ <br><br>
+ <table>
+     <caption><b>Request parameters</b></caption>
+     <thead>
+         <tr>
+             <th>Name</th>
+             <th>Type</th>
+             <th>Description</th>
+             <th>Required</th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr>
+             <td>identityProvider</td>
+             <td>enum("null", "github")</td>
+             <td>Identity provider to use for registration. See table below for further information.</td>
+             <td>Yes</td>
+         </tr>
+         <tr>
+             <td>parameters</td>
+             <td>object</td>
+             <td>Parameters to pass to the selected identity provider. See table below for further information.</td>
+             <td>Yes</td>
+         </tr>
+     </tbody>
+ </table>
+ <br><br>
+ <table>
+     <caption><b>Identity providers</b></caption>
+     <thead>
+         <tr>
+             <th>Name</th>
+             <th>Description</th>
+             <th>Required parameters</th>
+             <th>Implementation</th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr>
+             <td>null</td>
+             <td>Simple identity provider that allows registration of any user name without external identification.</td>
+             <td>
+                 <table>
+                     <caption></caption>
+                     <tbody>
+                         <tr>
+                             <td>name</td>
+                             <td>User name</td>
+                         </tr>
+                     </tbody>
+                 </table>
+             </td>
+             <td><a href="../../../../../edu/teco/smartlambda/identity/NullIdentityProvider.html" title="class in edu.teco.smartlambda.identity"><code>NullIdentityProvider</code></a></td>
+         </tr>
+         <tr>
+             <td>github</td>
+             <td>Identity provider that uses GitHub accounts for identification.</td>
+             <td>
+                 <table>
+                     <caption></caption>
+                     <tbody>
+                         <tr>
+                             <td>accessToken</td>
+                             <td>GitHub personal access token</td>
+                         </tr>
+                     </tbody>
+                 </table>
+             </td>
+             <td><a href="../../../../../edu/teco/smartlambda/identity/GitHubIdentityProvider.html" title="class in edu.teco.smartlambda.identity"><code>GitHubIdentityProvider</code></a></td>
+         </tr>
+     </tbody>
+ </table></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd>

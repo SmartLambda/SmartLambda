@@ -21,6 +21,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Calendar;
 
+/**
+ * A data class for monitoring information
+ */
 @Entity
 @Table(name = "MonitoringEvent")
 public class MonitoringEvent {
