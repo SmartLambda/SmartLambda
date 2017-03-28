@@ -38,11 +38,12 @@ task install(dependsOn: build, type: Copy) {
         include 'executionservice.jar'
     }
 
-    into '../src/main/resources'
+    into '../src/main/resources/jre8'
 }
 
 task installClean(type: Delete) {
-    delete '../src/main/resources/executionservice.jar'
+    //noinspection GroovyAssignabilityCheck
+    delete '../src/main/resources/jre8/executionservice.jar'
 }
 
 clean.dependsOn installClean

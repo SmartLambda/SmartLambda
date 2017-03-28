@@ -2,215 +2,254 @@ package edu.teco.smartlambda.authentication.entities;
 
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.AuthenticationService;
-import edu.teco.smartlambda.authentication.DuplicateKeyException;
-import edu.teco.smartlambda.authentication.InsufficientPermissionsException;
-import edu.teco.smartlambda.identity.NullIdentityProvider;
 import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
-import edu.teco.smartlambda.lambda.LambdaDecorator;
-import edu.teco.smartlambda.lambda.LambdaFacade;
-import edu.teco.smartlambda.runtime.RuntimeRegistry;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.Assert;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.torpedoquery.jpa.OnGoingLogicalCondition;
+import org.torpedoquery.jpa.OnGoingStringCondition;
+import org.torpedoquery.jpa.Query;
+import org.torpedoquery.jpa.Torpedo;
+import org.torpedoquery.jpa.ValueOnGoingCondition;
 
-import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  *
  */
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Torpedo.class, Application.class, AuthenticationService.class})
 public class UserTest {
 	
-	private AuthenticationService service;
-	private User                  user;
-	private Lambda                lambda;
-	private final String          lambdaName = "UserTestLambda";
+	private User    user;
+	private Key     primaryKey;
+	private Session session;
 	
 	@Before
-	public void buildUp() throws Exception {
-		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		this.service = AuthenticationService.getInstance();
-		final Map<String, String> params = new HashMap<>();
-		params.put("name", "UserTest.User");
-		this.user = new NullIdentityProvider().register(params).getLeft();
-		this.service.authenticate(this.user.getPrimaryKey());
+	public void setUp() throws Exception {
+		this.user = mock(User.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+		this.primaryKey = mock(Key.class);
 		
-		final AbstractLambda abstractLambda = LambdaFacade.getInstance().getFactory().createLambda();
-		this.lambda = LambdaDecorator.unwrap(abstractLambda);
-		this.lambda.setOwner(this.user);
-		this.lambda.setName(this.lambdaName);
-		this.lambda.setRuntime(RuntimeRegistry.getInstance().getRuntimeByName("jre8"));
-		this.lambda.deployBinary(IOUtils.toByteArray(KeyTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
-		this.lambda.save();
+		when(this.primaryKey.isPrimaryKey()).thenReturn(true);
+		when(this.user.getPrimaryKey()).thenReturn(this.primaryKey);
+		
+		mockStatic(Torpedo.class);
+		mockStatic(Application.class);
+		mockStatic(AuthenticationService.class);
+		
+		this.session = mock(Session.class);
+		
+		when(Application.getInstance()).thenReturn(mock(Application.class));
+		when(Application.getInstance().getSessionFactory()).thenReturn(mock(SessionFactory.class));
+		when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(this.session);
+		
+		when(this.session.get(anyString(), any())).thenReturn(null);
+		when(this.session.get(any(Class.class), any())).thenReturn(null);
+		
+		when(Torpedo.from(any())).thenCallRealMethod();
+		when(Torpedo.select(any(Object.class))).thenReturn(mock(Query.class));
+		
+		when(AuthenticationService.getInstance()).thenReturn(mock(AuthenticationService.class));
+		when(AuthenticationService.getInstance().getAuthenticatedKey()).thenReturn(Optional.of(this.primaryKey));
+		when(AuthenticationService.getInstance().getAuthenticatedUser()).thenReturn(Optional.of(this.user));
 	}
 	
-	@After
-	public void tearDown() throws Exception {
-		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
-		if (transaction.isActive()) transaction.rollback();
+	@Test
+	public void createUser() throws Exception {
+		when(Torpedo.where((String) null)).thenReturn(mock(OnGoingStringCondition.class));
+		
+		final String name    =
+				"Karl-Theodor Maria Nikolaus Johann Jacob Philipp Franz Joseph Sylvester Buhl-Freiherr von und zu Guttenberg";
+		final User   newUser = User.createUser(name).getLeft();
+		
+		assertEquals(name, newUser.getName());
+		assertNotNull(newUser.getPrimaryKey());
+	}
+	
+	@Test
+	public void setAdmin() throws Exception {
+		this.user.setAdmin(true);
+		
+		assertTrue(this.user.isAdmin());
+		verify(this.session).save(this.user);
 	}
 	
 	@Test
 	public void createKey() throws Exception {
-		final Pair<Key, String> keyPair = this.user.createKey("UserTest.createKey");
-		final String            id;
+		when(Torpedo.where((String) null)).thenReturn(mock(OnGoingStringCondition.class));
 		
-		final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-		id = this.arrayToString(sha256.digest(keyPair.getRight().getBytes()));
-		Assert.assertTrue(Key.getKeyById(id).isPresent());
-	}
-	
-	@Test (expected = DuplicateKeyException.class)
-	public void createKeyDuplicateName() throws Exception {
-		this.user.createKey("UserTest.createKeyDuplicateName");
-		this.user.createKey("UserTest.createKeyDuplicateName");
-	}
-	
-	private String arrayToString(final byte[] array) {
-		final StringBuilder sb = new StringBuilder();
-		for (final byte currentByte : array) {
-			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
-		}
-		return sb.toString();
-	}
-	
-	@Test
-	public void getVisibleUsersUserPermission() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-		
-		final Map<String, String> params1 = new HashMap<>();
-		params1.put("name", "UserTest.getVisibleUsersUserPermission.User1");
-		final User user1 = new NullIdentityProvider().register(params1).getLeft();
-		
-		final Map<String, String> params2 = new HashMap<>();
-		params2.put("name", "UserTest.getVisibleUsersUserPermission.User2");
-		final User user2 = new NullIdentityProvider().register(params2).getLeft();
-		
-		authenticationService.authenticate(user1.getPrimaryKey());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		
-		Assert.assertFalse(user2.getVisibleUsers().contains(user1));
-		
-		user2.getPrimaryKey().grantPermission(user1, PermissionType.CREATE);
-		
-		Assert.assertFalse(user2.getVisibleUsers().contains(user2));
-		Assert.assertTrue(user2.getVisibleUsers().contains(user1));
-	}
-	
-	@Test
-	public void getVisibleUsersLambdaPermission() throws Exception {
-		final AuthenticationService authenticationService = AuthenticationService.getInstance();
-
-		final Map<String, String> params2 = new HashMap<>();
-		params2.put("name", "UserTest.getVisibleUsersLambdaPermission.User2");
-		final User user2 = new NullIdentityProvider().register(params2).getLeft();
-		
-		authenticationService.authenticate(this.user.getPrimaryKey());
-		assert authenticationService.getAuthenticatedKey().isPresent();
-		
-		Assert.assertFalse(user2.getVisibleUsers().contains(this.user));
-		
-		user2.getPrimaryKey().grantPermission(this.lambda, PermissionType.CREATE);
-		
-		Assert.assertFalse(user2.getVisibleUsers().contains(user2));
-		Assert.assertTrue(user2.getVisibleUsers().contains(this.user));
+		final Key key = this.user.createKey("r2d2").getLeft();
+		verify(this.session).save(key);
 	}
 	
 	@Test
 	public void getVisibleUsersAsAdmin() throws Exception {
-		final Map<String, String> params1 = new HashMap<>();
-		params1.put("name", "UserTest.getVisibleUsersAdmin.User1");
-		final User user1 = new NullIdentityProvider().register(params1).getLeft();
+		final Field adminField = User.class.getDeclaredField("isAdmin");
+		adminField.setAccessible(true);
+		adminField.set(this.user, true);
 		
-		final Map<String, String> params2 = new HashMap<>();
-		params2.put("name", "UserTest.getVisibleUsersAdmin.User2");
-		final User user2 = new NullIdentityProvider().register(params2).getLeft();
+		final OnGoingStringCondition<String> stringCondition;
+		final ValueOnGoingCondition<Object>  objectCondition;
 		
-		Assert.assertFalse(user2.getVisibleUsers().contains(user1));
+		when(Torpedo.where(anyString())).thenReturn(stringCondition = mock(OnGoingStringCondition.class));
+		when(Torpedo.where((Object) any())).thenReturn(objectCondition = mock(ValueOnGoingCondition.class));
 		
-		user2.setAdmin(true);
+		verifyNoMoreInteractions(stringCondition);
+		verifyNoMoreInteractions(objectCondition);
 		
-		Assert.assertTrue(user2.getVisibleUsers().contains(user2));
-		Assert.assertTrue(user2.getVisibleUsers().contains(user1));
+		this.user.getVisibleUsers();
 	}
 	
 	@Test
-	public void testUserProperties() {
-		final Map<String, String> params = new HashMap<>();
-		final String              name   = "UserTest.testUserProperties.User";
-		params.put("name", name);
-		final User user = new NullIdentityProvider().register(params).getLeft();
-		Assert.assertEquals(name, user.getName());
-		Assert.assertNotNull(user.getId());
-		Assert.assertNotEquals(0, user.getId());
+	public void getVisibleUsersAsNonAdmin() throws Exception {
+		final Field adminField = User.class.getDeclaredField("isAdmin");
+		adminField.setAccessible(true);
+		adminField.set(this.user, false);
+		
+		// mock query for key-obtaining
+		final Query<Key>                  keyQuery;
+		final ValueOnGoingCondition<User> keyUserCondition;
+		when(Torpedo.where(nullable(User.class))).thenReturn(keyUserCondition = mock(ValueOnGoingCondition.class));
+		when(Torpedo.select(any(Key.class))).thenReturn(keyQuery = mock(Query.class));
+		
+		final ValueOnGoingCondition<Key> permissionsOfKeysCondition;
+		when(Torpedo.where(nullable(Key.class))).thenReturn(permissionsOfKeysCondition = mock(ValueOnGoingCondition.class));
+		
+		// mock the query for permission, where users shall be obtained from
+		final Query<Permission> permissionQuery;
+		when(Torpedo.select(any(Permission.class))).thenReturn(permissionQuery = mock(Query.class));
+		
+		// generate a set of mocked permissions, that contain different users in different permission targets and verify that the users
+		// are obtained from all different targets
+		final User lambdaOwner = mock(User.class);
+		final User keyOwner    = mock(User.class);
+		
+		final Lambda lambda = mock(Lambda.class);
+		when(lambda.getOwner()).thenReturn(lambdaOwner);
+		
+		final Permission permissionWithoutAnyForeighners = mock(Permission.class);
+		final Permission permissionWithForeighnLambda    = mock(Permission.class);
+		final Permission permissionWithForeighnKey       = mock(Permission.class);
+		
+		when(permissionWithForeighnLambda.getLambda()).thenReturn(lambda);
+		when(permissionWithForeighnKey.getUser()).thenReturn(keyOwner);
+		
+		when(permissionQuery.list(this.session))
+				.thenReturn(Arrays.asList(permissionWithoutAnyForeighners, permissionWithForeighnLambda, permissionWithForeighnKey));
+		
+		// execute the to-test method
+		final Set<User> users = this.user.getVisibleUsers();
+		
+		// verify, that the obtained keys are only of the current user
+		verify(keyUserCondition).eq(this.user);
+		
+		// verify, that the obtained permissions are all of keys, that were obtained in the keyQuery before
+		verify(permissionsOfKeysCondition).in(keyQuery);
+		
+		// verify that the permissions that shall be examined for users are listed
+		verify(permissionQuery).list(this.session);
+		
+		assertEquals(2, users.size());
+		assertTrue(users.contains(lambdaOwner));
+		assertTrue(users.contains(keyOwner));
 	}
 	
 	@Test
-	public void testUserAdminProperty() {
-		Assert.assertFalse(this.user.isAdmin());
-		this.user.setAdmin(true);
-		Assert.assertTrue(this.user.isAdmin());
-	}
-	
-	@Test(expected = InsufficientPermissionsException.class)
-	public void createKeyWithInsufficientPermission() {
-		final Map<String, String> params = new HashMap<>();
-		final String              name   = "UserTest.createKeyWithInsufficientPermission.User";
-		params.put("name", name);
-		final User user = new NullIdentityProvider().register(params).getLeft();
-		assert !(user.getPrimaryKey().equals(this.service.getAuthenticatedKey().orElseThrow(AssertionError::new)));
-		user.createKey("UserTest.createKeyWithInsufficientPermission.Key");
-	}
-	
-	@Test
-	public void getKeyByName() throws Exception {
-		final String name = "UserTest.getKeyByName";
-		final Key    key  = this.user.createKey(name).getLeft();
+	public void getLambdas() throws Exception {
+		final ValueOnGoingCondition userCondition;
+		when(Torpedo.where(any(User.class))).thenReturn(userCondition = mock(ValueOnGoingCondition.class));
 		
-		Assert.assertSame(this.user.getKeyByName(name).orElseThrow(AssertionError::new), key);
-	}
-	
-	@Test (expected = InsufficientPermissionsException.class)
-	public void getKeyByNameAsNonPrimaryKey() throws Exception {
-		final String name = "UserTest.getKeyByNameAsNonPrimaryKey";
-		final Key key = this.user.createKey(name).getLeft();
-		AuthenticationService.getInstance().authenticate(key);
-		this.user.getKeyByName(name);
-	}
-	
-	@Test(expected = InsufficientPermissionsException.class)
-	public void getVisibleLambdasWithoutPrimaryKey() throws Exception {
-		final Map<String, String> params = new HashMap<>();
-		final String              name   = "UserTest.getVisibleLambdasWithoutPrimaryKey.User";
-		params.put("name", name);
-		final User user = new NullIdentityProvider().register(params).getLeft();
+		this.user.getLambdas();
 		
-		this.service.authenticate(user.createKey("UserTest.getVisibleLambdasWithoutPrimaryKey.Key").getLeft());
-		
-		assert !this.service.getAuthenticatedKey().orElseThrow(AssertionError::new).isPrimaryKey();
-		user.getLambdas();
+		verify(userCondition).eq(this.user);
+		verifyNoMoreInteractions(userCondition);
 	}
 	
 	@Test
 	public void getVisibleLambdas() throws Exception {
-		final Map<String, String> params2 = new HashMap<>();
-		params2.put("name", "UserTest.getVisibleLambdas.User2");
-		final User user2 = new NullIdentityProvider().register(params2).getLeft();
-		AuthenticationService.getInstance().authenticate(user2.getPrimaryKey());
-		Assert.assertTrue(this.user.getVisibleLambdas().isEmpty());
+		final Lambda visibleLambda   = mock(Lambda.class);
+		final Lambda invisibleLambda = mock(Lambda.class);
 		
-		AuthenticationService.getInstance().authenticate(this.user.getPrimaryKey());
-		user2.getPrimaryKey().grantPermission(this.lambda, PermissionType.READ);
-		AuthenticationService.getInstance().authenticate(user2.getPrimaryKey());
-		Assert.assertTrue(this.user.getVisibleLambdas().size() == 1);
-		Assert.assertTrue(this.user.getVisibleLambdas().iterator().next().getName().equals(this.lambdaName));
+		doReturn(Arrays.asList(visibleLambda, invisibleLambda)).when(this.user).getLambdas();
+		when(this.primaryKey.hasPermission(visibleLambda, PermissionType.READ)).thenReturn(true);
+		when(this.primaryKey.hasPermission(invisibleLambda, PermissionType.READ)).thenReturn(false);
+		
+		final Set<AbstractLambda> visibleLambdas = this.user.getVisibleLambdas();
+		assertTrue(visibleLambdas.size() == 1);
+		assertTrue(visibleLambdas.iterator().next() == visibleLambda);
 	}
 	
-
+	@Test
+	public void getKeyByName() throws Exception {
+		final OnGoingStringCondition nameCondition;
+		final ValueOnGoingCondition  userCondition;
+		
+		final OnGoingLogicalCondition userReturnCondition = mock(OnGoingLogicalCondition.class);
+		
+		when(Torpedo.where(any(User.class))).thenReturn(
+				userCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> userReturnCondition)));
+		
+		when(userReturnCondition.and((String) null)).thenReturn(nameCondition = mock(OnGoingStringCondition.class));
+		
+		this.user.getKeyByName("Normandy");
+		
+		verify(nameCondition).eq("Normandy");
+		verify(userCondition).eq(this.user);
+		verifyNoMoreInteractions(nameCondition);
+		verifyNoMoreInteractions(userCondition);
+	}
+	
+	@Test
+	public void getByName() throws Exception {
+		final OnGoingStringCondition condition;
+		when(Torpedo.where((String) null)).thenReturn(condition = mock(OnGoingStringCondition.class));
+		User.getByName("mordin.solus");
+		
+		verify(condition).eq("mordin.solus");
+		verifyNoMoreInteractions(condition);
+	}
+	
+	@Test
+	public void getId() throws Exception {
+		this.user.getId();
+	}
+	
+	@Test
+	public void getName() throws Exception {
+		this.user.getName();
+	}
+	
+	@Test
+	public void getPrimaryKey() throws Exception {
+		this.user.getPrimaryKey();
+	}
+	
+	@Test
+	public void isAdmin() throws Exception {
+		this.user.isAdmin();
+	}
 }

@@ -37,10 +37,10 @@ public class ScheduleManagerTest {
 	
 	@Before
 	public void setUp() {
-		event = Mockito.mock(Event.class);
+		this.event = Mockito.mock(Event.class);
 		final ListenableFuture future = Mockito.mock(ListenableFuture.class);
-		Mockito.when(event.execute()).thenAnswer(invocation -> {
-			executed = "Executed";
+		Mockito.when(this.event.execute()).thenAnswer(invocation -> {
+			this.executed = "Executed";
 			return future;
 		});
 		Mockito.when(future.isDone()).thenReturn(false).thenReturn(true);
@@ -49,50 +49,50 @@ public class ScheduleManagerTest {
 		PowerMockito.when(Application.getInstance()).thenReturn(Mockito.mock(Application.class));
 		PowerMockito.when(Application.getInstance().getSessionFactory()).thenReturn(Mockito.mock(SessionFactory.class));
 		
-		Session session = Mockito.mock(Session.class);
+		final Session session = Mockito.mock(Session.class);
 		PowerMockito.when(Application.getInstance().getSessionFactory().getCurrentSession()).thenReturn(session);
 		
-		Mockito.doAnswer(invocation -> saveEvent = invocation.getArgument(0)).when(session).update(any(Event.class));
-		Mockito.doAnswer(invocation -> saveEvent = invocation.getArgument(0)).when(session).saveOrUpdate(any(Event.class));
+		Mockito.doAnswer(invocation -> this.saveEvent = invocation.getArgument(0)).when(session).update(any(Event.class));
+		Mockito.doAnswer(invocation -> this.saveEvent = invocation.getArgument(0)).when(session).saveOrUpdate(any(Event.class));
 		
-		Transaction transaction = Mockito.mock(Transaction.class);
+		final Transaction transaction = Mockito.mock(Transaction.class);
 		Mockito.when(session.getTransaction()).thenReturn(transaction);
 		Mockito.doNothing().when(transaction).commit();
 		
 		Mockito.when(session.beginTransaction()).thenReturn(transaction);
 		Mockito.when(session.createQuery(anyString())).thenReturn(Mockito.mock(org.hibernate.query.Query.class));
-		Mockito.when(session.createQuery(anyString()).getSingleResult()).thenReturn(event);
+		Mockito.when(session.createQuery(anyString()).getSingleResult()).thenReturn(this.event);
 	}
 	
 	@Test(timeout = 10000)
 	public void executeTest() throws Exception {
 		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
-		while (executed == null) ;
+		while (this.executed == null) ;
 		
-		Assert.assertEquals("Executed", executed);
+		Assert.assertEquals("Executed", this.executed);
 	}
 	
 	@Test(timeout = 10000)
 	public void updateLockTest() throws Exception {
-		Mockito.doNothing().doAnswer(invocation -> updatedLock = "updatedLock").when(event).setLock(any(Calendar.class));
+		Mockito.doNothing().doAnswer(invocation -> this.updatedLock = "updatedLock").when(this.event).setLock(any(Calendar.class));
 		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
-		while (updatedLock == null) ;
+		while (this.updatedLock == null) ;
 		
-		Assert.assertEquals("updatedLock", updatedLock);
+		Assert.assertEquals("updatedLock", this.updatedLock);
 	}
 	
 	@Test(timeout = 10000)
 	public void finishFutureTest() throws Exception {
-		Mockito.doAnswer(invocation -> save = "save").when(event).save();
+		Mockito.doAnswer(invocation -> this.save = "save").when(this.event).save();
 		ThreadManager.getExecutorService().submit(ScheduleManager.getInstance()::run);
-		while (save == null) ;
+		while (this.save == null) ;
 		
-		Assert.assertEquals("save", save);
+		Assert.assertEquals("save", this.save);
 	}
 	
 	@After
 	public void tearDown() {
-		executed = null;
-		updatedLock = null;
+		this.executed = null;
+		this.updatedLock = null;
 	}
 }

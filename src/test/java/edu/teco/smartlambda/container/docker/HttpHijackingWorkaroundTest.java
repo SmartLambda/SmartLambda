@@ -31,10 +31,9 @@ public class HttpHijackingWorkaroundTest {
 			imageBuilder.storeFile(IOUtils.toByteArray(binStream), GlobalOptions.JRE_8_BINARY_NAME);
 		}
 		
-		final Image image =
-				imageBuilder.setRuntimeLibrary("executionservice.jar").setCommand("java -jar executionservice.jar").setTemplate
-						("openjdk:8")
-						.build();
+		final Image image = imageBuilder.storeFile(
+				IOUtils.toByteArray(HttpHijackingWorkaround.class.getClassLoader().getResourceAsStream("jre8/executionservice" + ".jar")),
+				"executionservice.jar").setCommand("java -jar executionservice.jar").setTemplate("openjdk:8").build();
 		
 		final Container container = image.start();
 		assertNotNull(container.getStdIn());

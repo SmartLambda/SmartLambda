@@ -17,7 +17,7 @@ public class LambdaFacade {
 	 */
 	private LambdaFacade() {
 		// this can be interchanged when other factories shall be supported
-		factory = new PrivilegedMonitoredLambdaFactory();
+		this.factory = new PrivilegedMonitoredLambdaFactory();
 	}
 	
 	/**

@@ -12,7 +12,7 @@ public class IdentityException extends RuntimeException{
 		super(message);
 	}
 	
-	public IdentityException(Throwable cause) {
+	public IdentityException(final Throwable cause) {
 		super(cause);
 	}
 }
