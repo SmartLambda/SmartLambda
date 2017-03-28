@@ -22,6 +22,7 @@ import org.glassfish.jersey.message.internal.EntityInputStream;
 import sun.nio.ch.ChannelInputStream;
 
 import java.io.FilterInputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.nio.channels.Channels;
@@ -60,7 +61,7 @@ class HttpHijackingWorkaround {
 	 *
 	 * @throws Exception on any docker or reflection exception
 	 */
-	static WritableByteChannel getOutputStream(final LogStream stream, final String uri) throws Exception {
+	static OutputStream getOutputStream(final LogStream stream, final String uri) throws Exception {
 		// @formatter:off
 		final String[] fields =
 				new String[] {"reader",
@@ -107,9 +108,9 @@ class HttpHijackingWorkaround {
 		
 		final Object res = getInternalField(stream, fieldClassTuples);
 		if (res instanceof WritableByteChannel) {
-			return (WritableByteChannel) res;
+			return Channels.newOutputStream((WritableByteChannel) res);
 		} else if (res instanceof Socket) {
-			return Channels.newChannel(((Socket) res).getOutputStream());
+			return ((Socket) res).getOutputStream();
 		} else {
 			throw new AssertionError("Expected " + WritableByteChannel.class.getName() + " or " + Socket.class.getName() + " but found: " +
 					res.getClass().getName());

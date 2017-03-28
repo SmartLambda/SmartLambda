@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +98,8 @@ public class Lambda extends AbstractLambda {
 				throw (new RuntimeException(e));
 			}
 			
-			final WritableByteChannel   stdIn                  = container.getStdIn();
+			// DO NOT CLOSE THIS STREAM! THE INTO-CONTAINER-SOCKET WILL DIE A HORRIBLE DEATH!
+			final WritableByteChannel   stdIn                  = Channels.newChannel(container.getStdIn());
 			final ByteArrayOutputStream byteBufferStream       = new ByteArrayOutputStream(params.length() + 4);
 			final DataOutputStream      byteBufferStreamFiller = new DataOutputStream(byteBufferStream);
 			byteBufferStreamFiller.writeInt(params.length());
