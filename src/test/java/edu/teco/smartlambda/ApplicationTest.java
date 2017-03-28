@@ -36,7 +36,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Application.class, Configuration.class, Spark.class, RuntimeRegistry.class, IdentityProviderRegistry.class})
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING) // ignored by PowerMockRunner so far
 public class ApplicationTest {
 	
 	private        Configuration  configuration;
@@ -53,8 +53,17 @@ public class ApplicationTest {
 		when(this.configuration.buildSessionFactory()).thenReturn(sessionFactory);
 	}
 	
+	/*
+	 Workaround: Call all tests from within a single one, since PowerMockRunnter ignores the fixed method order
+	 */
 	@Test
-	public void a_getInstance() throws Exception {
+	public void testAll() throws Exception {
+		this.getInstance();
+		this.getSessionFactory();
+		this.main();
+	}
+	
+	public void getInstance() throws Exception {
 		assertNotNull(Application.getInstance());
 		assertSame(Application.getInstance(), Application.getInstance());
 		
@@ -71,14 +80,12 @@ public class ApplicationTest {
 		verify(this.configuration).buildSessionFactory();
 	}
 	
-	@Test
-	public void b_getSessionFactory() throws Exception {
+	public void getSessionFactory() throws Exception {
 		// verify, that the session factory is always the same
-		assertSame(this.sessionFactory, Application.getInstance().getSessionFactory());
+		assertSame(sessionFactory, Application.getInstance().getSessionFactory());
 	}
 	
-	@Test
-	public void c_main() throws Exception {
+	public void main() throws Exception {
 		mockStatic(Spark.class);
 		mockStatic(RuntimeRegistry.class);
 		mockStatic(IdentityProviderRegistry.class);
