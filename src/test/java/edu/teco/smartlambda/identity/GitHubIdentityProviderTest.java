@@ -47,6 +47,7 @@ public class GitHubIdentityProviderTest {
 	private URL                    url;
 	
 	private final String                 gitHubHttpQueryUsernameResponse = "USERNAME";
+	private final String                 gitHubToken = "GITHUB_TOKEN";
 	
 	private GitHubIdentityProvider gitHubIdentityProvider;
 	
@@ -118,34 +119,29 @@ public class GitHubIdentityProviderTest {
 	
 	@Test
 	public void gitHubCredentialCreation() throws Exception {
-		final String token = "GitHubIdentityProviderTest.gitHubCredentialCreation.Token";
-		
 		final Map<String, String> params = new HashMap<>();
-		params.put("accessToken", token);
+		params.put("accessToken", this.gitHubToken);
 		this.gitHubIdentityProvider.register(params);
 		
 		final GitHubCredential savedCredential = (GitHubCredential) this.sessionSaveAnswer;
-		Assert.assertEquals(token, savedCredential.getAccessToken());
+		Assert.assertEquals(this.gitHubToken, savedCredential.getAccessToken());
 		Assert.assertEquals(this.user, savedCredential.getUser());
 	}
 	
 	@Test (expected = InvalidCredentialsException.class)
 	public void gitHubAuthenticationBadResponseCode() throws Exception {
-		final String token = "GitHubIdentityProviderTest.gitHubAuthenticationBadResponseCode.Token";
 		PowerMockito.when(this.connection.getResponseCode()).thenReturn(9999);
 		PowerMockito.when(this.connection.getErrorStream()).thenReturn(new ByteArrayInputStream( "mocked InputStream".getBytes() ));
 		
 		final Map<String, String> params = new HashMap<>();
-		params.put("accessToken", token);
+		params.put("accessToken", this.gitHubToken);
 		this.gitHubIdentityProvider.register(params);
 	}
 	
 	@Test
 	public void gitHubAuthenticationValidResponseCode() throws Exception {
-		final String token = "GitHubIdentityProviderTest.gitHubAuthenticationValidResponseCode.Token";
-		
 		final Map<String, String> params = new HashMap<>();
-		params.put("accessToken", token);
+		params.put("accessToken", this.gitHubToken);
 		this.gitHubIdentityProvider.register(params);
 		Assert.assertEquals(this.createUserAnswer, this.gitHubHttpQueryUsernameResponse);
 	}
