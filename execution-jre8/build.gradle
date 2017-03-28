@@ -32,3 +32,17 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
+
+task install(dependsOn: build, type: Copy) {
+    from('build/libs') {
+        include 'executionservice.jar'
+    }
+
+    into '../src/main/resources'
+}
+
+task installClean(type: Delete) {
+    delete '../src/main/resources/executionservice.jar'
+}
+
+clean.dependsOn installClean

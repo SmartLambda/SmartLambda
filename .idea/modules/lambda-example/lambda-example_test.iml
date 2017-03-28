@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":lambda-test:test" external.linked.project.path="$MODULE_DIR$/../../../lambda-test" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="edu.teco" external.system.module.type="sourceSet" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":lambda-example:test" external.linked.project.path="$MODULE_DIR$/../../../lambda-example" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="edu.teco" external.system.module.type="sourceSet" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output-test url="file://$MODULE_DIR$/../../../lambda-test/build/classes/test" />
+    <output-test url="file://$MODULE_DIR$/../../../lambda-example/build/classes/test" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../lambda-test/src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../../lambda-test/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../lambda-test/src/test/resources" type="java-test-resource" />
+    <content url="file://$MODULE_DIR$/../../../lambda-example/src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../lambda-example/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../lambda-example/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="lambda-test_main" />
+    <orderEntry type="module" module-name="lambda-example_main" />
     <orderEntry type="module" module-name="execution-jre8_main" />
     <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.4" level="project" />
@@ -20,5 +20,5 @@
     <orderEntry type="library" name="Gradle: com.google.auto:auto-common:0.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:18.0" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="lambda-test_main" />
+  <component name="TestModuleProperties" production-module="lambda-example_main" />
 </module>

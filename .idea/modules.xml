@@ -2,12 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Demo/demolambda.iml" filepath="$PROJECT_DIR$/.idea/modules/Demo/demolambda.iml" group="demolambda" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Demo/demolambda_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Demo/demolambda_main.iml" group="demolambda" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Demo/demolambda_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Demo/demolambda_test.iml" group="demolambda" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution/execution.iml" filepath="$PROJECT_DIR$/.idea/modules/execution/execution.iml" group="execution" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution/execution_main.iml" filepath="$PROJECT_DIR$/.idea/modules/execution/execution_main.iml" group="execution" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution/execution_test.iml" filepath="$PROJECT_DIR$/.idea/modules/execution/execution_test.iml" group="execution" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8.iml" group="execution-jre8" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_main.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_main.iml" group="execution-jre8" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_test.iml" filepath="$PROJECT_DIR$/.idea/modules/execution-jre8/execution-jre8_test.iml" group="execution-jre8" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example.iml" group="lambda-example" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example_main.iml" group="lambda-example" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-example/lambda-example_test.iml" group="lambda-example" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_main.iml" group="lambda-test" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lambda-test/lambda-test_test.iml" group="lambda-test" />
