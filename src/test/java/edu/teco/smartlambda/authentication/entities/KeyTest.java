@@ -24,23 +24,22 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-/**
- *
- */
 @SuppressWarnings("unchecked")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Torpedo.class, Application.class, AuthenticationService.class})
-public class KeyUnitTest {
+public class KeyTest {
 	
 	private User    user;
 	private Lambda  lambda;
@@ -255,5 +254,28 @@ public class KeyUnitTest {
 		verify(userCondition).eq(user);
 		verify(permissionTypeCondition).eq(permissionType);
 		Assert.assertEquals(true, deleted[0]);
+	}
+	
+	@Test
+	public void getVisiblePermissionsTest() {
+		ValueOnGoingCondition keyCondition;
+		ValueOnGoingCondition userCondition;
+		
+		OnGoingLogicalCondition keyReturnCondition  = mock(OnGoingLogicalCondition.class);
+		OnGoingLogicalCondition userReturnCondition = mock(OnGoingLogicalCondition.class);
+		
+		when(Torpedo.where(nullable(Key.class))).thenReturn(
+				keyCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> keyReturnCondition)));
+		when(keyReturnCondition.and(nullable(User.class))).thenReturn(
+				userCondition = mock(ValueOnGoingCondition.class, withSettings().defaultAnswer(invocation -> userReturnCondition)));
+		
+		org.hibernate.query.Query query = mock(org.hibernate.query.Query.class);
+		when(session.createQuery(anyString(), eq(Permission.class))).thenReturn(query);
+		when(query.setParameter(anyString(), any(Key.class))).thenReturn(null);
+		
+		key.getVisiblePermissions();
+		
+		verify(keyCondition, times(2)).eq(key);
+		verify(userCondition, times(2)).eq(user);
 	}
 }
