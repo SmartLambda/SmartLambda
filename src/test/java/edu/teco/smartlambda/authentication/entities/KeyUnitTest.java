@@ -147,4 +147,24 @@ public class KeyUnitTest {
 		verify(user).equals(deleteUser[0]);
 		Assert.assertEquals(testKey, deleteKey[0]);
 	}
+	
+	@Test
+	public void grantLambdaPermissionTest() throws Exception {
+		PermissionType permissionType     = PermissionType.CREATE;
+		Permission[]   permission         = new Permission[1];
+		Permission     expectedPermission = new Permission(lambda, permissionType, key);
+		when(user.getPrimaryKey()).thenReturn(key);
+		
+		doReturn(false).when(key).hasPermission(lambda, permissionType);
+		when(session.save(nullable(Permission.class))).thenAnswer(invocation -> {
+			permission[0] = invocation.getArgument(0);
+			return null;
+		});
+		
+		key.grantPermission(lambda, permissionType);
+		
+		Assert.assertTrue(expectedPermission.getKey().equals(permission[0].getKey()) &&
+				expectedPermission.getLambda().equals(permission[0].getLambda()) &&
+				expectedPermission.getPermissionType().equals(permission[0].getPermissionType()));
+	}
 }
