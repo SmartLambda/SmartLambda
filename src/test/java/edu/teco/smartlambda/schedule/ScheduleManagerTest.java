@@ -58,6 +58,7 @@ public class ScheduleManagerTest {
 		final Transaction transaction = Mockito.mock(Transaction.class);
 		Mockito.when(session.getTransaction()).thenReturn(transaction);
 		Mockito.doNothing().when(transaction).commit();
+		Mockito.doReturn(true).when(transaction).isActive();
 		
 		Mockito.when(session.beginTransaction()).thenReturn(transaction);
 		Mockito.when(session.createQuery(anyString())).thenReturn(Mockito.mock(org.hibernate.query.Query.class));

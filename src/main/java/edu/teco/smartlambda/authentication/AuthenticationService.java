@@ -2,6 +2,7 @@ package edu.teco.smartlambda.authentication;
 
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
+import org.apache.commons.codec.binary.Hex;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,21 +39,12 @@ public class AuthenticationService {
 		final String hash;
 		try {
 			final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			hash = this.arrayToString(sha256.digest(key.getBytes()));
+			hash = Hex.encodeHexString(sha256.digest(key.getBytes()));
 		} catch (final NoSuchAlgorithmException a) {
 			throw new RuntimeException(a);
 		}
 		
 		this.authenticatedKey = Key.getKeyById(hash).orElseThrow(NotAuthenticatedException::new);
-	}
-	
-	private String arrayToString(final byte[] array)
-	{
-		final StringBuilder sb = new StringBuilder();
-		for (final byte currentByte : array) {
-			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
-		}
-		return sb.toString();
 	}
 	
 	/**

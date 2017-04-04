@@ -10,6 +10,7 @@ import edu.teco.smartlambda.lambda.AbstractLambda;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.lambda.LambdaFacade;
 import lombok.Getter;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.torpedoquery.jpa.Query;
@@ -64,7 +65,9 @@ public class User {
 	
 	/**
 	 * Creates a new User object and new Key Object and adds it to the Database as it's primaryKey
+	 *
 	 * @param name System wide unique name of the new User
+	 *
 	 * @return Pair of the new User object and the unhashed id of the created primaryKey
 	 */
 	public static Pair<User, String> createUser(final String name) throws DuplicateUserException {
@@ -89,6 +92,7 @@ public class User {
 	
 	/**
 	 * Sets the flag for this User to be an Admin
+	 *
 	 * @param admin true, if this user shall be an Admin
 	 */
 	void setAdmin(final boolean admin) {
@@ -131,25 +135,16 @@ public class User {
 		try {
 			final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 			
-			hash = this.arrayToString(sha256.digest(generatedNumber.getBytes()));
+			hash = Hex.encodeHexString(sha256.digest(generatedNumber.getBytes()));
 			
-			id = this.arrayToString(sha256.digest(hash.getBytes()));
+			id = Hex.encodeHexString(sha256.digest(hash.getBytes()));
 		} catch (final NoSuchAlgorithmException a) {
 			throw new RuntimeException(a);
 		}
 		final Key key = new Key(id, name, this);
 		session.save(key);
-
+		
 		return Pair.of(key, hash);
-	}
-	
-	private String arrayToString(final byte[] array)
-	{
-		final StringBuilder sb = new StringBuilder();
-		for (final byte currentByte : array) {
-			sb.append(Integer.toHexString((currentByte & 0xFF) | 0x100).substring(1, 3));
-		}
-		return sb.toString();
 	}
 	
 	/**
@@ -170,13 +165,12 @@ public class User {
 			
 			final Permission permission = from(Permission.class);
 			where(permission.getKey()).in(keyQuery);
-			final Set<Permission> permissionSet =
-					new HashSet<>(select(permission).list(session));
+			final Set<Permission> permissionSet = new HashSet<>(select(permission).list(session));
 			
 			final Set<User> userSet = new HashSet<>();
 			
 			for (final Permission perm : permissionSet) {
-				if (perm.getUser()!= null) {
+				if (perm.getUser() != null) {
 					userSet.add(perm.getUser());
 				} else if (perm.getLambda() != null) {
 					userSet.add(perm.getLambda().getOwner());
@@ -204,6 +198,7 @@ public class User {
 	 * Returns all lambdas of this user that are visible to the currently authenticated user
 	 *
 	 * @return set of lambdas
+	 *
 	 * @throws InsufficientPermissionsException when user is not authenticated with their primary key
 	 */
 	@Transient
