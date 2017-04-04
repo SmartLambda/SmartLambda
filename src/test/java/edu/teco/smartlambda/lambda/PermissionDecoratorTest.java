@@ -138,7 +138,7 @@ public class PermissionDecoratorTest {
 	 * @throws Exception on any failure
 	 */
 	@Test
-	public void getScheduledEventAsForeighner() throws Exception {
+	public void getScheduledEventAsForeigner() throws Exception {
 		final User mockedUser;
 		when(this.mockedAuthenticationService.getAuthenticatedUser()).thenReturn(Optional.of(mockedUser = mock(User.class)));
 		when(mockedUser.getPrimaryKey()).thenReturn(this.mockedKey);
