@@ -53,6 +53,7 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.4'
     testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.7.0RC4'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '1.7.0RC4'
+    testCompile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
 }
 
 buildConfig {

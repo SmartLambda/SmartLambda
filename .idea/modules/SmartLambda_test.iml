@@ -9,6 +9,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="SmartLambda_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -18,7 +19,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="SmartLambda_main" />
     <orderEntry type="library" name="Gradle: com.sparkjava:spark-core:2.5.4" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:19.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />
@@ -38,6 +38,7 @@
     <orderEntry type="module" module-name="shared_main" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-module-junit4:1.7.0RC4" level="project" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-api-mockito2:1.7.0RC4" level="project" />
+    <orderEntry type="library" name="Gradle: com.mashape.unirest:unirest-java:1.4.9" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-server:9.3.6.v20151106" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-webapp:9.3.6.v20151106" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-server:9.3.6.v20151106" level="project" />
@@ -61,7 +62,6 @@
     <orderEntry type="library" name="Gradle: org.glassfish.jersey.connectors:jersey-apache-connector:2.22.2" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish.jersey.media:jersey-media-json-jackson:2.22.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-compress:1.9" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.5" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-unixsocket:0.8" level="project" />
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
@@ -72,6 +72,9 @@
     <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy-agent:1.6.5" level="project" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-module-junit4-common:1.7.0RC4" level="project" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-api-mockito-common:1.7.0RC4" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpasyncclient:4.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpmime:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.json:json:20160212" level="project" />
     <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-http:9.3.6.v20151106" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-io:9.3.6.v20151106" level="project" />
@@ -89,7 +92,6 @@
     <orderEntry type="library" name="Gradle: org.glassfish.hk2.external:javax.inject:2.4.0-b34" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish.hk2:hk2-locator:2.4.0-b34" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish.jersey.ext:jersey-entity-filtering:2.22.2" level="project" />
-    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-ffi:2.0.3" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-constants:0.8.7" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-enxio:0.9" level="project" />
@@ -98,6 +100,7 @@
     <orderEntry type="library" name="Gradle: org.powermock:powermock-reflect:1.7.0RC4" level="project" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-core:1.7.0RC4" level="project" />
     <orderEntry type="library" name="Gradle: org.powermock:powermock-api-support:1.7.0RC4" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore-nio:4.4.4" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.3.6.v20151106" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-security:9.3.6.v20151106" level="project" />
     <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.2" level="project" />
@@ -118,9 +121,11 @@
     <orderEntry type="library" name="Gradle: org.javassist:javassist:3.21.0-GA" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.objenesis:objenesis:2.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.12" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.7.5" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.16.12" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="SmartLambda_main" />
 </module>
