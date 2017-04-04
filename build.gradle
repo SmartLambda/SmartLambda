@@ -1,10 +1,10 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
-    id 'de.fuerstenau.buildconfig' version '1.1.7'
+    id 'de.fuerstenau.buildconfig' version '1.1.8'
 }
 
-group 'edu.teco'
+group 'edu.teco.smartlambda'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'application'
@@ -58,7 +58,7 @@ dependencies {
 buildConfig {
     appName = project.name
     version = project.version
-    packageName = project.group + "." + "smartlambda"
+    packageName = project.group
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         buildConfigField "String", "CONFIGURATION_PATH", "C:\\\\smartlambda\\\\smartlambda.xml"
         buildConfigField "String", "HIBERNATE_CONFIGURATION_PATH", "C:\\\\smartlambda\\\\hibernate.xml"
