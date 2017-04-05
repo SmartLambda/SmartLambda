@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile project(":execution-jre8")
+    compile group: 'edu.teco.smartlambda', name: 'lambda-jre8', version: '1.0'
 
     compileOnly "org.projectlombok:lombok:1.16.12"
 
