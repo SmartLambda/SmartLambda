@@ -2,9 +2,11 @@ package edu.teco.smartlambda.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.teco.smartlambda.authentication.AuthenticationService;
+import edu.teco.smartlambda.authentication.DuplicateUserException;
 import edu.teco.smartlambda.authentication.NotAuthenticatedException;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.identity.GitHubIdentityProvider;
+import edu.teco.smartlambda.identity.IdentityException;
 import edu.teco.smartlambda.identity.IdentityProvider;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.identity.NullIdentityProvider;
@@ -151,6 +153,10 @@ public class UserController {
 	 *         </tr>
 	 *     </tbody>
 	 * </table>
+	 *
+	 * @throws IdentityException <b>400</b> Thrown when the provided credentials are not valid for the corresponding {@link
+	 *                           IdentityProvider} or the credentials do not suffice the providers syntax norm
+	 * @throws DuplicateUserException <b>409</b> Thrown when a {@link User} with the same name exists already
 	 */
 	public static Object register(final Request request, final Response response) throws IOException {
 		final RegistrationRequest registrationRequest = new ObjectMapper().readValue(request.body(), RegistrationRequest.class);
