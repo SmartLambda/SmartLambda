@@ -2,6 +2,7 @@ package edu.teco.smartlambda.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.teco.smartlambda.processor.LambdaFunctionProcessor;
 import edu.teco.smartlambda.processor.LambdaMetaData;
 import edu.teco.smartlambda.shared.ExecutionReturnValue;
 import edu.teco.smartlambda.shared.GlobalOptions;
@@ -26,11 +27,6 @@ import java.net.URLClassLoader;
  * value
  */
 public class LambdaExecutionService {
-	
-	/**
-	 * the meta file location inside the lambda archive
-	 */
-	public static final String LAMBDA_META_DATA_FILE = "META-INF/lambda.json";
 	
 	/**
 	 * Main function of the lambda executor service that executes the lambda archive inside a container
@@ -143,6 +139,7 @@ public class LambdaExecutionService {
 	 * @throws IOException on stream fail
 	 */
 	private static LambdaMetaData readMetaData(final Gson gson, final URLClassLoader classLoader) throws IOException {
-		return gson.fromJson(new InputStreamReader(classLoader.findResource(LAMBDA_META_DATA_FILE).openStream()), LambdaMetaData.class);
+		return gson.fromJson(new InputStreamReader(classLoader.findResource(LambdaFunctionProcessor.LAMBDA_META_DATA_FILE).openStream()),
+				LambdaMetaData.class);
 	}
 }
