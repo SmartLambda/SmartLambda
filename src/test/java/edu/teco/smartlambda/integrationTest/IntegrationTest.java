@@ -8,6 +8,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.User;
+import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -83,5 +84,24 @@ public class IntegrationTest {
 		final String key = new Gson().fromJson(response.getBody(), JsonPrimitive.class).getAsString();
 		Assert.assertNotNull(key);
 		testUserDeveloperKey = key;
+	}
+	
+	@Test
+	public void _4_deployLambda() throws Exception { //TF024
+		final HashMap<String, Object> body       = new HashMap<>();
+		body.put("async", "false");
+		body.put("runtime", "jre8");
+		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
+		final String bodyString = new Gson().toJson(body);
+		
+		final HttpResponse<String> response =
+				Unirest.put(smartLambdaURL + testUserName + "/lambda/" + testLambdaName).header("SmartLambda-Key", testUserPrimaryKey)
+						.body(bodyString).asString();
+		System.out.println(response.getBody());
+		Assert.assertEquals(201, response.getStatus());
+		Assert.assertEquals("Created", response.getStatusText());
+		
+		final JsonObject jsonObject = new Gson().fromJson(response.getBody(), JsonObject.class);
+		Assert.assertTrue(jsonObject.entrySet().size() == 0);
 	}
 }
