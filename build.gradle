@@ -14,6 +14,22 @@ mainClassName = "edu.teco.smartlambda.Application"
 sourceCompatibility = 1.8
 docsDirName = "../docs"
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'edu.teco.smartlambda.Application'
+    }
+
+    from {
+        configurations.runtime.resolve().collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
 idea {
     module {
         sourceDirs += file("build/gen/buildconfig/src/main")
