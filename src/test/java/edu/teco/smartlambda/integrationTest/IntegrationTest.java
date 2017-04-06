@@ -22,11 +22,12 @@ import java.util.HashMap;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IntegrationTest {
-	private static final String smartLambdaURL = "http://localhost:8080";
+	private static final String smartLambdaURL = "http://localhost:8080/";
 	private static final String testUserName   = "IntegrationTestUser";
 	private static String testUserPrimaryKey;
 	private static String testUserDeveloperKey;
 	private static final String testUserDeveloperKeyName = "IntegrationTestDeveloper";
+	private static final String testLambdaName = "IntegrationTestLambda";
 	
 	@BeforeClass
 	public static void setupTestUser() throws Exception {
@@ -52,7 +53,7 @@ public class IntegrationTest {
 		
 		final String bodyString = new Gson().toJson(body);
 		
-		return Unirest.post(smartLambdaURL + "/register").body(bodyString).asString();
+		return Unirest.post(smartLambdaURL + "register").body(bodyString).asString();
 	}
 	
 	@Test
@@ -69,13 +70,13 @@ public class IntegrationTest {
 		Assert.assertEquals(response.getStatusText(), "Created");
 		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
 		Assert.assertEquals(jsonObject.get("name").getAsString(), userName);
-		testUserPrimaryKey = jsonObject.get("primaryKey").getAsString();
+		Assert.assertNotNull(jsonObject.get("primaryKey").getAsString());
 	}
 	
 	@Test
 	public void _2_createDeveloperKey() throws Exception { //TF020
 		final HttpResponse<String> response =
-				Unirest.put(smartLambdaURL + "/key/" + testUserDeveloperKeyName).header("SmartLambda-Key", testUserPrimaryKey).asString();
+				Unirest.put(smartLambdaURL + "key/" + testUserDeveloperKeyName).header("SmartLambda-Key", testUserPrimaryKey).asString();
 		Assert.assertEquals(201, response.getStatus());
 		Assert.assertEquals("Created", response.getStatusText());
 		
