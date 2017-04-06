@@ -72,9 +72,9 @@ public class Application {
 		Spark.get("/:user/permissions", PermissionController::readUserPermissions, gson::toJson);
 		Spark.put("/:user/permissions", PermissionController::grantUserPermissions, gson::toJson);
 		Spark.delete("/:user/permissions", PermissionController::revokeUserPermissions, gson::toJson);
-		Spark.get("/:key/permissions", PermissionController::readKeyPermissions, gson::toJson);
-		Spark.put("/:key/permissions", PermissionController::grantKeyPermissions, gson::toJson);
-		Spark.delete("/:key/permissions", PermissionController::revokeKeyPermissions, gson::toJson);
+		Spark.get("/key/:name/permissions", PermissionController::readKeyPermissions, gson::toJson);
+		Spark.put("/key/:name/permissions", PermissionController::grantKeyPermissions, gson::toJson);
+		Spark.delete("/key/:name/permissions", PermissionController::revokeKeyPermissions, gson::toJson);
 		
 		Spark.put("/:user/lambda/:name", LambdaController::createLambda, gson::toJson);
 		Spark.patch("/:user/lambda/:name", LambdaController::updateLambda, gson::toJson);
