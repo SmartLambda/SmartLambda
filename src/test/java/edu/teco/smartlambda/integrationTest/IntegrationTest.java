@@ -39,8 +39,7 @@ public class IntegrationTest {
 		//Create new Account
 		final HttpResponse response = registerTestUser(testUserName);
 		assert response.getStatus() == 201;
-		final Gson       gson       = new Gson();
-		final JsonObject jsonObject = gson.fromJson(response.getBody().toString(), JsonObject.class);
+		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
 		testUserPrimaryKey = jsonObject.get("primaryKey").getAsString();
 	}
 	
@@ -51,8 +50,7 @@ public class IntegrationTest {
 		body.put("parameters", parameters);
 		body.put("identityProvider", "null");
 		
-		final Gson   gson       = new Gson();
-		final String bodyString = gson.toJson(body);
+		final String bodyString = new Gson().toJson(body);
 		
 		return Unirest.post(smartLambdaURL + "/register").body(bodyString).asString();
 	}
@@ -69,27 +67,19 @@ public class IntegrationTest {
 		final HttpResponse response = registerTestUser(userName);
 		Assert.assertEquals(response.getStatus(), 201);
 		Assert.assertEquals(response.getStatusText(), "Created");
-		final Gson       gson       = new Gson();
-		final JsonObject jsonObject = gson.fromJson(response.getBody().toString(), JsonObject.class);
+		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
 		Assert.assertEquals(jsonObject.get("name").getAsString(), userName);
 		testUserPrimaryKey = jsonObject.get("primaryKey").getAsString();
 	}
 	
 	@Test
 	public void _2_createDeveloperKey() throws Exception { //TF020
-		//final HashMap<String, Object> body = new HashMap<>();
-		//body.put("SmartLambda-Key", testUserPrimaryKey);
-		
-		final Gson gson = new Gson();
-		//final String bodyString = gson.toJson(body);
-		
 		final HttpResponse<String> response =
 				Unirest.put(smartLambdaURL + "/key/" + testUserDeveloperKeyName).header("SmartLambda-Key", testUserPrimaryKey).asString();
 		Assert.assertEquals(201, response.getStatus());
 		Assert.assertEquals("Created", response.getStatusText());
 		
-		final JsonPrimitive jsonPrimitive = gson.fromJson(response.getBody(), JsonPrimitive.class);
-		final String        key           = jsonPrimitive.getAsString();
+		final String key = new Gson().fromJson(response.getBody(), JsonPrimitive.class).getAsString();
 		Assert.assertNotNull(key);
 		testUserDeveloperKey = key;
 	}
