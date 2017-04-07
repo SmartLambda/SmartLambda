@@ -20,6 +20,7 @@ import org.junit.runners.MethodSorters;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
@@ -30,28 +31,24 @@ import static org.torpedoquery.jpa.Torpedo.where;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IntegrationTest {
-	private static final String smartLambdaURL = "http://localhost:8080/";
-	private static final String testUserName   = "IntegrationTestUser";
-	private static String testUserPrimaryKey;
+	private static final String smartLambdaURL     = "http://localhost:8080/";
+	private static final String testUserName       = "IntegrationTestUser";
+	private static       String testUserPrimaryKey = "";
 	private static String testUserDeveloperKey;
 	private static final String testUserDeveloperKeyName = "IntegrationTestDeveloper";
-	private static final String testLambdaName = "IntegrationTestLambda";
+	private static final String testLambdaName           = "IntegrationTestLambda";
 	
 	@BeforeClass
 	public static void setupTestUser() throws Exception {
 		deleteUserFromDatabase(testUserName);
 		
-		//Create new Account
-		final HttpResponse response = registerTestUser(testUserName);
-		assert response.getStatus() == 201;
-		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
-		testUserPrimaryKey = jsonObject.get("primaryKey").getAsString();
+		testUserPrimaryKey = registerTestUser(testUserName).get("primaryKey").getAsString();
 	}
 	
 	/*
 	 * Delete User with the same name as testUserName, if present. Delete MonitoringEvents of this Users Keys before
 	 */
-	private static void deleteUserFromDatabase (final String username) {
+	private static void deleteUserFromDatabase(final String username) {
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		
@@ -62,7 +59,7 @@ public class IntegrationTest {
 		
 		final User user = User.getByName(username).get();
 		
-		final Key     queryKey   = from(Key.class);
+		final Key queryKey = from(Key.class);
 		where(queryKey.getUser()).eq(user);
 		final List<Key> keys = select(queryKey).list(session);
 		
@@ -80,16 +77,75 @@ public class IntegrationTest {
 		if (session.getTransaction().isActive()) session.getTransaction().commit();
 	}
 	
-	private static HttpResponse registerTestUser(final String name) throws UnirestException {
+	private static JsonObject registerTestUser(final String name) throws UnirestException {
 		final HashMap<String, Object> body       = new HashMap<>();
 		final HashMap<String, String> parameters = new HashMap<>();
 		parameters.put("name", name);
 		body.put("parameters", parameters);
 		body.put("identityProvider", "null");
 		
-		final String bodyString = new Gson().toJson(body);
-		
-		return Unirest.post(smartLambdaURL + "register").body(bodyString).asString();
+		return requestJsonObject(RequestMethod.POST, "register", body, 201, "Created");
+	}
+	
+	public enum RequestMethod {
+		GET, POST, PUT, PATCH, DELETE;
+	}
+	
+	/*
+	 * Creates a Unirest call. expectedStatus or expectedStatusText can be null to not assert any of them.
+	 */
+	private static JsonObject requestJsonObject(final RequestMethod method, final String path, final Map<String, Object> body,
+			final Integer expectedStatus, final String expectedStatusText) throws UnirestException {
+		final HttpResponse<String> response = request(method, path, body);
+		if (expectedStatus != null) Assert.assertTrue(expectedStatus == response.getStatus());
+		if (expectedStatusText != null) Assert.assertEquals(expectedStatusText, response.getStatusText());
+		return new Gson().fromJson(response.getBody(), JsonObject.class);
+	}
+	
+	/*
+	 * Creates a Unirest call. expectedStatus or expectedStatusText can be null to not assert any of them.
+	 */
+	private static JsonPrimitive requestJsonPrimitive(final RequestMethod method, final String path, final Map<String, Object> body,
+			final Integer expectedStatus, final String expectedStatusText) throws UnirestException {
+		final HttpResponse<String> response = request(method, path, body);
+		if (expectedStatus != null) Assert.assertTrue(expectedStatus == response.getStatus());
+		if (expectedStatusText != null) Assert.assertEquals(expectedStatusText, response.getStatusText());
+		return new Gson().fromJson(response.getBody(), JsonPrimitive.class);
+	}
+	
+	/**
+	 * Sends a Unirest call to smartLambdaURL with the supplied arguments and header "SmartLambda-Key", testUserPrimaryKey
+	 */
+	private static HttpResponse<String> request(final RequestMethod method, final String path, final Map<String, Object> body)
+			throws UnirestException {
+		final HttpResponse<String> response;
+		switch (method) {
+			case POST:
+				response = Unirest.post(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
+						.asString();
+				break;
+			case GET:
+				Assert.assertNull(body);
+				response = Unirest.get(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).asString();
+				break;
+			case PUT:
+				response = Unirest.put(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
+						.asString();
+				break;
+			case PATCH:
+				response = Unirest.patch(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
+						.asString();
+				break;
+			case DELETE:
+				response = Unirest.delete(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson
+						(body))
+						.asString();
+				break;
+			default:
+				response = null;
+				Assert.fail();
+		}
+		return response;
 	}
 	
 	@Test
@@ -98,42 +154,26 @@ public class IntegrationTest {
 		
 		deleteUserFromDatabase(userName);
 		
-		final HttpResponse response = registerTestUser(userName);
-		Assert.assertEquals(response.getStatus(), 201);
-		Assert.assertEquals(response.getStatusText(), "Created");
-		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
-		Assert.assertEquals(jsonObject.get("name").getAsString(), userName);
-		Assert.assertNotNull(jsonObject.get("primaryKey").getAsString());
+		final JsonObject answer = registerTestUser(userName);
+		Assert.assertEquals(answer.get("name").getAsString(), userName);
+		Assert.assertNotNull(answer.get("primaryKey").getAsString());
 	}
 	
 	@Test
 	public void _2_createDeveloperKey() throws Exception { //TF020
-		final HttpResponse<String> response =
-				Unirest.put(smartLambdaURL + "key/" + testUserDeveloperKeyName).header("SmartLambda-Key", testUserPrimaryKey).asString();
-		Assert.assertEquals(201, response.getStatus());
-		Assert.assertEquals("Created", response.getStatusText());
-		
-		final String key = new Gson().fromJson(response.getBody(), JsonPrimitive.class).getAsString();
+		final String key = requestJsonPrimitive(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, null, 201, "Created").getAsString();
 		Assert.assertNotNull(key);
 		testUserDeveloperKey = key;
 	}
 	
 	@Test
 	public void _4_deployLambda() throws Exception { //TF024
-		final HashMap<String, Object> body       = new HashMap<>();
+		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("runtime", "jre8");
 		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
-		final String bodyString = new Gson().toJson(body);
 		
-		final HttpResponse<String> response =
-				Unirest.put(smartLambdaURL + testUserName + "/lambda/" + testLambdaName).header("SmartLambda-Key", testUserPrimaryKey)
-						.body(bodyString).asString();
-		System.out.println(response.getBody());
-		Assert.assertEquals(201, response.getStatus());
-		Assert.assertEquals("Created", response.getStatusText());
-		
-		final JsonObject jsonObject = new Gson().fromJson(response.getBody(), JsonObject.class);
-		Assert.assertTrue(jsonObject.entrySet().size() == 0);
+		final JsonObject answer = requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, body, 201, "Created");
+		Assert.assertTrue(answer.entrySet().size() == 0);
 	}
 }
