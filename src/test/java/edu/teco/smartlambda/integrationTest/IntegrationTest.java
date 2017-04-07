@@ -12,6 +12,7 @@ import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Session;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -31,6 +32,7 @@ import static org.torpedoquery.jpa.Torpedo.where;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IntegrationTest {
+	private static       Thread smartLambdaApplication;
 	private static final String smartLambdaURL     = "http://localhost:8080/";
 	private static final String testUserName       = "IntegrationTestUser";
 	private static       String testUserPrimaryKey = "";
@@ -39,10 +41,18 @@ public class IntegrationTest {
 	private static final String testLambdaName           = "IntegrationTestLambda";
 	
 	@BeforeClass
-	public static void setupTestUser() throws Exception {
+	public static void setupUser() throws Exception {
 		deleteUserFromDatabase(testUserName);
 		
+		smartLambdaApplication = new Thread(Application::main);
+		smartLambdaApplication.start();
+		
 		testUserPrimaryKey = registerTestUser(testUserName).get("primaryKey").getAsString();
+	}
+	
+	@AfterClass
+	public static void tearDown() {
+		smartLambdaApplication.interrupt();
 	}
 	
 	/*
