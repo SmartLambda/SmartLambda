@@ -7,9 +7,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import edu.teco.smartlambda.Application;
+import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
+import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import org.apache.commons.compress.utils.IOUtils;
-import org.hibernate.Transaction;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -17,6 +19,11 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.util.HashMap;
+import java.util.List;
+
+import static org.torpedoquery.jpa.Torpedo.from;
+import static org.torpedoquery.jpa.Torpedo.select;
+import static org.torpedoquery.jpa.Torpedo.where;
 
 /**
  * Created on 04.04.17.
@@ -32,17 +39,45 @@ public class IntegrationTest {
 	
 	@BeforeClass
 	public static void setupTestUser() throws Exception {
-		//Delete User with the same name as testUserName, if present.
-		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		User.getByName(testUserName).ifPresent(user -> Application.getInstance().getSessionFactory().getCurrentSession().delete(user));
-		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
-		if (transaction.isActive()) transaction.commit();
+		deleteUserFromDatabase(testUserName);
 		
 		//Create new Account
 		final HttpResponse response = registerTestUser(testUserName);
 		assert response.getStatus() == 201;
 		final JsonObject jsonObject = new Gson().fromJson(response.getBody().toString(), JsonObject.class);
 		testUserPrimaryKey = jsonObject.get("primaryKey").getAsString();
+	}
+	
+	/*
+	 * Delete User with the same name as testUserName, if present. Delete MonitoringEvents of this Users Keys before
+	 */
+	private static void deleteUserFromDatabase (final String username) {
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		
+		if (!User.getByName(username).isPresent()) {
+			if (session.getTransaction().isActive()) session.getTransaction().rollback();
+			return;
+		}
+		
+		final User user = User.getByName(username).get();
+		
+		final Key     queryKey   = from(Key.class);
+		where(queryKey.getUser()).eq(user);
+		final List<Key> keys = select(queryKey).list(session);
+		
+		for (final Key key : keys) {
+			final MonitoringEvent queryEvent = from(MonitoringEvent.class);
+			where(queryEvent.getKey()).eq(key);
+			final List<MonitoringEvent> monitoringEvents = select(queryEvent).list(session);
+			for (final MonitoringEvent event : monitoringEvents) {
+				session.delete(event);
+			}
+		}
+		
+		session.delete(user);
+		
+		if (session.getTransaction().isActive()) session.getTransaction().commit();
 	}
 	
 	private static HttpResponse registerTestUser(final String name) throws UnirestException {
@@ -61,10 +96,7 @@ public class IntegrationTest {
 	public void _1_registerUserViaNullIdentityProvider() throws Exception { //TF010
 		final String userName = "IntegrationTest.registerUserViaNullIdentityProvider";
 		
-		Application.getInstance().getSessionFactory().getCurrentSession().beginTransaction();
-		User.getByName(userName).ifPresent(user -> Application.getInstance().getSessionFactory().getCurrentSession().delete(user));
-		final Transaction transaction = Application.getInstance().getSessionFactory().getCurrentSession().getTransaction();
-		if (transaction.isActive()) transaction.commit();
+		deleteUserFromDatabase(userName);
 		
 		final HttpResponse response = registerTestUser(userName);
 		Assert.assertEquals(response.getStatus(), 201);
