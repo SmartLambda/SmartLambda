@@ -32,7 +32,7 @@ import static org.torpedoquery.jpa.Torpedo.where;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IntegrationTest {
-	private static       Thread smartLambdaApplication;
+	private static Thread smartLambdaApplication;
 	private static final String smartLambdaURL     = "http://localhost:8080/";
 	private static final String testUserName       = "IntegrationTestUser";
 	private static       String testUserPrimaryKey = "";
@@ -94,7 +94,7 @@ public class IntegrationTest {
 		body.put("parameters", parameters);
 		body.put("identityProvider", "null");
 		
-		return requestJsonObject(RequestMethod.POST, "register", body, 201, "Created");
+		return requestJsonObject(RequestMethod.POST, "register", "null", "", body, 201, "Created");
 	}
 	
 	public enum RequestMethod {
@@ -104,9 +104,10 @@ public class IntegrationTest {
 	/*
 	 * Creates a Unirest call. expectedStatus or expectedStatusText can be null to not assert any of them.
 	 */
-	private static JsonObject requestJsonObject(final RequestMethod method, final String path, final Map<String, Object> body,
-			final Integer expectedStatus, final String expectedStatusText) throws UnirestException {
-		final HttpResponse<String> response = request(method, path, body);
+	private static JsonObject requestJsonObject(final RequestMethod method, final String path, final String headerName,
+			final String headerValue, final Map<String, Object> body, final Integer expectedStatus, final String expectedStatusText)
+			throws UnirestException {
+		final HttpResponse<String> response = request(method, path, headerName, headerValue, body);
 		if (expectedStatus != null) Assert.assertTrue(expectedStatus == response.getStatus());
 		if (expectedStatusText != null) Assert.assertEquals(expectedStatusText, response.getStatusText());
 		return new Gson().fromJson(response.getBody(), JsonObject.class);
@@ -115,9 +116,10 @@ public class IntegrationTest {
 	/*
 	 * Creates a Unirest call. expectedStatus or expectedStatusText can be null to not assert any of them.
 	 */
-	private static JsonPrimitive requestJsonPrimitive(final RequestMethod method, final String path, final Map<String, Object> body,
-			final Integer expectedStatus, final String expectedStatusText) throws UnirestException {
-		final HttpResponse<String> response = request(method, path, body);
+	private static JsonPrimitive requestJsonPrimitive(final RequestMethod method, final String path, final String headerName,
+			final String headerValue, final Map<String, Object> body, final Integer expectedStatus, final String expectedStatusText)
+			throws UnirestException {
+		final HttpResponse<String> response = request(method, path, headerName, headerValue, body);
 		if (expectedStatus != null) Assert.assertTrue(expectedStatus == response.getStatus());
 		if (expectedStatusText != null) Assert.assertEquals(expectedStatusText, response.getStatusText());
 		return new Gson().fromJson(response.getBody(), JsonPrimitive.class);
@@ -126,30 +128,25 @@ public class IntegrationTest {
 	/**
 	 * Sends a Unirest call to smartLambdaURL with the supplied arguments and header "SmartLambda-Key", testUserPrimaryKey
 	 */
-	private static HttpResponse<String> request(final RequestMethod method, final String path, final Map<String, Object> body)
-			throws UnirestException {
+	private static HttpResponse<String> request(final RequestMethod method, final String path, final String headerName,
+			final String headerValue, final Map<String, Object> body) throws UnirestException {
 		final HttpResponse<String> response;
 		switch (method) {
 			case POST:
-				response = Unirest.post(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
-						.asString();
+				response = Unirest.post(smartLambdaURL + path).header(headerName, headerValue).body(new Gson().toJson(body)).asString();
 				break;
 			case GET:
 				Assert.assertNull(body);
-				response = Unirest.get(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).asString();
+				response = Unirest.get(smartLambdaURL + path).header(headerName, headerValue).asString();
 				break;
 			case PUT:
-				response = Unirest.put(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
-						.asString();
+				response = Unirest.put(smartLambdaURL + path).header(headerName, headerValue).body(new Gson().toJson(body)).asString();
 				break;
 			case PATCH:
-				response = Unirest.patch(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson(body))
-						.asString();
+				response = Unirest.patch(smartLambdaURL + path).header(headerName, headerValue).body(new Gson().toJson(body)).asString();
 				break;
 			case DELETE:
-				response = Unirest.delete(smartLambdaURL + path).header("SmartLambda-Key", testUserPrimaryKey).body(new Gson().toJson
-						(body))
-						.asString();
+				response = Unirest.delete(smartLambdaURL + path).header(headerName, headerValue).body(new Gson().toJson(body)).asString();
 				break;
 			default:
 				response = null;
@@ -171,7 +168,10 @@ public class IntegrationTest {
 	
 	@Test
 	public void _2_createDeveloperKey() throws Exception { //TF020
-		final String key = requestJsonPrimitive(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, null, 201, "Created").getAsString();
+		final String key =
+				requestJsonPrimitive(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, "SmartLambda-Key", testUserPrimaryKey, null,
+						201,
+						"Created").getAsString();
 		Assert.assertNotNull(key);
 		testUserDeveloperKey = key;
 	}
@@ -183,7 +183,9 @@ public class IntegrationTest {
 		body.put("runtime", "jre8");
 		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
 		
-		final JsonObject answer = requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, body, 201, "Created");
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
+						body, 201, "Created");
 		Assert.assertTrue(answer.entrySet().size() == 0);
 	}
 }
