@@ -4,6 +4,9 @@
         <port>8080</port>
         <threads>32</threads>
     </rest>
+    <docker>
+        <socket>unix:///var/run/docker.sock</socket>
+    </docker>
     <runtimes>
         <runtime>edu.teco.smartlambda.runtime.JRE8</runtime>
     </runtimes>
