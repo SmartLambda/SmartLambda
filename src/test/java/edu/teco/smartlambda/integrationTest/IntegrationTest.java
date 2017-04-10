@@ -188,4 +188,12 @@ public class IntegrationTest {
 						body, 201, "Created");
 		Assert.assertTrue(answer.entrySet().size() == 0);
 	}
+	
+	@Test
+	public void _9_deleteLambda() throws Exception { //TF060
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
+						null, 200, "OK");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
 }
