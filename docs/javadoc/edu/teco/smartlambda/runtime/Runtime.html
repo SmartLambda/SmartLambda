@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -137,6 +137,12 @@ var activeTableTab = "activeTableTab";
 <div class="block">Setup the runtime specific configuration of a container</div>
 </td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../edu/teco/smartlambda/runtime/Runtime.html#verifyBinary-byte:A-">verifyBinary</a></span>(byte[]&nbsp;binaryData)</code>
+<div class="block">Verify that a binary file, given as bytes, is a valid lambda executable</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -182,13 +188,29 @@ var activeTableTab = "activeTableTab";
 <a name="getBinaryName--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getBinaryName</h4>
 <pre><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getBinaryName()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the name of the lambda binary file inside the container. It is the same for all lambdas that are of the same runtime</dd>
+</dl>
+</li>
+</ul>
+<a name="verifyBinary-byte:A-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>verifyBinary</h4>
+<pre>boolean&nbsp;verifyBinary(byte[]&nbsp;binaryData)</pre>
+<div class="block">Verify that a binary file, given as bytes, is a valid lambda executable</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>binaryData</code> - the lambda binary content</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true, if the binary is valid, false if it was not a lambda executable</dd>
 </dl>
 </li>
 </ul>
