@@ -156,7 +156,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _1_registerUserViaNullIdentityProvider() throws Exception { //TF010
+	public void _01_registerUserViaNullIdentityProvider() throws Exception { //TF010
 		final String userName = "IntegrationTest.registerUserViaNullIdentityProvider";
 		
 		deleteUserFromDatabase(userName);
@@ -167,7 +167,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _2_createDeveloperKey() throws Exception { //TF020
+	public void _02_createDeveloperKey() throws Exception { //TF020
 		final String key =
 				requestJsonPrimitive(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, "SmartLambda-Key", testUserPrimaryKey, null,
 						201,
@@ -177,7 +177,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _4_deployLambda() throws Exception { //TF024
+	public void _04_deployLambda() throws Exception { //TF024
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("runtime", "jre8");
@@ -190,7 +190,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _9_deleteLambda() throws Exception { //TF060
+	public void _09_deleteLambda() throws Exception { //TF060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						null, 200, "OK");
