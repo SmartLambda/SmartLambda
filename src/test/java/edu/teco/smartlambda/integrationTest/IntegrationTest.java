@@ -182,6 +182,12 @@ public class IntegrationTest {
 	}
 	
 	@Test
+	public void _02b_createDeveloperKeyUnauthorized() throws Exception { //TFU020
+		requestJsonObject(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, "SmartLambda-Key", testUserDeveloperKey, null, 403,
+				"Forbidden");
+	}
+	
+	@Test
 	public void _041_deployLambdaUnauthorized() throws Exception { //TFU024
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
