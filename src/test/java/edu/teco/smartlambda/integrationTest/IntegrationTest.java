@@ -10,6 +10,7 @@ import edu.teco.smartlambda.Application;
 import edu.teco.smartlambda.authentication.entities.Key;
 import edu.teco.smartlambda.authentication.entities.User;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
+import edu.teco.smartlambda.schedule.Event;
 import org.apache.commons.compress.utils.IOUtils;
 import org.hibernate.Session;
 import org.junit.AfterClass;
@@ -19,9 +20,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
@@ -39,6 +43,7 @@ public class IntegrationTest {
 	private static String testUserDeveloperKey;
 	private static final String testUserDeveloperKeyName = "IntegrationTestDeveloper";
 	private static final String testLambdaName           = "IntegrationTestLambda";
+	private static final String testScheduleName         = "IntegrationTestSchedule";
 	
 	@BeforeClass
 	public static void setupUser() throws Exception {
@@ -190,10 +195,39 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _09_deleteLambda() throws Exception { //TF060
+	public void _19_deleteLambda() throws Exception { //TF060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						null, 200, "OK");
 		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
+	@Test
+	public void _12_schedule() throws Exception {
+		final HashMap<String, Object> body           = new HashMap<>();
+		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
+		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
+		body.put("parameters", Collections.singletonMap("demoValue", ""));
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
+						"SmartLambda-Key", testUserPrimaryKey, body, 201, "Created");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+		Assert.assertEquals(this.getNextScheduledExecution(testScheduleName).get(Calendar.HOUR_OF_DAY), schedulingHour);
+	}
+	
+	private Calendar getNextScheduledExecution(final String name) {
+		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		final Event query = from(Event.class);
+		where(query.getName()).eq(name);
+		final Optional<Event> event = select(query).get(session);
+		if (!event.isPresent()) {
+			if (session.getTransaction().isActive()) session.getTransaction().rollback();
+			Assert.fail();
+		}
+		final Calendar result = event.get().getNextExecution();
+		if (session.getTransaction().isActive()) session.getTransaction().rollback();
+		return result;
 	}
 }
