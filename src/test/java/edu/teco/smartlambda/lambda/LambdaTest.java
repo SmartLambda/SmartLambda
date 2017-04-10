@@ -226,6 +226,8 @@ public class LambdaTest {
 		when(registry.getRuntimeByName("runtime")).thenReturn(this.runtime);
 		when(this.runtime.getBinaryName()).thenReturn("binaryName");
 		final byte[] content = {'a'};
+		when(this.runtime.verifyBinary(any())).thenReturn(true);
+		
 		this.lambda.deployBinary(content);
 		verify(builder).storeFile(content, "binaryName");
 		
