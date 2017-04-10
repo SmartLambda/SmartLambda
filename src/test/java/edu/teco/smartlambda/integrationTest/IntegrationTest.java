@@ -203,7 +203,15 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _12_schedule() throws Exception {
+	public void _121_unauthorizedSchedule() throws Exception { //TFU091
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
+						"SmartLambda-Key", testUserDeveloperKey,
+						Collections.singletonMap("parameters", Collections.singletonMap("demoValue", "")), 403, "Forbidden");
+	}
+	
+	@Test
+	public void _12_schedule() throws Exception { //TF091
 		final HashMap<String, Object> body           = new HashMap<>();
 		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
 		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
@@ -217,7 +225,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _13_updateSchedule() throws Exception {
+	public void _13_updateSchedule() throws Exception { //TF092
 		final HashMap<String, Object> body           = new HashMap<>();
 		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
 		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
@@ -230,7 +238,15 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _14_deleteSchedule() throws Exception {
+	public void _141_unauthorizedScheduleDeletion() throws Exception { //TFU093
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
+						"SmartLambda-Key", testUserDeveloperKey, null, 403, "Forbidden");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
+	@Test
+	public void _14_deleteSchedule() throws Exception { //TF093
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
 						"SmartLambda-Key", testUserPrimaryKey, null, 200, "OK");
