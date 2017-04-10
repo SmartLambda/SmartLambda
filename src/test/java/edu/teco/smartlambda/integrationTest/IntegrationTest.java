@@ -182,6 +182,18 @@ public class IntegrationTest {
 	}
 	
 	@Test
+	public void _041_deployLambdaUnauthorized() throws Exception { //TFU024
+		final HashMap<String, Object> body = new HashMap<>();
+		body.put("async", "false");
+		body.put("runtime", "jre8");
+		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserDeveloperKey,
+						body, 403, "Forbidden");
+	}
+	
+	@Test
 	public void _04_deployLambda() throws Exception { //TF024
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
@@ -192,6 +204,14 @@ public class IntegrationTest {
 				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						body, 201, "Created");
 		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
+	@Test
+	public void _191_deleteLambdaUnauthorized() throws Exception { //TFU060
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
+						testUserDeveloperKey,
+						null, 403, "Forbidden");
 	}
 	
 	@Test
