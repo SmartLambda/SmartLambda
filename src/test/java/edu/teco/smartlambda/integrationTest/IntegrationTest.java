@@ -229,6 +229,14 @@ public class IntegrationTest {
 		Assert.assertEquals(this.getNextScheduledExecution(testScheduleName).get(Calendar.HOUR_OF_DAY), schedulingHour);
 	}
 	
+	@Test
+	public void _14_deleteSchedule() throws Exception {
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
+						"SmartLambda-Key", testUserPrimaryKey, null, 200, "OK");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
 	private Calendar getNextScheduledExecution(final String name) {
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
