@@ -161,6 +161,20 @@ public class IntegrationTest {
 	}
 	
 	@Test
+	public void _011_registerUserViaGitHubWithInvalidToken() throws Exception { //TFU010
+		final HashMap<String, Object> body       = new HashMap<>();
+		final HashMap<String, String> parameters = new HashMap<>();
+		parameters.put("accessToken", "INVALID_ACCESS_TOKEN");
+		body.put("parameters", parameters);
+		body.put("identityProvider", "github");
+		
+		final JsonObject answer = requestJsonObject(RequestMethod.POST, "register", "null", "", body, 400, "Bad Request");
+		Assert.assertTrue(answer.has("message"));
+		Assert.assertEquals(answer.get("message").getAsString(), "HTTP/1.1 401 Unauthorized: {\"message\":\"Bad credentials\"," +
+				"\"documentation_url\":\"https://developer.github.com/v3\"}");
+	}
+	
+	@Test
 	public void _01_registerUserViaNullIdentityProvider() throws Exception { //TF010
 		final String userName = "IntegrationTest.registerUserViaNullIdentityProvider";
 		
