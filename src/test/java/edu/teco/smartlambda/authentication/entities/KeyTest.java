@@ -67,6 +67,7 @@ public class KeyTest {
 		
 		when(this.session.get(anyString(), any())).thenReturn(null);
 		when(this.session.get(any(Class.class), any())).thenReturn(null);
+		when(this.session.contains(this.lambda)).thenReturn(true);
 		
 		when(Torpedo.from(any())).thenCallRealMethod();
 		when(Torpedo.select(any(Object.class))).thenReturn(mock(Query.class));
@@ -87,7 +88,8 @@ public class KeyTest {
 		final OnGoingLogicalCondition keyReturnCondition    = mock(OnGoingLogicalCondition.class);
 		final OnGoingLogicalCondition lambdaReturnCondition = mock(OnGoingLogicalCondition.class);
 		
-		doReturn(true).when(key).hasPermission(user, permissionType);
+		//With UserPermission the method would skip Lambda-Permission verification
+		doReturn(false).when(key).hasPermission(user, permissionType);
 		
 		//mock of hasPermission(Lambda, PermissionType) which is the method to test
 		when(Torpedo.where(nullable(Key.class))).thenReturn(

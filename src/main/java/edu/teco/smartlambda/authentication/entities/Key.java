@@ -132,11 +132,14 @@ public class Key {
 	 */
 	public boolean hasPermission(final AbstractLambda lambda, final PermissionType type) {
 		if (this.equals(lambda.getOwner().getPrimaryKey())) return true;
+		if (this.hasPermission(lambda.getOwner(), type))
+			return true;
+		if (!Application.getInstance().getSessionFactory().getCurrentSession().contains(lambda))
+			return false;
 		final Permission permission = from(Permission.class);
 		where(permission.getKey()).eq(this).and(permission.getLambda()).eq(LambdaDecorator.unwrap(lambda))
 				.and(permission.getPermissionType()).eq(type);
-		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty() ||
-				this.hasPermission(lambda.getOwner(), type);
+		return !select(permission).list(Application.getInstance().getSessionFactory().getCurrentSession()).isEmpty();
 	}
 	
 	/**
