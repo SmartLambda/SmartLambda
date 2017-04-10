@@ -184,8 +184,10 @@ public class Lambda extends AbstractLambda {
 	@Override
 	public void deployBinary(final byte[] content) {
 		try {
-			this.ensureBuilder();
-			this.builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
+			if (this.getRuntime().verifyBinary(content)) {
+				this.ensureBuilder();
+				this.builder.storeFile(content, RuntimeRegistry.getInstance().getRuntimeByName(this.runtime).getBinaryName());
+			} else throw new InvalidLambdaException("The provided content is not a valid lambda jar file!");
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

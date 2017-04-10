@@ -16,6 +16,7 @@ import edu.teco.smartlambda.identity.IdentityException;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
+import edu.teco.smartlambda.lambda.InvalidLambdaException;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.controller.KeyController;
@@ -164,6 +165,11 @@ public class Application {
 		
 		Spark.exception(InsufficientPermissionsException.class, (Exception exception, Request request, Response response) -> {
 			response.status(403);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(InvalidLambdaException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 	}
