@@ -216,6 +216,19 @@ public class IntegrationTest {
 		Assert.assertEquals(this.getNextScheduledExecution(testScheduleName).get(Calendar.HOUR_OF_DAY), schedulingHour);
 	}
 	
+	@Test
+	public void _13_updateSchedule() throws Exception {
+		final HashMap<String, Object> body           = new HashMap<>();
+		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
+		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PATCH, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
+						"SmartLambda-Key", testUserPrimaryKey, body, 200, "OK");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+		Assert.assertEquals(this.getNextScheduledExecution(testScheduleName).get(Calendar.HOUR_OF_DAY), schedulingHour);
+	}
+	
 	private Calendar getNextScheduledExecution(final String name) {
 		final Session session = Application.getInstance().getSessionFactory().getCurrentSession();
 		session.beginTransaction();
