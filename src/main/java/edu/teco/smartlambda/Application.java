@@ -28,6 +28,7 @@ import edu.teco.smartlambda.rest.exception.IdentityProviderNotFoundException;
 import edu.teco.smartlambda.rest.exception.InvalidLambdaDefinitionException;
 import edu.teco.smartlambda.rest.exception.LambdaNotFoundException;
 import edu.teco.smartlambda.rest.exception.UserNotFoundException;
+import edu.teco.smartlambda.rest.filter.AccessControlFilter;
 import edu.teco.smartlambda.rest.filter.AuthenticationFilter;
 import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
@@ -67,7 +68,13 @@ public class Application {
 		
 		Spark.before(new SessionStartFilter());
 		Spark.before(new AuthenticationFilter());
+		Spark.before(new AccessControlFilter());
 		Spark.after(new SessionEndFilter());
+		
+		Spark.options("/*", (request, response) -> {
+			response.header("Access-Control-Allow-Headers", "SmartLambda-Key, Content-Type");
+			return new Object();
+		}, gson::toJson);
 		
 		Spark.get("/:user/permissions", PermissionController::readUserPermissions, gson::toJson);
 		Spark.put("/:user/permissions", PermissionController::grantUserPermissions, gson::toJson);
