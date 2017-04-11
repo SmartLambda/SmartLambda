@@ -14,6 +14,7 @@ services:
     image: "mariadb:10.1"
     volumes:
       - ./smartlambda.sql:/docker-entrypoint-initdb.d/smartlambda.sql
+      - ./docker/mariadb.conf.d:/etc/mysql/conf.d
     restart: always
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
