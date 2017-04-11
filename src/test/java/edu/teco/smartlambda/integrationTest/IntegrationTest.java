@@ -108,7 +108,7 @@ public class IntegrationTest {
 	}
 	
 	public enum RequestMethod {
-		GET, POST, PUT, PATCH, DELETE;
+		GET, POST, PUT, PATCH, DELETE
 	}
 	
 	/*
@@ -261,29 +261,31 @@ public class IntegrationTest {
 	
 	@Test
 	public void _08_multiExecuteLambdaWithSameKey() throws Exception { //TF051
-		final int             numberOfExecutors = 10;
-		final ExecutorService threadPool        = Executors.newFixedThreadPool(numberOfExecutors);
-		final LinkedList<Future> futureList = new LinkedList<>();
+		final int                numberOfExecutors = 10;
+		final ExecutorService    threadPool        = Executors.newFixedThreadPool(numberOfExecutors);
+		final LinkedList<Future> futureList        = new LinkedList<>();
 		
 		for (int i = 0; i < numberOfExecutors; i++) {
-			futureList.add(threadPool.submit(() -> {
-				final HashMap<String, Object> body = new HashMap<>();
-				body.put("async", "false");
-				body.put("parameters", Collections.singletonMap("demoValue", "value"));
-				final JsonObject response;
-				try {
-					response = requestJsonObject(RequestMethod.POST, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
-							testUserPrimaryKey, body, 200, "OK");
-					Assert.assertNotNull(response);
-					Assert.assertEquals(response.get("demoReturnValue").getAsString(), "success");
-				} catch (UnirestException e) {
-					Assert.fail();
-				}
-			}));
+			futureList.add(threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey)));
 		}
 		
 		while (!futureList.isEmpty()) {
 			if (futureList.element().isDone()) futureList.remove();
+		}
+	}
+	
+	private void executeDeployedTestLambda(final String key) {
+		final HashMap<String, Object> body = new HashMap<>();
+		body.put("async", "false");
+		body.put("parameters", Collections.singletonMap("demoValue", "value"));
+		final JsonObject response;
+		try {
+			response = requestJsonObject(RequestMethod.POST, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", key, body, 200,
+					"OK");
+			Assert.assertNotNull(response);
+			Assert.assertEquals(response.get("demoReturnValue").getAsString(), "success");
+		} catch (final UnirestException e) {
+			Assert.fail();
 		}
 	}
 	
@@ -355,9 +357,9 @@ public class IntegrationTest {
 	
 	@Test
 	public void _23_addDeveloperPermissions() throws Exception { //TF023
-		final HashMap<String, Object> body             = new HashMap<>();
+		final HashMap<String, Object> body           = new HashMap<>();
 		final HashMap<String, Object> firstParameter = new HashMap<>();
-		final HashMap[]               parameters       = {firstParameter};
+		final HashMap[]               parameters     = {firstParameter};
 		firstParameter.put("user", testUserName);
 		firstParameter.put("name", "*");
 		body.put("execute", parameters);
