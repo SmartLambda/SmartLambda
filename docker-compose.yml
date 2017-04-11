@@ -1,0 +1,22 @@
+version: '2'
+services:
+  smartlambda:
+    build: .
+    ports:
+      - "8080:8080"
+    links:
+      - db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    privileged: true
+  db:
+    image: "mariadb:10.1"
+    volumes:
+      - ./smartlambda.sql:/docker-entrypoint-initdb.d/smartlambda.sql
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: smartlambda
+      MYSQL_USER: smartlambda
+      MYSQL_PASSWORD: smartlambda

@@ -1,0 +1,15 @@
+<smartlambda>
+	<rest>
+		<port>8080</port>
+		<threads>32</threads>
+	</rest>
+	<runtimes>
+		<runtime>edu.teco.smartlambda.runtime.JRE8</runtime>
+	</runtimes>
+	<docker>
+		<socket>unix:///var/run/docker.sock</socket>
+	</docker>
+	<identityProviders>
+		<identityProvider>edu.teco.smartlambda.identity.NullIdentityProvider</identityProvider>
+	</identityProviders>
+</smartlambda>
