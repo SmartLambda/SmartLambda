@@ -232,6 +232,21 @@ public class IntegrationTest {
 	}
 	
 	@Test
+	public void _39_updateLambda() throws Exception { //TF040
+		final HashMap<String, Object> body = new HashMap<>();
+		body.put("async", "false");
+		body.put("runtime", "jre8");
+		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambdaUpdate.jar")));
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PATCH, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
+						body, 200, "OK");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+		
+		this.executeDeployedTestLambda(testUserDeveloperKey, "and still success");
+	}
+	
+	@Test
 	public void _143_deployLambdaTwice() throws Exception {
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
