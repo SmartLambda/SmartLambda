@@ -320,4 +320,19 @@ public class IntegrationTest {
 		if (session.getTransaction().isActive()) session.getTransaction().rollback();
 		return result;
 	}
+	
+	@Test
+	public void _23_addDeveloperPermissions() throws Exception { //TF023
+		final HashMap<String, Object> body             = new HashMap<>();
+		final HashMap<String, Object> firstParameter = new HashMap<>();
+		final HashMap[]               parameters       = {firstParameter};
+		firstParameter.put("user", testUserName);
+		firstParameter.put("name", "*");
+		body.put("execute", parameters);
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, "key/" + testUserDeveloperKeyName + "/permissions", "SmartLambda-Key",
+						testUserPrimaryKey, body, 200, "OK");
+		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
 }
