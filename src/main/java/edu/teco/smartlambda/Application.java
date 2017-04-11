@@ -1,5 +1,6 @@
 package edu.teco.smartlambda;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.google.gson.Gson;
@@ -103,6 +104,11 @@ public class Application {
 			response.status(500);
 			response.body("");
 			exception.printStackTrace();
+		});
+		
+		Spark.exception(JsonMappingException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 		
 		Spark.exception(InvalidFormatException.class, (Exception exception, Request request, Response response) -> {
