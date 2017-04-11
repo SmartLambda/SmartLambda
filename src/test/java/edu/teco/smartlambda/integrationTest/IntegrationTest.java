@@ -244,7 +244,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _191_deleteLambdaUnauthorized() throws Exception { //TFU060
+	public void _391_deleteLambdaUnauthorized() throws Exception { //TFU060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
 						testUserDeveloperKey,
@@ -252,11 +252,25 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _19_deleteLambda() throws Exception { //TF060
+	public void _39_deleteLambda() throws Exception { //TF060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						null, 200, "OK");
 		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
+	@Test
+	public void _26_executeLambda() throws Exception { //TF026
+		this.executeDeployedTestLambda(testUserDeveloperKey);
+	}
+	
+	@Test
+	public void _27_multiExecuteLambdaWithDifferentKeys() throws Exception { //TF050
+		final ExecutorService    threadPool        = Executors.newFixedThreadPool(2);
+		final Future primary = threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey));
+		final Future developer = threadPool.submit(() -> this.executeDeployedTestLambda(testUserDeveloperKey));
+		primary.get();
+		developer.get();
 	}
 	
 	@Test
