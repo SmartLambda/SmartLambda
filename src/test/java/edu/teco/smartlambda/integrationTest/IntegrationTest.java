@@ -227,6 +227,18 @@ public class IntegrationTest {
 	}
 	
 	@Test
+	public void _04b_deployLambdaTwice() throws Exception {
+		final HashMap<String, Object> body = new HashMap<>();
+		body.put("async", "false");
+		body.put("runtime", "jre8");
+		body.put("src", IOUtils.toByteArray(IntegrationTest.class.getClassLoader().getResourceAsStream("lambda.jar")));
+		
+		final JsonObject answer =
+				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
+						body, 409, "Conflict");
+	}
+	
+	@Test
 	public void _191_deleteLambdaUnauthorized() throws Exception { //TFU060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
