@@ -180,7 +180,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _01_registerUserViaNullIdentityProvider() throws Exception { //TF010
+	public void _010_registerUserViaNullIdentityProvider() throws Exception { //TF010
 		final String userName = "IntegrationTest.registerUserViaNullIdentityProvider";
 		
 		deleteUserFromDatabase(userName);
@@ -191,7 +191,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _02_createDeveloperKey() throws Exception { //TF020
+	public void _020_createDeveloperKey() throws Exception { //TF020
 		final String key =
 				requestJsonPrimitive(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, "SmartLambda-Key", testUserPrimaryKey, null,
 						201,
@@ -201,13 +201,13 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _02b_createDeveloperKeyUnauthorized() throws Exception { //TFU020
+	public void _021_createDeveloperKeyUnauthorized() throws Exception { //TFU020
 		requestJsonObject(RequestMethod.PUT, "key/" + testUserDeveloperKeyName, "SmartLambda-Key", testUserDeveloperKey, null, 403,
 				"Forbidden");
 	}
 	
 	@Test
-	public void _041_deployLambdaUnauthorized() throws Exception { //TFU024
+	public void _141_deployLambdaUnauthorized() throws Exception { //TFU024
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("runtime", "jre8");
@@ -219,7 +219,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _04_deployLambda() throws Exception { //TF024
+	public void _142_deployLambda() throws Exception { //TF024
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("runtime", "jre8");
@@ -232,7 +232,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _04b_deployLambdaTwice() throws Exception {
+	public void _143_deployLambdaTwice() throws Exception {
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("runtime", "jre8");
@@ -244,7 +244,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _391_deleteLambdaUnauthorized() throws Exception { //TFU060
+	public void _490_deleteLambdaUnauthorized() throws Exception { //TFU060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
 						testUserDeveloperKey,
@@ -252,7 +252,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _39_deleteLambda() throws Exception { //TF060
+	public void _491_deleteLambda() throws Exception { //TF060
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						null, 200, "OK");
@@ -260,27 +260,27 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _26_executeLambda() throws Exception { //TF026
-		this.executeDeployedTestLambda(testUserDeveloperKey);
+	public void _36_executeLambda() throws Exception { //TF026
+		this.executeDeployedTestLambda(testUserDeveloperKey, "success");
 	}
 	
 	@Test
-	public void _27_multiExecuteLambdaWithDifferentKeys() throws Exception { //TF050
+	public void _37_multiExecuteLambdaWithDifferentKeys() throws Exception { //TF050
 		final ExecutorService    threadPool        = Executors.newFixedThreadPool(2);
-		final Future primary = threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey));
-		final Future developer = threadPool.submit(() -> this.executeDeployedTestLambda(testUserDeveloperKey));
+		final Future primary = threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey, "success"));
+		final Future developer = threadPool.submit(() -> this.executeDeployedTestLambda(testUserDeveloperKey, "success"));
 		primary.get();
 		developer.get();
 	}
 	
 	@Test
-	public void _08_multiExecuteLambdaWithSameKey() throws Exception { //TF051
+	public void _180_multiExecuteLambdaWithSameKey() throws Exception { //TF051
 		final int                numberOfExecutors = 10;
 		final ExecutorService    threadPool        = Executors.newFixedThreadPool(numberOfExecutors);
 		final LinkedList<Future> futureList        = new LinkedList<>();
 		
 		for (int i = 0; i < numberOfExecutors; i++) {
-			futureList.add(threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey)));
+			futureList.add(threadPool.submit(() -> this.executeDeployedTestLambda(testUserPrimaryKey, "success")));
 		}
 		
 		while (!futureList.isEmpty()) {
@@ -288,7 +288,7 @@ public class IntegrationTest {
 		}
 	}
 	
-	private void executeDeployedTestLambda(final String key) {
+	private void executeDeployedTestLambda(final String key, final String demoReturnValue) {
 		final HashMap<String, Object> body = new HashMap<>();
 		body.put("async", "false");
 		body.put("parameters", Collections.singletonMap("demoValue", "value"));
@@ -297,14 +297,14 @@ public class IntegrationTest {
 			response = requestJsonObject(RequestMethod.POST, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", key, body, 200,
 					"OK");
 			Assert.assertNotNull(response);
-			Assert.assertEquals(response.get("demoReturnValue").getAsString(), "success");
+			Assert.assertEquals(response.get("demoReturnValue").getAsString(), demoReturnValue);
 		} catch (final UnirestException e) {
 			Assert.fail();
 		}
 	}
 	
 	@Test
-	public void _121_unauthorizedSchedule() throws Exception { //TFU091
+	public void _220_unauthorizedSchedule() throws Exception { //TFU091
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.PUT, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
 						"SmartLambda-Key", testUserDeveloperKey,
@@ -312,7 +312,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _12_schedule() throws Exception { //TF091
+	public void _221_schedule() throws Exception { //TF091
 		final HashMap<String, Object> body           = new HashMap<>();
 		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
 		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
@@ -326,7 +326,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _13_updateSchedule() throws Exception { //TF092
+	public void _23_updateSchedule() throws Exception { //TF092
 		final HashMap<String, Object> body           = new HashMap<>();
 		final int                     schedulingHour = (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1) % 24;
 		body.put("calendar", "0 0/5 " + schedulingHour + " * * ?");
@@ -339,7 +339,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _141_unauthorizedScheduleDeletion() throws Exception { //TFU093
+	public void _241_unauthorizedScheduleDeletion() throws Exception { //TFU093
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
 						"SmartLambda-Key", testUserDeveloperKey, null, 403, "Forbidden");
@@ -347,7 +347,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _14_deleteSchedule() throws Exception { //TF093
+	public void _242_deleteSchedule() throws Exception { //TF093
 		final JsonObject answer =
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName + "/schedule/" + testScheduleName,
 						"SmartLambda-Key", testUserPrimaryKey, null, 200, "OK");
@@ -370,7 +370,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void _23_addDeveloperPermissions() throws Exception { //TF023
+	public void _33_addDeveloperPermissions() throws Exception { //TF023
 		final HashMap<String, Object> body           = new HashMap<>();
 		final HashMap<String, Object> firstParameter = new HashMap<>();
 		final HashMap[]               parameters     = {firstParameter};
