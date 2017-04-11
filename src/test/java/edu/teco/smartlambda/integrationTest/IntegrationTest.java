@@ -23,9 +23,13 @@ import org.junit.runners.MethodSorters;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.torpedoquery.jpa.Torpedo.from;
 import static org.torpedoquery.jpa.Torpedo.select;
@@ -252,6 +256,34 @@ public class IntegrationTest {
 				requestJsonObject(RequestMethod.DELETE, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key", testUserPrimaryKey,
 						null, 200, "OK");
 		Assert.assertTrue(answer.entrySet().size() == 0);
+	}
+	
+	@Test
+	public void _08_multiExecuteLambdaWithSameKey() throws Exception { //TF051
+		final int             numberOfExecutors = 10;
+		final ExecutorService threadPool        = Executors.newFixedThreadPool(numberOfExecutors);
+		final LinkedList<Future> futureList = new LinkedList<>();
+		
+		for (int i = 0; i < numberOfExecutors; i++) {
+			futureList.add(threadPool.submit(() -> {
+				final HashMap<String, Object> body = new HashMap<>();
+				body.put("async", "false");
+				body.put("parameters", Collections.singletonMap("demoValue", "value"));
+				final JsonObject response;
+				try {
+					response = requestJsonObject(RequestMethod.POST, testUserName + "/lambda/" + testLambdaName, "SmartLambda-Key",
+							testUserPrimaryKey, body, 200, "OK");
+					Assert.assertNotNull(response);
+					Assert.assertEquals(response.get("demoReturnValue").getAsString(), "success");
+				} catch (UnirestException e) {
+					Assert.fail();
+				}
+			}));
+		}
+		
+		while (!futureList.isEmpty()) {
+			if (futureList.element().isDone()) futureList.remove();
+		}
 	}
 	
 	@Test
