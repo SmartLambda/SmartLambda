@@ -51,6 +51,7 @@ public class IntegrationTest {
 		
 		smartLambdaApplication = new Thread(Application::main);
 		smartLambdaApplication.start();
+		Thread.sleep(10000); //Waiting for Application to get ready
 		
 		testUserPrimaryKey = registerTestUser(testUserName).get("primaryKey").getAsString();
 	}
