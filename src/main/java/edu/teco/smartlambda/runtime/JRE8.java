@@ -3,7 +3,10 @@ package edu.teco.smartlambda.runtime;
 import edu.teco.smartlambda.container.ImageBuilder;
 import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 
 /**
  * A {@link Runtime} implementation for Java 8
@@ -35,5 +38,18 @@ public class JRE8 implements Runtime {
 	@Override
 	public String getBinaryName() {
 		return BINARY_NAME;
+	}
+	
+	@Override
+	public boolean verifyBinary(final byte[] binaryData) {
+		try (JarInputStream inputStream = new JarInputStream(new ByteArrayInputStream(binaryData))) {
+			ZipEntry entry;
+			while ((entry = inputStream.getNextEntry()) != null) {
+				if (entry.getName().endsWith("lambda.json")) return true;
+			}
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+		return false;
 	}
 }

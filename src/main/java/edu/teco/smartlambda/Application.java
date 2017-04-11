@@ -1,5 +1,8 @@
 package edu.teco.smartlambda;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.google.gson.Gson;
 import edu.teco.smartlambda.authentication.DuplicateKeyException;
 import edu.teco.smartlambda.authentication.DuplicateUserException;
@@ -16,6 +19,7 @@ import edu.teco.smartlambda.identity.IdentityException;
 import edu.teco.smartlambda.identity.IdentityProviderRegistry;
 import edu.teco.smartlambda.lambda.DuplicateEventException;
 import edu.teco.smartlambda.lambda.DuplicateLambdaException;
+import edu.teco.smartlambda.lambda.InvalidLambdaException;
 import edu.teco.smartlambda.lambda.Lambda;
 import edu.teco.smartlambda.monitoring.MonitoringEvent;
 import edu.teco.smartlambda.rest.controller.KeyController;
@@ -34,6 +38,7 @@ import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.schedule.CronExpressionException;
 import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.schedule.ScheduleManager;
 import org.hibernate.SessionFactory;
@@ -109,6 +114,26 @@ public class Application {
 			exception.printStackTrace();
 		});
 		
+		Spark.exception(CronExpressionException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse("Invalid Cron-Expression: " + exception.getMessage())));
+		});
+		
+		Spark.exception(JsonMappingException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(InvalidFormatException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(UnrecognizedPropertyException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
 		Spark.exception(InvalidLambdaDefinitionException.class, (Exception exception, Request request, Response response) -> {
 			response.status(400);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
@@ -171,6 +196,11 @@ public class Application {
 		
 		Spark.exception(InsufficientPermissionsException.class, (Exception exception, Request request, Response response) -> {
 			response.status(403);
+			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
+		});
+		
+		Spark.exception(InvalidLambdaException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
 			response.body(gson.toJson(new ExceptionResponse(exception.getMessage())));
 		});
 	}
