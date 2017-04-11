@@ -235,7 +235,7 @@ public class PermissionController {
 	}
 	
 	/**
-	 * <code><b>GET</b> /<i>:key</i>/permissions</code>
+	 * <code><b>GET</b> /key/<i>:name</i>/permissions</code>
 	 * <p>
 	 * Lists permissions granted to the specified user. No body parameters are required. See
 	 * {@link PermissionController#readUserPermissions(Request, Response)} for a result example.
@@ -253,7 +253,7 @@ public class PermissionController {
 	}
 	
 	/**
-	 * <code><b>PUT</b> /<i>:key</i>/permissions</code>
+	 * <code><b>PUT</b> /key/<i>:name</i>/permissions</code>
 	 * <p>
 	 * Grants permissions to the specified key. Body must contain a valid list of
 	 * permissions (see {@link PermissionController#readUserPermissions} for an example). Responds with an empty JSON object on success.
@@ -274,7 +274,7 @@ public class PermissionController {
 	}
 	
 	/**
-	 * <code><b>DELETE</b> /<i>:key</i>/permissions</code>
+	 * <code><b>DELETE</b> /key/<i>:name</i>/permissions</code>
 	 * <p>
 	 * Revokes permissions previously granted to the specified key. Body must contain a valid list of
 	 * permissions (see {@link PermissionController#readUserPermissions} for an example). Responds with an empty JSON object on success.
