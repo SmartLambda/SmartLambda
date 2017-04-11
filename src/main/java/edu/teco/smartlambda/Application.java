@@ -37,6 +37,7 @@ import edu.teco.smartlambda.rest.filter.SessionEndFilter;
 import edu.teco.smartlambda.rest.filter.SessionStartFilter;
 import edu.teco.smartlambda.rest.response.ExceptionResponse;
 import edu.teco.smartlambda.runtime.RuntimeRegistry;
+import edu.teco.smartlambda.schedule.CronExpressionException;
 import edu.teco.smartlambda.schedule.Event;
 import edu.teco.smartlambda.schedule.ScheduleManager;
 import org.hibernate.SessionFactory;
@@ -104,6 +105,11 @@ public class Application {
 			response.status(500);
 			response.body("");
 			exception.printStackTrace();
+		});
+		
+		Spark.exception(CronExpressionException.class, (Exception exception, Request request, Response response) -> {
+			response.status(400);
+			response.body(gson.toJson(new ExceptionResponse("Invalid Cron-Expression: " + exception.getMessage())));
 		});
 		
 		Spark.exception(JsonMappingException.class, (Exception exception, Request request, Response response) -> {

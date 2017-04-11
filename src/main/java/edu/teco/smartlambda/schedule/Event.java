@@ -92,7 +92,7 @@ public class Event {
 			
 			this.nextExecution.setTime(new CronExpression(this.cronExpression).getNextValidTimeAfter(new Date()));
 		} catch (final ParseException e) {
-			throw new RuntimeException(e);
+			throw new CronExpressionException(e);
 		}
 	}
 }
