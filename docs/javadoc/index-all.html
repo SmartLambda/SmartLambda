@@ -78,6 +78,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/lambda/AbstractLambda.html#AbstractLambda--">AbstractLambda()</a></span> - Constructor for class edu.teco.smartlambda.lambda.<a href="edu/teco/smartlambda/lambda/AbstractLambda.html" title="class in edu.teco.smartlambda.lambda">AbstractLambda</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="edu/teco/smartlambda/rest/filter/AccessControlFilter.html" title="class in edu.teco.smartlambda.rest.filter"><span class="typeNameLink">AccessControlFilter</span></a> - Class in <a href="edu/teco/smartlambda/rest/filter/package-summary.html">edu.teco.smartlambda.rest.filter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/filter/AccessControlFilter.html#AccessControlFilter--">AccessControlFilter()</a></span> - Constructor for class edu.teco.smartlambda.rest.filter.<a href="edu/teco/smartlambda/rest/filter/AccessControlFilter.html" title="class in edu.teco.smartlambda.rest.filter">AccessControlFilter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="edu/teco/smartlambda/Application.html" title="class in edu.teco.smartlambda"><span class="typeNameLink">Application</span></a> - Class in <a href="edu/teco/smartlambda/package-summary.html">edu.teco.smartlambda</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/container/Container.html#attach-java.io.OutputStream-java.io.OutputStream-">attach(OutputStream, OutputStream)</a></span> - Method in interface edu.teco.smartlambda.container.<a href="edu/teco/smartlambda/container/Container.html" title="interface in edu.teco.smartlambda.container">Container</a></dt>
@@ -564,7 +568,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#grantKeyPermissions-spark.Request-spark.Response-">grantKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
 <dd>
-<div class="block"><code><b>PUT</b> /<i>:key</i>/permissions</code></div>
+<div class="block"><code><b>PUT</b> /key/<i>:name</i>/permissions</code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/Key.html#grantPermission-edu.teco.smartlambda.lambda.AbstractLambda-edu.teco.smartlambda.authentication.entities.PermissionType-">grantPermission(AbstractLambda, PermissionType)</a></span> - Method in class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/Key.html" title="class in edu.teco.smartlambda.authentication.entities">Key</a></dt>
 <dd>
@@ -586,6 +590,8 @@
 </a>
 <h2 class="title">H</h2>
 <dl>
+<dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/filter/AccessControlFilter.html#handle-spark.Request-spark.Response-">handle(Request, Response)</a></span> - Method in class edu.teco.smartlambda.rest.filter.<a href="edu/teco/smartlambda/rest/filter/AccessControlFilter.html" title="class in edu.teco.smartlambda.rest.filter">AccessControlFilter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/filter/AuthenticationFilter.html#handle-spark.Request-spark.Response-">handle(Request, Response)</a></span> - Method in class edu.teco.smartlambda.rest.filter.<a href="edu/teco/smartlambda/rest/filter/AuthenticationFilter.html" title="class in edu.teco.smartlambda.rest.filter">AuthenticationFilter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/filter/SessionEndFilter.html#handle-spark.Request-spark.Response-">handle(Request, Response)</a></span> - Method in class edu.teco.smartlambda.rest.filter.<a href="edu/teco/smartlambda/rest/filter/SessionEndFilter.html" title="class in edu.teco.smartlambda.rest.filter">SessionEndFilter</a></dt>
@@ -862,7 +868,7 @@
 <dl>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#readKeyPermissions-spark.Request-spark.Response-">readKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
 <dd>
-<div class="block"><code><b>GET</b> /<i>:key</i>/permissions</code></div>
+<div class="block"><code><b>GET</b> /key/<i>:name</i>/permissions</code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/LambdaController.html#readLambda-spark.Request-spark.Response-">readLambda(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/LambdaController.html" title="class in edu.teco.smartlambda.rest.controller">LambdaController</a></dt>
 <dd>
@@ -890,7 +896,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/rest/controller/PermissionController.html#revokeKeyPermissions-spark.Request-spark.Response-">revokeKeyPermissions(Request, Response)</a></span> - Static method in class edu.teco.smartlambda.rest.controller.<a href="edu/teco/smartlambda/rest/controller/PermissionController.html" title="class in edu.teco.smartlambda.rest.controller">PermissionController</a></dt>
 <dd>
-<div class="block"><code><b>DELETE</b> /<i>:key</i>/permissions</code></div>
+<div class="block"><code><b>DELETE</b> /key/<i>:name</i>/permissions</code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="edu/teco/smartlambda/authentication/entities/Key.html#revokePermission-edu.teco.smartlambda.lambda.AbstractLambda-edu.teco.smartlambda.authentication.entities.PermissionType-">revokePermission(AbstractLambda, PermissionType)</a></span> - Method in class edu.teco.smartlambda.authentication.entities.<a href="edu/teco/smartlambda/authentication/entities/Key.html" title="class in edu.teco.smartlambda.authentication.entities">Key</a></dt>
 <dd>
